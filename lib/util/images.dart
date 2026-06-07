@@ -186,7 +186,31 @@ class Images {
       'assets/image/forget_page_infography.png';
   static const String notificationIcon = 'assets/image/notification_icon.png';
   static const String mapIcon = 'assets/image/map_icon.png';
-
+  static const String splashScreenBuilding =
+      'assets/image/splash_screen_building.png';
+  static const String splashScreenCar = 'assets/image/splash_screen_car.png';
+  static const String splashScreenPinOne =
+      'assets/image/splash_screen_pin_one.png';
+  static const String splashScreenPinTwo =
+      'assets/image/splash_screen_pin_two.png';
+  static const String splashScreenBanner =
+      'assets/image/splash_screen_banner.png';
+  static const String splashScreenSeven =
+      'assets/image/splash_screen_seven.png';
+  static const String splashScreenTaxiIcon =
+      'assets/image/splash_screen_taxi_icon.png';
+  static const String splashScreenTracker =
+      'assets/image/splash_screen_tracker.png';
+  static const String splashScreenCloud =
+      'assets/image/splash_screen_cloud.png';
+  static const String splashScreenBannerOne =
+      'assets/image/splash_screen_banner_one.png';
+  static const String splashScreenBannerTwo =
+      'assets/image/splash_screen_banner_two.png';
+  static const String splashScreenIconGrp =
+      'assets/image/splash_screen_icon_grp.png';
+  static const String splashScreenSevenTaxiBanner =
+      'assets/image/splash_screen_seven_taxi_banner.png';
 
   //svg
   static const String animatedCar = 'assets/svg/animated_car.svg';

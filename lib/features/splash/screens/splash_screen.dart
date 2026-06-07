@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/features/maintainance_mode/maintainance_screen.dart';
 import 'package:ride_sharing_user_app/features/onboard/screens/onboarding_screen.dart';
@@ -51,13 +50,11 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     Get.find<ConfigController>().initSharedData();
-    _route();
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    // _onConnectivityChanged?.cancel();
     super.dispose();
   }
 
@@ -79,7 +76,6 @@ class _SplashScreenState extends State<SplashScreen>
             textAlign: TextAlign.center,
           ),
         ));
-
         if (isConnected) {
           _route();
         }
@@ -94,7 +90,6 @@ class _SplashScreenState extends State<SplashScreen>
         if (Get.find<AuthController>().getUserToken().isNotEmpty) {
           PusherHelper.initilizePusher();
         }
-
         Future.delayed(const Duration(milliseconds: 100), () {
           if (Get.find<AuthController>().isLoggedIn()) {
             if (Get.find<LocationController>().getUserAddress() != null &&
@@ -110,7 +105,6 @@ class _SplashScreenState extends State<SplashScreen>
                   if (value.body['data']['is_profile_verified'] == 1) {
                     Get.find<AuthController>().remainingFindingRideTime();
                     Get.offAll(() => const DashboardScreen());
-                    // Get.find<RideController>().getCurrentRideStatus();
                   } else {
                     Get.offAll(() => const EditProfileScreen(fromLogin: true));
                   }
@@ -148,24 +142,289 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Color.fromRGBO(255, 0, 0, 1),
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-        appBar: AppBar(
-          backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
-          toolbarHeight: 14,
-          automaticallyImplyLeading: false,
-        ),
-        body: Center(
-          child: Image.asset(Images.logoWithName,
-              height: MediaQuery.of(context).size.height * 0.08),
-        ),
+    return Scaffold(
+      body: SevenTaxiSplashAnimation(
+        onCompleted: _route,
       ),
     );
+  }
+}
+
+class SevenTaxiSplashAnimation extends StatefulWidget {
+  final VoidCallback onCompleted;
+
+  const SevenTaxiSplashAnimation({super.key, required this.onCompleted});
+
+  @override
+  State<SevenTaxiSplashAnimation> createState() =>
+      _SevenTaxiSplashAnimationState();
+}
+
+class _SevenTaxiSplashAnimationState extends State<SevenTaxiSplashAnimation>
+    with TickerProviderStateMixin {
+  late final AnimationController _cloudCtrl;
+  late final AnimationController _contentCtrl;
+  late final Animation<Offset> _contentSlide;
+  late final AnimationController _greenPinCtrl;
+  late final Animation<double> _greenPinScale;
+  late final AnimationController _redPinCtrl;
+  late final Animation<double> _redPinScale;
+  late final AnimationController _taxiCtrl;
+  late final Animation<double> _taxiProgress;
+  late final AnimationController _redRevealCtrl;
+  late final Animation<double> _redReveal;
+
+  bool _revealStarted = false;
+
+  Offset _rippleOrigin = const Offset(0, 0);
+  double _taxiX = -65.0;
+
+  static const double _taxiWidth = 65.0;
+  static const double _taxiHeight = 32.0;
+
+  static const double _bannerHeight = 100.0;
+  static const double _iconGrpHeight = 105.0;
+  static const double _bannerCenterFraction = 0.44;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _cloudCtrl =
+        AnimationController(vsync: this, duration: const Duration(seconds: 15))
+          ..repeat();
+
+    _contentCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1800));
+    _contentSlide =
+        Tween<Offset>(begin: const Offset(-3.0, 0), end: Offset.zero).animate(
+            CurvedAnimation(parent: _contentCtrl, curve: Curves.easeOutCubic));
+
+    _greenPinCtrl =
+        AnimationController(vsync: this, duration: const Duration(seconds: 6));
+    _greenPinScale = Tween<double>(begin: 1, end: 0.5).animate(
+        CurvedAnimation(parent: _greenPinCtrl, curve: Curves.easeInOut));
+
+    _redPinCtrl =
+        AnimationController(vsync: this, duration: const Duration(seconds: 6));
+    _redPinScale = Tween<double>(begin: 0.5, end: 1)
+        .animate(CurvedAnimation(parent: _redPinCtrl, curve: Curves.easeInOut));
+
+    _taxiCtrl =
+        AnimationController(vsync: this, duration: const Duration(seconds: 5));
+    _taxiProgress = CurvedAnimation(parent: _taxiCtrl, curve: Curves.linear);
+
+    _redRevealCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+
+    _redReveal = CurvedAnimation(
+      parent: _redRevealCtrl,
+      curve: Curves.easeInCubic,
+    );
+
+    _startAnimation();
+  }
+
+  Future<void> _startAnimation() async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (!mounted) return;
+    _contentCtrl.forward();
+
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
+    _greenPinCtrl.forward();
+
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
+    _redPinCtrl.forward();
+
+    await Future.delayed(const Duration(milliseconds: 200));
+    if (!mounted) return;
+    _taxiCtrl.forward();
+  }
+
+  void _triggerReveal() async {
+    if (!mounted) return;
+
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    setState(() {
+      _rippleOrigin = Offset(
+        _taxiX + (_taxiWidth * 0.45),
+        screenHeight - (_taxiHeight * 1.2),
+      );
+    });
+
+    bool navigated = false;
+    void maybeNavigate() {
+      if (!navigated && _redRevealCtrl.value >= 0.92) {
+        navigated = true;
+        widget.onCompleted();
+      }
+    }
+
+    _redRevealCtrl.addListener(maybeNavigate);
+    await _redRevealCtrl.forward();
+    maybeNavigate();
+  }
+
+  @override
+  void dispose() {
+    _cloudCtrl.dispose();
+    _contentCtrl.dispose();
+    _greenPinCtrl.dispose();
+    _redPinCtrl.dispose();
+    _taxiCtrl.dispose();
+    _redRevealCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double bannerCenterY = size.height * _bannerCenterFraction;
+    final double bannerTop = bannerCenterY - _bannerHeight / 2;
+    final double iconGrpTop = bannerCenterY - _iconGrpHeight / 2;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: [
+          _buildCloud(size,
+              topFraction: 0.08, startFraction: -0.15, width: 110),
+          _buildCloud(size, topFraction: 0.09, startFraction: 0.55, width: 85),
+          _buildCloud(size, topFraction: 0.17, startFraction: 0.18, width: 95),
+          _buildCloud(size, topFraction: 0.18, startFraction: 0.72, width: 75),
+          _buildCloud(size, topFraction: 0.25, startFraction: -0.05, width: 80),
+          _buildCloud(size, topFraction: 0.26, startFraction: 0.45, width: 90),
+          Positioned(
+            bottom: 0,
+            left: 10,
+            right: 10,
+            child:
+                Image.asset(Images.splashScreenBuilding, fit: BoxFit.fitWidth),
+          ),
+          Positioned(
+            left: 20,
+            bottom: 120,
+            child: ScaleTransition(
+              scale: _greenPinScale,
+              alignment: Alignment.bottomCenter,
+              child: Image.asset(Images.splashScreenPinTwo, width: 35),
+            ),
+          ),
+          Positioned(
+            right: 70,
+            bottom: 145,
+            child: ScaleTransition(
+              scale: _redPinScale,
+              alignment: Alignment.bottomCenter,
+              child: Image.asset(Images.splashScreenPinOne, width: 35),
+            ),
+          ),
+          Positioned(
+            top: bannerTop,
+            left: 108,
+            right: 0,
+            child: SizedBox(
+              height: _bannerHeight,
+              child: Image.asset(Images.splashScreenSevenTaxiBanner,
+                  fit: BoxFit.fill),
+            ),
+          ),
+          Positioned(
+            top: iconGrpTop,
+            left: 0,
+            child: SlideTransition(
+              position: _contentSlide,
+              child: Image.asset(Images.splashScreenIconGrp,
+                  height: _iconGrpHeight),
+            ),
+          ),
+          AnimatedBuilder(
+            animation: _taxiProgress,
+            builder: (_, child) {
+              _taxiX = -65.0 + (size.width + 130) * _taxiProgress.value;
+              if (!_revealStarted && (_taxiX + _taxiWidth) >= size.width) {
+                _revealStarted = true;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _triggerReveal();
+                });
+              }
+              return Positioned(
+                bottom: 0,
+                left: _taxiX,
+                child: child!,
+              );
+            },
+            child: Image.asset(
+              Images.splashScreenCar,
+              width: _taxiWidth,
+            ),
+          ),
+          Positioned.fill(
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _redReveal,
+                builder: (context, _) {
+                  return CustomPaint(
+                    painter: TaxiRippleReveal(
+                      progress: _redReveal.value,
+                      origin: _rippleOrigin,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCloud(Size size,
+      {required double topFraction,
+      required double startFraction,
+      required double width}) {
+    return AnimatedBuilder(
+      animation: _cloudCtrl,
+      builder: (_, __) {
+        double x = size.width * startFraction + size.width * _cloudCtrl.value;
+        x = x % (size.width + width);
+        if (x > size.width) x -= (size.width + width);
+        return Positioned(
+          top: size.height * topFraction,
+          left: x,
+          child: Image.asset(Images.splashScreenCloud,
+              width: width, colorBlendMode: BlendMode.modulate),
+        );
+      },
+    );
+  }
+}
+
+class TaxiRippleReveal extends CustomPainter {
+  final double progress;
+  final Offset origin;
+
+  TaxiRippleReveal({
+    required this.progress,
+    required this.origin,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint()..color = Colors.red.withValues(alpha: progress * 0.25),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant TaxiRippleReveal oldDelegate) {
+    return oldDelegate.progress != progress || oldDelegate.origin != origin;
   }
 }

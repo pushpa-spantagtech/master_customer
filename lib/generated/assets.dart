@@ -313,6 +313,30 @@ class $AssetsImageGen {
       const AssetGenImage('assets/image/splash_logo.png');
   final AssetGenImage splashOne =
       const AssetGenImage('assets/image/splash_one.png');
+  final AssetGenImage splashScreenBanner =
+      const AssetGenImage('assets/image/splash_screen_banner.png');
+  final AssetGenImage splashScreenBannerOne =
+      const AssetGenImage('assets/image/splash_screen_banner_one.png');
+  final AssetGenImage splashScreenBuilding =
+      const AssetGenImage('assets/image/splash_screen_building.png');
+  final AssetGenImage splashScreenCar =
+      const AssetGenImage('assets/image/splash_screen_car.png');
+  final AssetGenImage splashScreenCloud =
+      const AssetGenImage('assets/image/splash_screen_cloud.png');
+  final AssetGenImage splashScreenIconGrp =
+      const AssetGenImage('assets/image/splash_screen_icon_grp.png');
+  final AssetGenImage splashScreenPinOne =
+      const AssetGenImage('assets/image/splash_screen_pin_one.png');
+  final AssetGenImage splashScreenPinTwo =
+      const AssetGenImage('assets/image/splash_screen_pin_two.png');
+  final AssetGenImage splashScreenSeven =
+      const AssetGenImage('assets/image/splash_screen_seven.png');
+  final AssetGenImage splashScreenSevenTaxiBanner =
+      const AssetGenImage('assets/image/splash_screen_seven_taxi_banner.png');
+  final AssetGenImage splashScreenTaxiIcon =
+      const AssetGenImage('assets/image/splash_screen_taxi_icon.png');
+  final AssetGenImage splashScreenTracker =
+      const AssetGenImage('assets/image/splash_screen_tracker.png');
   final AssetGenImage splashTwo =
       const AssetGenImage('assets/image/splash_two.png');
   final AssetGenImage sslCommerz =
