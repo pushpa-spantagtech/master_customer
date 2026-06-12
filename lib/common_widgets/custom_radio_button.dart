@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
 
 class CustomRadioButton extends StatelessWidget {

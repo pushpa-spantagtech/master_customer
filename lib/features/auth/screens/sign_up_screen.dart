@@ -124,7 +124,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     CustomTextField(
                       label: 'phone'.tr,
                       hintText: 'phone'.tr,
-                      inputType: TextInputType.number,
+                      inputType: TextInputType.phone,
                       countryDialCode: authController.countryDialCode,
                       controller: phoneController,
                       focusNode: phoneNode,

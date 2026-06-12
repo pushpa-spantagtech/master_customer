@@ -152,11 +152,33 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    PriceConverter.convertPrice(
-                                      rideController.finalFare!.paidFare! +
-                                          double.parse(
-                                              paymentController.tipAmount),
-                                    ),
+                                    PriceConverter.convertPrice(rideController
+                                            .isLocalRide
+                                        ? (rideController.localFare +
+                                            (rideController.finalFare?.vatTax ??
+                                                0) +
+                                            double.parse(
+                                                paymentController.tipAmount))
+                                        : rideController.isOutstationRide
+                                            ? (rideController.outstationFare +
+                                                (rideController
+                                                        .finalFare?.vatTax ??
+                                                    0) +
+                                                double.parse(paymentController
+                                                    .tipAmount))
+                                            : rideController.isRentalRide
+                                                ? (rideController.rentalPackageFare +
+                                                    (rideController.finalFare
+                                                            ?.vatTax ??
+                                                        0) +
+                                                    double.parse(
+                                                        paymentController
+                                                            .tipAmount))
+                                                : (rideController
+                                                        .finalFare!.paidFare! +
+                                                    double.parse(
+                                                        paymentController
+                                                            .tipAmount))),
                                     style: textSemiBold.copyWith(
                                       fontSize: Dimensions.fontSizeOverLarge,
                                       color: Theme.of(context)

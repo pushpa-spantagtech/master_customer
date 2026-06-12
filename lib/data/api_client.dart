@@ -82,7 +82,6 @@ class ApiClient extends GetxService {
         print('====> API Call: $uri\nHeader: $_mainHeaders');
         print('====> API Body: $body');
       }
-
       print('Full API URL: ${appBaseUrl + uri}');
       http.Response response = await http
           .post(

@@ -6,7 +6,6 @@ import 'package:ride_sharing_user_app/features/location/controllers/location_con
 import 'package:ride_sharing_user_app/features/location/view/access_location_screen.dart';
 import 'package:ride_sharing_user_app/features/location/view/pick_map_screen.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {

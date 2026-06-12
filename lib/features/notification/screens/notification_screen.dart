@@ -8,7 +8,6 @@ import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/paginated_list_widget.dart';
-import 'package:ride_sharing_user_app/util/images.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});

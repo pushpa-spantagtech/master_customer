@@ -8,7 +8,6 @@ import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_control
 import 'package:ride_sharing_user_app/features/set_destination/widget/input_field_for_set_route.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/helper/route_helper.dart';
-import 'package:ride_sharing_user_app/localization/localization_controller.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
@@ -18,16 +17,22 @@ import 'package:ride_sharing_user_app/features/location/view/pick_map_screen.dar
 import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
-import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
-import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
-import 'package:ride_sharing_user_app/common_widgets/divider_widget.dart';
-import 'dart:math' as math;
 
 class SetDestinationScreen extends StatefulWidget {
   final Address? address;
   final String? searchText;
+  final bool isRental;
+  final bool isLocal;
+  final bool isOutstation;
 
-  const SetDestinationScreen({super.key, this.address, this.searchText});
+  const SetDestinationScreen({
+    super.key,
+    this.address,
+    this.searchText,
+    this.isRental = false,
+    this.isLocal = false,
+    this.isOutstation = false,
+  });
 
   @override
   State<SetDestinationScreen> createState() => _SetDestinationScreenState();
@@ -61,6 +66,12 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
             type: LocationType.to);
       });
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<RideController>().setLocalRide(widget.isLocal);
+      Get.find<RideController>().setRentalRide(widget.isRental);
+      Get.find<RideController>().setOutstationRide(widget.isOutstation);
+    });
   }
 
   @override

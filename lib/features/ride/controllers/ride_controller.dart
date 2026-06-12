@@ -41,6 +41,7 @@ enum RideType { car, bike, parcel, luxury }
 
 class RideController extends GetxController implements GetxService {
   final RideServiceInterface rideServiceInterface;
+
   RideController({required this.rideServiceInterface});
 
   RideState currentRideState = RideState.initial;
@@ -68,6 +69,18 @@ class RideController extends GetxController implements GetxService {
   bool isCouponApplicable = false;
   double discountFare = 0;
   double discountAmount = 0;
+  String rentalVehicle = '';
+  int rentalHour = 0;
+  double rentalPackageFare = 0;
+
+  bool isLocalRide = false;
+  bool isRentalRide = false;
+
+  String localVehicle = '';
+  double localFare = 0;
+  bool isOutstationRide = false;
+  String outstationVehicle = '';
+  double outstationFare = 0;
 
   TripDetails? get currentTripDetails => tripDetails;
 
@@ -257,6 +270,15 @@ class RideController extends GetxController implements GetxService {
             ? locController.toAddress!
             : Address();
 
+    print(
+      'isLocalRide=$isLocalRide, '
+      'isRentalRide=$isRentalRide, '
+      'localFare=$localFare, '
+      'rentalPackageFare=$rentalPackageFare, '
+      'estimatedFare=$estimatedFare, '
+      'actualFare=$actualFare',
+    );
+
     Response response = await rideServiceInterface.submitRideRequest(
         pickupLat: pickUpPosition.latitude.toString(),
         pickupLng: pickUpPosition.longitude.toString(),
@@ -282,12 +304,26 @@ class RideController extends GetxController implements GetxService {
             ? parcelEstimatedFare!.data!.estimatedDuration!
                 .replaceFirst('min', '')
             : estimatedDuration,
-        estimatedFare: parcel ? parcelFare : estimatedFare.toString(),
+        estimatedFare: parcel
+            ? parcelFare
+            : isLocalRide
+                ? localFare.toString()
+                : isOutstationRide
+                    ? outstationFare.toString()
+                    : isRentalRide
+                        ? rentalPackageFare.toString()
+                        : estimatedFare.toString(),
         actualFare: parcel
             ? parcelFare
-            : estimatedFare != actualFare
-                ? actualFare.toString()
-                : estimatedFare.toString(),
+            : isLocalRide
+                ? localFare.toString()
+                : isOutstationRide
+                    ? outstationFare.toString()
+                    : isRentalRide
+                        ? rentalPackageFare.toString()
+                        : estimatedFare != actualFare
+                            ? actualFare.toString()
+                            : estimatedFare.toString(),
         bid: parcel ? false : estimatedFare != actualFare,
         note: note,
         paymentMethod: Get.find<PaymentController>()
@@ -566,6 +602,7 @@ class RideController extends GetxController implements GetxService {
   }
 
   Timer? _timer;
+
   void startLocationRecord() {
     ///For First time call next call every 10 seconds.......
     if (Get.find<RideController>().tripDetails != null &&
@@ -686,6 +723,7 @@ class RideController extends GetxController implements GetxService {
 
   String driverLat = '0';
   String driverLng = '0';
+
   Future<void> detDriverLocation(String tripId) async {
     Response response = await rideServiceInterface.arrivalPickupPoint(tripId);
     if (response.statusCode == 200) {
@@ -794,5 +832,20 @@ class RideController extends GetxController implements GetxService {
       stateCount = 3;
     }
     countingTimeStates();
+  }
+
+  void setRentalRide(bool value) {
+    isRentalRide = value;
+    update();
+  }
+
+  void setLocalRide(bool value) {
+    isLocalRide = value;
+    update();
+  }
+
+  void setOutstationRide(bool value) {
+    isOutstationRide = value;
+    update();
   }
 }

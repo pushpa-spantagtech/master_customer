@@ -18,115 +18,156 @@ class FareInputWidget extends StatefulWidget {
   final String fare;
   final double? discountAmount;
   final double? discountFare;
-  const FareInputWidget({super.key, required this.fromRide, required this.fare, required this.expandableKey,this.discountAmount,this.discountFare});
+  const FareInputWidget(
+      {super.key,
+      required this.fromRide,
+      required this.fare,
+      required this.expandableKey,
+      this.discountAmount,
+      this.discountFare});
 
   @override
   State<FareInputWidget> createState() => _FareInputWidgetState();
 }
 
 class _FareInputWidgetState extends State<FareInputWidget> {
-
   @override
   Widget build(BuildContext context) {
     return GetBuilder<RideController>(builder: (rideController) {
       return GetBuilder<ParcelController>(builder: (parcelController) {
         return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          widget.fromRide ?
-          Expanded(child: GestureDetector(
-            onTap: () {
-              if(widget.fromRide) {
-                Get.find<RideController>().updateRideCurrentState(RideState.riseFare);
-              }
-              Get.find<MapController>().notifyMapController();
-            },
-            child: Container(height: 45,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                border: Border.all(color: Theme.of(context).primaryColor,width: 1),
-              ),
-              child: Center(child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment:MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
-                    child: Text(
-                      'fare'.tr,
-                      overflow: TextOverflow.ellipsis,
-                      style: textRegular.copyWith(
-                        fontSize: Dimensions.fontSizeLarge,
-                        color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.9),
-                      ),
+          widget.fromRide
+              ? Expanded(
+                  child: GestureDetector(
+                  onTap: () {
+                    if (widget.fromRide) {
+                      Get.find<RideController>()
+                          .updateRideCurrentState(RideState.riseFare);
+                    }
+                    Get.find<MapController>().notifyMapController();
+                  },
+                  child: Container(
+                    height: 45,
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(Dimensions.radiusSmall),
+                      border: Border.all(
+                          color: Theme.of(context).primaryColor, width: 1),
                     ),
-                  )),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
-                    child: Text(
-                      PriceConverter.convertPrice(
-                        (widget.discountAmount ?? 0) > 0 ?
-                        widget.discountFare! : double.tryParse(widget.fare)!,
-                      ),
-                      style: textMedium.copyWith(
-                        fontSize: Dimensions.fontSizeLarge,
-                        color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.9),
-                      ),
-                    ),
+                    child: Center(
+                        child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                            child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: Dimensions.paddingSizeSmall),
+                          child: Text(
+                            'fare'.tr,
+                            overflow: TextOverflow.ellipsis,
+                            style: textRegular.copyWith(
+                              fontSize: Dimensions.fontSizeLarge,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color
+                                  ?.withValues(alpha: 0.9),
+                            ),
+                          ),
+                        )),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: Dimensions.paddingSizeSmall),
+                          child: Text(
+                            PriceConverter.convertPrice(
+                              (widget.discountAmount ?? 0) > 0
+                                  ? widget.discountFare!
+                                  : double.tryParse(widget.fare)!,
+                            ),
+                            style: textMedium.copyWith(
+                              fontSize: Dimensions.fontSizeLarge,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color
+                                  ?.withValues(alpha: 0.9),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )),
                   ),
-
-                ],
-              )),
-            ),
-          )) :
-          const SizedBox(),
-          if(widget.fromRide)
-          const SizedBox(width: Dimensions.paddingSizeSmall),
-
-          (rideController.isSubmit || parcelController.getSuggested) ?
-          const Center(child: SpinKitCircle(color: Color.fromRGBO(250, 173, 2, 1), size: 40.0)) :
-          Expanded(
-            child:  rideController.isSubmit ?
-            const Center(child: SpinKitCircle(color: Color.fromRGBO(250, 173, 2, 1), size: 40.0)) :
-            Column(children: [
-              if(!widget.fromRide) ...[
-                Divider(color: Theme.of(context).hintColor.withValues(alpha: 0.5)),
-
-                TripFareSummery(
-                  tripFare: double.tryParse(widget.fare)!, fromParcel: false,
-                  discountFare: widget.discountFare!,
-                  discountAmount: widget.discountAmount,
+                ))
+              : const SizedBox(),
+          if (widget.fromRide)
+            const SizedBox(width: Dimensions.paddingSizeSmall),
+          (rideController.isSubmit || parcelController.getSuggested)
+              ? const Center(
+                  child: SpinKitCircle(
+                      color: Color.fromRGBO(250, 173, 2, 1), size: 40.0))
+              : Expanded(
+                  child: rideController.isSubmit
+                      ? const Center(
+                          child: SpinKitCircle(
+                              color: Color.fromRGBO(250, 173, 2, 1),
+                              size: 40.0))
+                      : Column(children: [
+                          if (!widget.fromRide) ...[
+                            Divider(
+                                color: Theme.of(context)
+                                    .hintColor
+                                    .withValues(alpha: 0.5)),
+                            TripFareSummery(
+                              tripFare: double.tryParse(widget.fare)!,
+                              fromParcel: false,
+                              discountFare: widget.discountFare!,
+                              discountAmount: widget.discountAmount,
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
+                          ],
+                          ButtonWidget(
+                            buttonText: widget.fromRide
+                                ? 'find_rider'.tr
+                                : 'find_deliveryman'.tr,
+                            onPressed: () {
+                              if (widget.fromRide) {
+                                rideController
+                                    .submitRideRequest(
+                                        rideController.noteController.text,
+                                        false)
+                                    .then((value) {
+                                  if (value.statusCode == 200) {
+                                    Get.find<AuthController>()
+                                        .saveFindingRideCreatedTime();
+                                    rideController.updateRideCurrentState(
+                                        RideState.findingRider);
+                                    Get.find<MapController>().initializeData();
+                                    Get.find<MapController>()
+                                        .setOwnCurrentLocation();
+                                    Get.find<MapController>()
+                                        .notifyMapController();
+                                  }
+                                });
+                              } else {
+                                parcelController
+                                    .getSuggestedCategoryList()
+                                    .then((value) {
+                                  if (value.statusCode == 200) {
+                                    Get.find<AuthController>()
+                                        .saveFindingRideCreatedTime();
+                                    Get.find<ParcelController>()
+                                        .updateParcelState(
+                                            ParcelDeliveryState.suggestVehicle);
+                                  }
+                                });
+                              }
+                              Get.find<MapController>().notifyMapController();
+                            },
+                            fontSize: Dimensions.fontSizeDefault,
+                          ),
+                        ]),
                 ),
-
-                const SizedBox(height: Dimensions.paddingSizeSmall),
-              ],
-
-              ButtonWidget(
-                buttonText: widget.fromRide ? 'find_rider'.tr : 'find_deliveryman'.tr,
-                onPressed: () {
-                  if(widget.fromRide) {
-                    rideController.submitRideRequest(rideController.noteController.text, false).then((value) {
-                      if(value.statusCode == 200) {
-                        Get.find<AuthController>().saveFindingRideCreatedTime();
-                        rideController.updateRideCurrentState(RideState.findingRider);
-                        Get.find<MapController>().initializeData();
-                        Get.find<MapController>().setOwnCurrentLocation();
-                        Get.find<MapController>().notifyMapController();
-                      }
-                    });
-                  }else {
-                    parcelController.getSuggestedCategoryList().then((value) {
-                      if(value.statusCode == 200){
-                        Get.find<AuthController>().saveFindingRideCreatedTime();
-                        Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.suggestVehicle);
-                      }
-                    });
-                  }
-                  Get.find<MapController>().notifyMapController();
-                },
-                fontSize: Dimensions.fontSizeDefault,
-              ),
-            ]),
-          ),
         ]);
       });
     });

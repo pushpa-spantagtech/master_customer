@@ -6,7 +6,6 @@ import 'package:ride_sharing_user_app/features/auth/screens/sign_in_screen.dart'
 import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
 import 'package:ride_sharing_user_app/features/auth/screens/reset_password_screen.dart';
 import 'package:ride_sharing_user_app/features/auth/screens/verification_screen.dart';
-import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/profile/screens/edit_profile_screen.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';

@@ -7,7 +7,13 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 import 'package:ride_sharing_user_app/features/set_destination/screens/set_destination_screen.dart';
 
 class HomeSearchWidget extends StatelessWidget {
-  const HomeSearchWidget({super.key});
+  final bool isLocal;
+  final bool isOutstation;
+  const HomeSearchWidget({
+    super.key,
+    this.isLocal = false,
+    this.isOutstation = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +70,12 @@ class HomeSearchWidget extends StatelessWidget {
           ),
         ),
         prefixIcon: IconButton(
-          onPressed: () => Get.to(() => const SetDestinationScreen()),
+          onPressed: () => Get.to(
+            () => SetDestinationScreen(
+              isLocal: isLocal,
+              isOutstation: isOutstation,
+            ),
+          ),
           icon: Image.asset(
             Images.homeSearchIcon,
             color: Get.isDarkMode ? Theme.of(context).hintColor : null,
@@ -73,7 +84,10 @@ class HomeSearchWidget extends StatelessWidget {
           ),
         ),
       ),
-      onTap: () => Get.to(() => const SetDestinationScreen()),
+      onTap: () => Get.to(
+        () =>
+            SetDestinationScreen(isLocal: isLocal, isOutstation: isOutstation),
+      ),
     );
   }
 }

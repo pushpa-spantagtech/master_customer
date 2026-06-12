@@ -8,7 +8,6 @@ import 'package:ride_sharing_user_app/features/profile/widgets/profile_item.dart
 import 'package:ride_sharing_user_app/features/settings/screens/setting_screen.dart';
 import 'package:ride_sharing_user_app/features/support/support_screen.dart';
 import 'package:ride_sharing_user_app/features/trip/screens/trip_screen.dart';
-import 'package:ride_sharing_user_app/util/app_constants.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
@@ -17,7 +16,6 @@ import 'package:ride_sharing_user_app/features/auth/controllers/auth_controller.
 import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 import 'package:ride_sharing_user_app/features/profile/screens/edit_profile_screen.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
-import 'package:ride_sharing_user_app/features/wallet/screens/wallet_screen.dart';
 import 'package:ride_sharing_user_app/common_widgets/confirmation_dialog_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';

@@ -1,11 +1,13 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/features/coupon/controllers/coupon_controller.dart';
+import 'package:ride_sharing_user_app/features/home/screens/ride_bottom_sheet.dart';
 import 'package:ride_sharing_user_app/features/home/widgets/banner_view.dart';
 import 'package:ride_sharing_user_app/features/home/widgets/best_offers_widget.dart';
 import 'package:ride_sharing_user_app/features/home/widgets/coupon_home_widget.dart';
-import 'package:ride_sharing_user_app/features/home/widgets/home_map_view.dart';
-import 'package:ride_sharing_user_app/features/home/widgets/home_search_widget.dart';
 import 'package:ride_sharing_user_app/features/my_offer/controller/offer_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/driver_request_dialog.dart';
@@ -17,10 +19,10 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 import 'package:ride_sharing_user_app/features/address/controllers/address_controller.dart';
 import 'package:ride_sharing_user_app/features/home/controllers/banner_controller.dart';
 import 'package:ride_sharing_user_app/features/home/controllers/category_controller.dart';
-import 'package:ride_sharing_user_app/features/home/widgets/home_my_address.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
+import 'package:geolocator/geolocator.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,6 +32,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  GoogleMapController? _mapController;
   String greetingMessage() {
     var timeNow = DateTime.now().hour;
     if (timeNow <= 12) {
@@ -129,73 +132,176 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        children: [
-                          GetBuilder<BannerController>(
-                            builder: (bannerController) {
-                              return bannerController.bannerList != null &&
-                                      bannerController.bannerList!.isNotEmpty
-                                  ? const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 8.0,
-                                        horizontal: 2,
-                                      ),
-                                      child: BannerView(),
-                                    )
-                                  : const SizedBox();
-                            },
-                          ),
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          bottom: Get.height * 0.35,
+                        ),
+                        child: Column(
+                          children: [
+                            GetBuilder<BannerController>(
+                              builder: (bannerController) {
+                                return bannerController.bannerList != null &&
+                                        bannerController.bannerList!.isNotEmpty
+                                    ? const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 8.0,
+                                          horizontal: 2,
+                                        ),
+                                        child: BannerView(),
+                                      )
+                                    : const SizedBox();
+                              },
+                            ),
+                            // const Padding(
+                            //   padding: EdgeInsets.all(8.0),
+                            //   child: HomeSearchWidget(),
+                            // ),
+                            SizedBox(
+                              height: Get.height * 0.45,
+                              child: GetBuilder<LocationController>(
+                                builder: (locationController) {
+                                  if (locationController.getUserAddress() ==
+                                      null) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
 
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: HomeSearchWidget(),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: HomeMapView(),
-                          ),
-                          // HomeMyAddress(addressPage: AddressPage.home),
-                          GetBuilder<OfferController>(
-                            builder: (offerController) {
-                              return offerController.bestOfferModel != null &&
-                                      offerController.bestOfferModel!.data !=
-                                          null &&
-                                      offerController
-                                          .bestOfferModel!.data!.isNotEmpty
-                                  ? const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal:
-                                              Dimensions.paddingSizeEight,
-                                          vertical: 4),
-                                      child: BestOfferWidget(),
-                                    )
-                                  : const SizedBox();
-                            },
-                          ),
-                          GetBuilder<CouponController>(
-                            builder: (couponController) {
-                              return couponController.couponModel != null &&
-                                      couponController.couponModel!.data !=
-                                          null &&
-                                      couponController
-                                          .couponModel!.data!.isNotEmpty
-                                  ? const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal:
-                                              Dimensions.paddingSizeEight,
-                                          vertical: 4),
-                                      child: HomeCouponWidget(),
-                                    )
-                                  : const SizedBox();
-                            },
-                          ),
-                        ],
+                                  return Stack(
+                                    children: [
+                                      GoogleMap(
+                                        compassEnabled: true,
+                                        myLocationEnabled: true,
+                                        myLocationButtonEnabled: false,
+                                        zoomControlsEnabled: false,
+                                        zoomGesturesEnabled: true,
+                                        scrollGesturesEnabled: true,
+                                        rotateGesturesEnabled: true,
+                                        tiltGesturesEnabled: true,
+                                        onMapCreated:
+                                            (GoogleMapController controller) {
+                                          _mapController = controller;
+                                        },
+                                        gestureRecognizers: <Factory<
+                                            OneSequenceGestureRecognizer>>{
+                                          Factory<OneSequenceGestureRecognizer>(
+                                            () => EagerGestureRecognizer(),
+                                          ),
+                                        },
+                                        initialCameraPosition: CameraPosition(
+                                          target: LatLng(
+                                            locationController
+                                                .getUserAddress()!
+                                                .latitude!,
+                                            locationController
+                                                .getUserAddress()!
+                                                .longitude!,
+                                          ),
+                                          zoom: 16,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 10,
+                                        right: 10,
+                                        child: Material(
+                                          elevation: 5,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: InkWell(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            onTap: () async {
+                                              Position position =
+                                                  await Geolocator
+                                                      .getCurrentPosition(
+                                                desiredAccuracy:
+                                                    LocationAccuracy.high,
+                                              );
+
+                                              await _mapController
+                                                  ?.animateCamera(
+                                                CameraUpdate.newCameraPosition(
+                                                  CameraPosition(
+                                                    target: LatLng(
+                                                      position.latitude,
+                                                      position.longitude,
+                                                    ),
+                                                    zoom: 16,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              width: 48,
+                                              height: 48,
+                                              decoration: BoxDecoration(
+                                                color: const Color.fromRGBO(
+                                                    250, 173, 2, 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: const Icon(
+                                                Icons.my_location,
+                                                color: Color(0xFFFFFFFF),
+                                                size: 24,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                            GetBuilder<OfferController>(
+                              builder: (offerController) {
+                                return offerController.bestOfferModel != null &&
+                                        offerController.bestOfferModel!.data !=
+                                            null &&
+                                        offerController
+                                            .bestOfferModel!.data!.isNotEmpty
+                                    ? const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal:
+                                                Dimensions.paddingSizeEight,
+                                            vertical: 4),
+                                        child: BestOfferWidget(),
+                                      )
+                                    : const SizedBox();
+                              },
+                            ),
+                            GetBuilder<CouponController>(
+                              builder: (couponController) {
+                                return couponController.couponModel != null &&
+                                        couponController.couponModel!.data !=
+                                            null &&
+                                        couponController
+                                            .couponModel!.data!.isNotEmpty
+                                    ? const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal:
+                                                Dimensions.paddingSizeEight,
+                                            vertical: 4),
+                                        child: HomeCouponWidget(),
+                                      )
+                                    : const SizedBox();
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
                 });
               });
             }),
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: RideBottomSheet(),
+            ),
             (rideCount + parcelCount) != 0
                 ? Positioned(
                     child: Align(

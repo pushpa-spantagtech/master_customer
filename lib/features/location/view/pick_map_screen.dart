@@ -113,8 +113,16 @@ class _PickMapScreenState extends State<PickMapScreen> {
               left: Dimensions.paddingSizeSmall,
               right: Dimensions.paddingSizeSmall,
               child: InkWell(
-                onTap: () => Get.dialog(LocationSearchDialog(
-                    mapController: _mapController!, type: widget.type)),
+                onTap: _mapController == null
+                    ? null
+                    : () {
+                        Get.dialog(
+                          LocationSearchDialog(
+                            mapController: _mapController!,
+                            type: widget.type,
+                          ),
+                        );
+                      },
                 child: Container(
                   height: 50,
                   padding: const EdgeInsets.symmetric(
