@@ -1,5 +1,4 @@
 abstract class RepositoryInterface<T> {
-
   Future<dynamic> add(T value);
 
   Future<dynamic> update(T value, {int? id});

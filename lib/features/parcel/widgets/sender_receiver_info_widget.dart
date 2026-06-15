@@ -11,32 +11,44 @@ class SenderReceiverInfoWidget extends StatefulWidget {
   const SenderReceiverInfoWidget({super.key, required this.expandableKey});
 
   @override
-  State<SenderReceiverInfoWidget> createState() => _SenderReceiverInfoWidgetState();
+  State<SenderReceiverInfoWidget> createState() =>
+      _SenderReceiverInfoWidgetState();
 }
-class _SenderReceiverInfoWidgetState extends State<SenderReceiverInfoWidget> {
 
+class _SenderReceiverInfoWidgetState extends State<SenderReceiverInfoWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+      padding:
+          const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
       child: GetBuilder<ParcelController>(builder: (parcelController) {
         return Column(mainAxisSize: MainAxisSize.min, children: [
-
-          Container(width: MediaQuery.of(context).size.width * 0.7, height: 45,
-            decoration: BoxDecoration(border: Border.all(color: Theme.of(context).primaryColor),
-              borderRadius: BorderRadius.circular(Dimensions.radiusDefault + 2),),
-            child: TabBar(padding: EdgeInsets.zero,
+          Container(
+            width: MediaQuery.of(context).size.width * 0.7,
+            height: 45,
+            decoration: BoxDecoration(
+              border: Border.all(color: Theme.of(context).primaryColor),
+              borderRadius: BorderRadius.circular(Dimensions.radiusDefault + 2),
+            ),
+            child: TabBar(
+              padding: EdgeInsets.zero,
               dividerHeight: 0,
               indicatorSize: TabBarIndicatorSize.tab,
               controller: parcelController.tabController,
               unselectedLabelColor: Colors.grey,
-              labelColor:  Colors.white,
+              labelColor: Colors.white,
               labelStyle: textMedium.copyWith(),
               indicatorColor: Theme.of(context).primaryColor,
-              indicator:  BoxDecoration(color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
-              tabs:  [
-                SizedBox(height: 30, child: Tab(text: 'sender_info'.tr,)),
+              indicator: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.radiusDefault)),
+              tabs: [
+                SizedBox(
+                    height: 30,
+                    child: Tab(
+                      text: 'sender_info'.tr,
+                    )),
                 SizedBox(height: 30, child: Tab(text: 'receiver_info'.tr)),
               ],
               onTap: (index) {
@@ -44,12 +56,11 @@ class _SenderReceiverInfoWidgetState extends State<SenderReceiverInfoWidget> {
               },
             ),
           ),
-
-          ParcelInfoWidget(isSender: parcelController.tabController.index == 0, expandableKey: widget.expandableKey),
-
+          ParcelInfoWidget(
+              isSender: parcelController.tabController.index == 0,
+              expandableKey: widget.expandableKey),
         ]);
       }),
     );
   }
-
 }

@@ -19,67 +19,84 @@ class ParcelItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ParcelController>(builder: (parcelController){
+    return GetBuilder<ParcelController>(builder: (parcelController) {
       return GetBuilder<RideController>(builder: (rideController) {
         return InkWell(
-          onTap: (){
+          onTap: () {
             parcelController.setParcelLoadingActive(index);
-            if(rideRequest.currentStatus == "accepted"){
-              Get.find<RideController>().getRideDetails(rideRequest.id!).then((value){
-                if(value.statusCode == 200){
+            if (rideRequest.currentStatus == "accepted") {
+              Get.find<RideController>()
+                  .getRideDetails(rideRequest.id!)
+                  .then((value) {
+                if (value.statusCode == 200) {
                   parcelController.setParcelLoadingDeactive(index);
-                  Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.otpSent);
+                  Get.find<ParcelController>()
+                      .updateParcelState(ParcelDeliveryState.otpSent);
                   Get.find<RideController>().startLocationRecord();
                   Get.find<MapController>().notifyMapController();
-                  Get.to(() => const MapScreen(fromScreen: MapScreenType.parcel));
+                  Get.to(
+                      () => const MapScreen(fromScreen: MapScreenType.parcel));
                 }
               });
-            }else{
-              if(rideRequest.paymentStatus == 'paid'){
+            } else {
+              if (rideRequest.paymentStatus == 'paid') {
                 rideController.getFinalFare(rideRequest.id!).then((value) {
-                  if(value.statusCode == 200){
-                    rideController.getRideDetails(rideRequest.id!).then((value){
-                      if(value.statusCode == 200){
-                        Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.parcelOngoing);
+                  if (value.statusCode == 200) {
+                    rideController
+                        .getRideDetails(rideRequest.id!)
+                        .then((value) {
+                      if (value.statusCode == 200) {
+                        Get.find<ParcelController>().updateParcelState(
+                            ParcelDeliveryState.parcelOngoing);
                         Get.find<RideController>().startLocationRecord();
                         parcelController.setParcelLoadingDeactive(index);
-                        Get.to(()=> const MapScreen(fromScreen: MapScreenType.parcel));
+                        Get.to(() =>
+                            const MapScreen(fromScreen: MapScreenType.parcel));
                       }
                     });
                   }
                 });
-
-              }else{
-                if(rideRequest.parcelInformation!.payer == 'sender' && rideRequest.driver != null){
+              } else {
+                if (rideRequest.parcelInformation!.payer == 'sender' &&
+                    rideRequest.driver != null) {
                   rideController.getFinalFare(rideRequest.id!).then((value) {
-                    if(value.statusCode == 200){
-                      rideController.getRideDetails(rideRequest.id!).then((value){
-                        if(value.statusCode == 200){
-                          Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.parcelOngoing);
+                    if (value.statusCode == 200) {
+                      rideController
+                          .getRideDetails(rideRequest.id!)
+                          .then((value) {
+                        if (value.statusCode == 200) {
+                          Get.find<ParcelController>().updateParcelState(
+                              ParcelDeliveryState.parcelOngoing);
                           Get.find<RideController>().startLocationRecord();
                           parcelController.setParcelLoadingDeactive(index);
-                          Get.off(()=>const PaymentScreen(fromParcel: true));
+                          Get.off(() => const PaymentScreen(fromParcel: true));
                         }
                       });
                     }
                   });
-                }else{
-                  if(rideRequest.driver != null){
-                    rideController.getRideDetails(rideRequest.id!).then((value){
-                      if(value.statusCode == 200){
+                } else {
+                  if (rideRequest.driver != null) {
+                    rideController
+                        .getRideDetails(rideRequest.id!)
+                        .then((value) {
+                      if (value.statusCode == 200) {
                         Get.find<MapController>().getPolyline();
-                        Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.parcelOngoing);
+                        Get.find<ParcelController>().updateParcelState(
+                            ParcelDeliveryState.parcelOngoing);
                         parcelController.setParcelLoadingDeactive(index);
-                        Get.to(() => const MapScreen(fromScreen: MapScreenType.parcel));
+                        Get.to(() =>
+                            const MapScreen(fromScreen: MapScreenType.parcel));
                       }
                     });
-                  }else{
+                  } else {
                     rideController.getRideDetails(rideRequest.id!);
-                    Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.findingRider);
+                    Get.find<ParcelController>()
+                        .updateParcelState(ParcelDeliveryState.findingRider);
                     Get.find<RideController>().startLocationRecord();
                     Get.find<MapController>().notifyMapController();
                     parcelController.setParcelLoadingDeactive(index);
-                    Get.to(() => const MapScreen(fromScreen: MapScreenType.parcel));
+                    Get.to(() =>
+                        const MapScreen(fromScreen: MapScreenType.parcel));
                   }
                 }
               }
@@ -93,64 +110,77 @@ class ParcelItem extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.paddingSizeSmall),
                   color: Theme.of(context).cardColor,
-                  boxShadow: [BoxShadow(
-                    color: Theme.of(context).hintColor.withValues(alpha: .20),blurRadius: 1,
-                    spreadRadius: 1,offset: const Offset(1,1),
-                  )]
-              ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).hintColor.withValues(alpha: .20),
+                      blurRadius: 1,
+                      spreadRadius: 1,
+                      offset: const Offset(1, 1),
+                    )
+                  ]),
               child: Row(children: [
                 Container(
                   decoration: BoxDecoration(
                       color: Theme.of(context).hintColor.withValues(alpha: .15),
-                      borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall)
-                  ),
-                  height: Dimensions.orderStatusIconHeight,width: Dimensions.orderStatusIconHeight,
-                  child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                      borderRadius: BorderRadius.circular(
+                          Dimensions.paddingSizeExtraSmall)),
+                  height: Dimensions.orderStatusIconHeight,
+                  width: Dimensions.orderStatusIconHeight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                     child: Image.asset(
-                      rideRequest.currentStatus == 'pending' ?
-                      Images.searchImageIcon :
-                      Images.parcel,
+                      rideRequest.currentStatus == 'pending'
+                          ? Images.searchImageIcon
+                          : Images.parcel,
                     ),
                   ),
                 ),
                 const SizedBox(width: Dimensions.paddingSizeDefault),
-
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Text('${'parcel'.tr} # ${rideRequest.refId}',style: textMedium),
-
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 3,
-                        horizontal: Dimensions.paddingSizeExtraSmall,
+                Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('${'parcel'.tr} # ${rideRequest.refId}',
+                                style: textMedium),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 3,
+                                horizontal: Dimensions.paddingSizeExtraSmall,
+                              ),
+                              decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .primaryColor
+                                      .withValues(alpha: 0.25),
+                                  borderRadius: BorderRadius.circular(
+                                      Dimensions.paddingSizeExtraSmall)),
+                              child: Text(
+                                rideRequest.currentStatus == 'pending'
+                                    ? 'searching_driver'.tr
+                                    : 'on_the_way'.tr,
+                                style: textRegular.copyWith(
+                                    fontSize: Dimensions.fontSizeExtraSmall),
+                              ),
+                            )
+                          ]),
+                      Text(
+                        DateConverter.isoStringToDateTimeString(
+                            rideRequest.createdAt!),
+                        style: textRegular.copyWith(
+                          color: Theme.of(context)
+                              .hintColor
+                              .withValues(alpha: .85),
+                          fontSize: Dimensions.fontSizeSmall,
+                        ),
                       ),
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withValues(alpha: 0.25),
-                          borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall)
-                      ),
-                      child: Text(
-                        rideRequest.currentStatus == 'pending' ? 'searching_driver'.tr : 'on_the_way'.tr,
-                        style: textRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall),
-                      ),
-                    )
-                  ]),
-
-                  Text(DateConverter.isoStringToDateTimeString(rideRequest.createdAt!),
-                    style: textRegular.copyWith(
-                      color: Theme.of(context).hintColor.withValues(alpha: .85),
-                      fontSize: Dimensions.fontSizeSmall,
-                    ),
-                  ),
-
-                  Text('${'total'.tr} ${PriceConverter.convertPrice(
-                      (rideRequest.parcelInformation?.payer == 'sender' && rideRequest.currentStatus == 'ongoing') ?
-                      rideRequest.paidFare! :
-                      rideRequest.discountActualFare! > 0 ?
-                      rideRequest.discountActualFare! : rideRequest.actualFare!
-                  )}'),
-                ])),
+                      Text(
+                          '${'total'.tr} ${PriceConverter.convertPrice((rideRequest.parcelInformation?.payer == 'sender' && rideRequest.currentStatus == 'ongoing') ? rideRequest.paidFare! : rideRequest.discountActualFare! > 0 ? rideRequest.discountActualFare! : rideRequest.actualFare!)}'),
+                    ])),
               ]),
             ),
           ),
@@ -158,5 +188,4 @@ class ParcelItem extends StatelessWidget {
       });
     });
   }
-
 }

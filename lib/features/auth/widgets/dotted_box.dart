@@ -7,7 +7,8 @@ class DottedBorderBox extends StatelessWidget {
   final double? height;
   final double? width;
   final Function() onTap;
-  const DottedBorderBox({super.key, required this.onTap, this.height=100, this.width=100});
+  const DottedBorderBox(
+      {super.key, required this.onTap, this.height = 100, this.width = 100});
 
   @override
   Widget build(BuildContext context) {
@@ -19,19 +20,34 @@ class DottedBorderBox extends StatelessWidget {
       radius: const Radius.circular(10),
       child: GestureDetector(
         onTap: onTap,
-        child: SizedBox(height: height, width: width,
+        child: SizedBox(
+          height: height,
+          width: width,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.cloud_upload_rounded,
-                  color: Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.6),
+                Icon(
+                  Icons.cloud_upload_rounded,
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .color!
+                      .withValues(alpha: 0.6),
                   size: 30,
                 ),
-                const SizedBox(height: 5,),
-                Text("upload_file".tr,
-                  style: textMedium.copyWith(fontSize: 12,
-                    color: Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.6),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  "upload_file".tr,
+                  style: textMedium.copyWith(
+                    fontSize: 12,
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .color!
+                        .withValues(alpha: 0.6),
                   ),
                 ),
               ],

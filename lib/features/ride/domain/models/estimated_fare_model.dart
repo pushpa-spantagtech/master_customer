@@ -3,12 +3,11 @@ class EstimatedFareModel {
   String? message;
   List<FareModel>? data;
 
-
-  EstimatedFareModel(
-      {this.responseCode,
-        this.message,
-        this.data,
-       });
+  EstimatedFareModel({
+    this.responseCode,
+    this.message,
+    this.data,
+  });
 
   EstimatedFareModel.fromJson(Map<String, dynamic> json) {
     responseCode = json['response_code'];
@@ -19,7 +18,6 @@ class EstimatedFareModel {
         data!.add(FareModel.fromJson(v));
       });
     }
-
   }
 
   Map<String, dynamic> toJson() {
@@ -47,30 +45,28 @@ class FareModel {
   double? estimatedFare;
   double? discountFare;
   double? discountAmount;
-  bool?   couponApplicable;
+  bool? couponApplicable;
   String? requestType;
   String? polyline;
   String? areaId;
 
-
   FareModel(
       {this.id,
-        this.zoneId,
-        this.vehicleCategoryId,
-        this.vehicleCategoryType,
-        this.baseFare,
-        this.baseFarePerKm,
-        this.fare,
-        this.estimatedDistance,
-        this.estimatedDuration,
-        this.estimatedFare,
-        this.requestType,
-        this.polyline,
-        this.areaId,
-        this.discountAmount,
-        this.couponApplicable,
-        this.discountFare
-      });
+      this.zoneId,
+      this.vehicleCategoryId,
+      this.vehicleCategoryType,
+      this.baseFare,
+      this.baseFarePerKm,
+      this.fare,
+      this.estimatedDistance,
+      this.estimatedDuration,
+      this.estimatedFare,
+      this.requestType,
+      this.polyline,
+      this.areaId,
+      this.discountAmount,
+      this.couponApplicable,
+      this.discountFare});
 
   FareModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];

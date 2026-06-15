@@ -17,21 +17,21 @@ class WhoWillPayButton extends StatefulWidget {
 class _WhoWillPayButtonState extends State<WhoWillPayButton> {
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ParcelController>(builder: (parcelController){
+    return GetBuilder<ParcelController>(builder: (parcelController) {
       return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Dimensions.radiusOverLarge),
           color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.1),
         ),
-        padding: const EdgeInsets.fromLTRB(Dimensions.paddingSizeDefault, 3, 3, 3),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        padding:
+            const EdgeInsets.fromLTRB(Dimensions.paddingSizeDefault, 3, 3, 3),
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Row(children: [
             Image.asset(Images.parcel, width: 18),
             const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
             Text('who_will_pay'.tr),
           ]),
-
           Row(children: [
             InkWell(
               onTap: () {
@@ -40,10 +40,14 @@ class _WhoWillPayButtonState extends State<WhoWillPayButton> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.radiusOverLarge),
-                  color: parcelController.payReceiver?
-                  Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.1):
-                  Theme.of(context).primaryColor,
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.radiusOverLarge),
+                  color: parcelController.payReceiver
+                      ? Theme.of(context)
+                          .colorScheme
+                          .onPrimary
+                          .withValues(alpha: 0.1)
+                      : Theme.of(context).primaryColor,
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: Dimensions.paddingSizeSeven,
@@ -53,15 +57,14 @@ class _WhoWillPayButtonState extends State<WhoWillPayButton> {
                   'sender_pay'.tr,
                   style: textRegular.copyWith(
                     fontSize: Dimensions.fontSizeSmall,
-                    color: parcelController.payReceiver ?
-                    Theme.of(context).textTheme.displayLarge!.color :
-                    Colors.white,
+                    color: parcelController.payReceiver
+                        ? Theme.of(context).textTheme.displayLarge!.color
+                        : Colors.white,
                   ),
                 ),
               ),
             ),
             const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
             InkWell(
               onTap: () {
                 widget.expandableKey.currentState?.expand();
@@ -69,21 +72,27 @@ class _WhoWillPayButtonState extends State<WhoWillPayButton> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.radiusOverLarge),
-                  color: parcelController.payReceiver ?
-                  Theme.of(context).primaryColor :
-                  Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.1),
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.radiusOverLarge),
+                  color: parcelController.payReceiver
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context)
+                          .colorScheme
+                          .onPrimary
+                          .withValues(alpha: 0.1),
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: Dimensions.paddingSizeDefault,
                   vertical: Dimensions.paddingSizeSeven,
                 ),
                 child: Text(
-                  'receiver_pay'.tr, style: textRegular.copyWith(
-                  fontSize: Dimensions.fontSizeSmall,
-                  color: !parcelController.payReceiver ?
-                  Theme.of(context).textTheme.displayLarge!.color : Colors.white,
-                ),
+                  'receiver_pay'.tr,
+                  style: textRegular.copyWith(
+                    fontSize: Dimensions.fontSizeSmall,
+                    color: !parcelController.payReceiver
+                        ? Theme.of(context).textTheme.displayLarge!.color
+                        : Colors.white,
+                  ),
                 ),
               ),
             ),

@@ -8,9 +8,22 @@ import 'package:ride_sharing_user_app/features/parcel/domain/models/suggested_ve
 import 'package:ride_sharing_user_app/features/parcel/domain/services/parcel_service_interface.dart';
 import 'package:ride_sharing_user_app/features/payment/controllers/payment_controller.dart';
 
-enum ParcelDeliveryState{initial, parcelInfoDetails, addOtherParcelDetails, riseFare, findingRider, suggestVehicle, acceptRider, otpSent, parcelOngoing, parcelComplete}
+enum ParcelDeliveryState {
+  initial,
+  parcelInfoDetails,
+  addOtherParcelDetails,
+  riseFare,
+  findingRider,
+  suggestVehicle,
+  acceptRider,
+  otpSent,
+  parcelOngoing,
+  parcelComplete
+}
 
-class ParcelController extends GetxController with GetSingleTickerProviderStateMixin implements GetxService {
+class ParcelController extends GetxController
+    with GetSingleTickerProviderStateMixin
+    implements GetxService {
   final ParcelServiceInterface parcelServiceInterface;
   ParcelController({required this.parcelServiceInterface});
 
@@ -66,19 +79,21 @@ class ParcelController extends GetxController with GetSingleTickerProviderStateM
 
   void updateParcelCategoryIndex(int newIndex) {
     selectedParcelCategory = newIndex;
-    parcelTypeController.text = parcelCategoryList![selectedParcelCategory].name!;
+    parcelTypeController.text =
+        parcelCategoryList![selectedParcelCategory].name!;
     update();
   }
 
-  void updateTabControllerIndex(int newIndex){
-    tabController.index= newIndex;
+  void updateTabControllerIndex(int newIndex) {
+    tabController.index = newIndex;
     update();
   }
 
   void updateParcelDetailsStatus() {
-    if(parcelWeightController.text.isNotEmpty && parcelDimensionController.text.isNotEmpty) {
+    if (parcelWeightController.text.isNotEmpty &&
+        parcelDimensionController.text.isNotEmpty) {
       parcelDetailsAvailable = true;
-    }else {
+    } else {
       parcelDetailsAvailable = false;
     }
     update();
@@ -90,35 +105,34 @@ class ParcelController extends GetxController with GetSingleTickerProviderStateM
   }
 
   void updatePaymentPerson(bool newValue, {bool notify = true}) {
-    payReceiver= newValue;
-    if(newValue == true){
+    payReceiver = newValue;
+    if (newValue == true) {
       Get.find<PaymentController>().setPaymentType(0);
     }
-    if(notify){
+    if (notify) {
       update();
     }
-
   }
-
 
   String parcelPrice = '0';
 
-  Future<void> getParcelCategoryList({bool notify= true}) async {
+  Future<void> getParcelCategoryList({bool notify = true}) async {
     isLoading = true;
     Response response = await parcelServiceInterface.getParcelCategory();
-    if(response.statusCode == 200 && response.body['data'] != null){
+    if (response.statusCode == 200 && response.body['data'] != null) {
       parcelCategoryList = [];
       isLoading = false;
-      parcelCategoryList!.addAll(ParcelCategoryModel.fromJson(response.body).data!);
-      if(parcelCategoryList!.isNotEmpty) {
+      parcelCategoryList!
+          .addAll(ParcelCategoryModel.fromJson(response.body).data!);
+      if (parcelCategoryList!.isNotEmpty) {
         parcelTypeController.text = parcelCategoryList!.first.name!;
       }
-    }else{
+    } else {
       isLoading = false;
       ApiChecker.checkApi(response);
     }
     isLoading = false;
-    if(notify){
+    if (notify) {
       update();
     }
   }
@@ -126,15 +140,18 @@ class ParcelController extends GetxController with GetSingleTickerProviderStateM
   Future<Response> getSuggestedCategoryList() async {
     getSuggested = true;
     update();
-    Response response = await parcelServiceInterface.getSuggestedVehicleCategory(parcelWeightController.text);
-    if(response.statusCode == 200 ){
+    Response response = await parcelServiceInterface
+        .getSuggestedVehicleCategory(parcelWeightController.text);
+    if (response.statusCode == 200) {
       suggestedCategoryList = [];
       isLoading = false;
-      if(response.body['data'] != null){
-        suggestedVehicleCategoryModel = SuggestedVehicleCategoryModel.fromJson(response.body);
-        suggestedCategoryList!.addAll(SuggestedVehicleCategoryModel.fromJson(response.body).data!.data!);
+      if (response.body['data'] != null) {
+        suggestedVehicleCategoryModel =
+            SuggestedVehicleCategoryModel.fromJson(response.body);
+        suggestedCategoryList!.addAll(
+            SuggestedVehicleCategoryModel.fromJson(response.body).data!.data!);
       }
-    }else{
+    } else {
       getSuggested = false;
       ApiChecker.checkApi(response);
     }
@@ -143,17 +160,16 @@ class ParcelController extends GetxController with GetSingleTickerProviderStateM
     return response;
   }
 
-
   ParcelListModel? parcelListModel;
   Future<Response> getOngoingParcelList() async {
     isLoading = true;
     Response response = await parcelServiceInterface.getOnGoingParcelList(1);
-    if(response.statusCode == 200 ){
+    if (response.statusCode == 200) {
       isLoading = false;
-      if(response.body['data'] != null){
+      if (response.body['data'] != null) {
         parcelListModel = ParcelListModel.fromJson(response.body);
       }
-    }else{
+    } else {
       isLoading = false;
       ApiChecker.checkApi(response);
     }
@@ -162,7 +178,7 @@ class ParcelController extends GetxController with GetSingleTickerProviderStateM
     return response;
   }
 
-  void clearParcelModel(){
+  void clearParcelModel() {
     parcelListModel = null;
   }
 
@@ -170,12 +186,12 @@ class ParcelController extends GetxController with GetSingleTickerProviderStateM
   Future<Response> getUnpaidParcelList() async {
     isLoading = true;
     Response response = await parcelServiceInterface.getUnpaidParcelList(1);
-    if(response.statusCode == 200 ){
+    if (response.statusCode == 200) {
       isLoading = false;
-      if(response.body['data'] != null){
+      if (response.body['data'] != null) {
         unpaidParcelListModel = ParcelListModel.fromJson(response.body);
       }
-    }else{
+    } else {
       isLoading = false;
       ApiChecker.checkApi(response);
     }
@@ -184,9 +200,9 @@ class ParcelController extends GetxController with GetSingleTickerProviderStateM
     return response;
   }
 
-
-  Future<void> focusOnBottomSheet(GlobalKey<ExpandableBottomSheetState> key) async {
-    if(key.currentState?.expansionStatus == ExpansionStatus.expanded) {
+  Future<void> focusOnBottomSheet(
+      GlobalKey<ExpandableBottomSheetState> key) async {
+    if (key.currentState?.expansionStatus == ExpansionStatus.expanded) {
       // ignore: invalid_use_of_protected_member
       key.currentState?.reassemble();
       await Future.delayed(const Duration(milliseconds: 500));
@@ -194,13 +210,13 @@ class ParcelController extends GetxController with GetSingleTickerProviderStateM
     key.currentState?.expand();
   }
 
-  void setParcelLoadingActive (int index){
+  void setParcelLoadingActive(int index) {
     parcelListModel!.data![index].isLoading = true;
     update();
   }
-  void setParcelLoadingDeactive (int index){
+
+  void setParcelLoadingDeactive(int index) {
     parcelListModel!.data![index].isLoading = false;
     update();
   }
-
 }

@@ -101,17 +101,21 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Theme.of(context).hintColor.withValues(alpha: .1),
+                        fillColor:
+                            Theme.of(context).hintColor.withValues(alpha: .1),
                         hintText: 'your_feedback'.tr,
                         hintStyle: textRegular.copyWith(
-                            color: Theme.of(context).hintColor.withValues(alpha: .5)),
+                            color: Theme.of(context)
+                                .hintColor
+                                .withValues(alpha: .5)),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
                               Dimensions.paddingSizeSmall),
                           borderSide: BorderSide(
                               width: 0.5,
-                              color:
-                                  Theme.of(context).hintColor.withValues(alpha: 0.5)),
+                              color: Theme.of(context)
+                                  .hintColor
+                                  .withValues(alpha: 0.5)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(

@@ -30,7 +30,9 @@ class _TollTipWidgetState extends State<TollTipWidget> {
                   decoration: BoxDecoration(
                       borderRadius:
                           BorderRadius.circular(Dimensions.radiusSmall),
-                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1)),
+                      color: Theme.of(context)
+                          .primaryColor
+                          .withValues(alpha: 0.1)),
                   padding: const EdgeInsets.symmetric(
                       horizontal: Dimensions.paddingSizeDefault,
                       vertical: Dimensions.paddingSizeExtraSmall),
@@ -45,7 +47,9 @@ class _TollTipWidgetState extends State<TollTipWidget> {
                       width: 3,
                     ),
                     Icon(Icons.info,
-                        color: Theme.of(context).primaryColor.withValues(alpha: 0.6),
+                        color: Theme.of(context)
+                            .primaryColor
+                            .withValues(alpha: 0.6),
                         size: 15)
                   ])))
       ],

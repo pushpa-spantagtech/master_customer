@@ -6,10 +6,12 @@ class CustomIconCard extends StatelessWidget {
   final int index;
   final Function()? onTap;
   final Color? iconColor;
-  const CustomIconCard({
-    super.key, required this.icon, required this.index, this.onTap,
-    this.iconColor
-  });
+  const CustomIconCard(
+      {super.key,
+      required this.icon,
+      required this.index,
+      this.onTap,
+      this.iconColor});
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +22,10 @@ class CustomIconCard extends StatelessWidget {
           padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(width: .25, color: Theme.of(context).cardColor),
-              borderRadius: BorderRadius.circular(100),
-              color: Theme.of(context).cardColor
-            ),
+                border:
+                    Border.all(width: .25, color: Theme.of(context).cardColor),
+                borderRadius: BorderRadius.circular(100),
+                color: Theme.of(context).cardColor),
             child: Padding(
               padding: const EdgeInsets.all(Dimensions.paddingSize),
               child: SizedBox(

@@ -39,52 +39,54 @@ class _ParcelScreenState extends State<ParcelScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(children: [
-
         BodyWidget(
           appBar: AppBarWidget(title: 'parcel_delivery'.tr),
-          body: const Padding(padding: EdgeInsets.all(Dimensions.paddingSizeDefault), child: Column(children:  [
-
-            BannerView(),
-
-            DottedBorderCard(),
-
-            ParcelCategoryView(),
-
-          ])),
+          body: const Padding(
+              padding: EdgeInsets.all(Dimensions.paddingSizeDefault),
+              child: Column(children: [
+                BannerView(),
+                DottedBorderCard(),
+                ParcelCategoryView(),
+              ])),
         ),
-
-
         Positioned(
           bottom: Dimensions.paddingSizeDefault,
-          left:  Dimensions.paddingSizeDefault,
-          right:  Dimensions.paddingSizeDefault,
+          left: Dimensions.paddingSizeDefault,
+          right: Dimensions.paddingSizeDefault,
           child: ButtonWidget(
             buttonText: 'add_parcel'.tr,
             onPressed: () {
-              if(Get.find<ConfigController>().config!.maintenanceMode != null &&
-                  Get.find<ConfigController>().config!.maintenanceMode!.maintenanceStatus == 1 &&
-                  Get.find<ConfigController>().config!.maintenanceMode!.selectedMaintenanceSystem!.userApp == 1
-              ){
-                showCustomSnackBar('maintenance_mode_on_for_parcel'.tr,isError: true);
-              }else{
-                if(Get.find<ParcelController>().parcelCategoryList == null || Get.find<ParcelController>().parcelCategoryList!.isEmpty) {
+              if (Get.find<ConfigController>().config!.maintenanceMode !=
+                      null &&
+                  Get.find<ConfigController>()
+                          .config!
+                          .maintenanceMode!
+                          .maintenanceStatus ==
+                      1 &&
+                  Get.find<ConfigController>()
+                          .config!
+                          .maintenanceMode!
+                          .selectedMaintenanceSystem!
+                          .userApp ==
+                      1) {
+                showCustomSnackBar('maintenance_mode_on_for_parcel'.tr,
+                    isError: true);
+              } else {
+                if (Get.find<ParcelController>().parcelCategoryList == null ||
+                    Get.find<ParcelController>().parcelCategoryList!.isEmpty) {
                   showCustomSnackBar('no_parcel_category_found'.tr);
-                }else {
+                } else {
                   Get.find<ParcelController>().updateTabControllerIndex(0);
-                  Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.initial);
-                  Get.to(() => const MapScreen(fromScreen: MapScreenType.parcel));
+                  Get.find<ParcelController>()
+                      .updateParcelState(ParcelDeliveryState.initial);
+                  Get.to(
+                      () => const MapScreen(fromScreen: MapScreenType.parcel));
                 }
               }
-
             },
           ),
         ),
-
       ]),
     );
   }
 }
-
-
-
-

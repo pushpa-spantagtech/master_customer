@@ -9,20 +9,22 @@ import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
 class BiddingListScreen extends StatelessWidget {
   final String tripId;
   final bool fromList;
-  const BiddingListScreen({super.key, required this.tripId, this.fromList = false});
+  const BiddingListScreen(
+      {super.key, required this.tripId, this.fromList = false});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GetBuilder<RideController>(
-        builder: (rideController) {
-          return BodyWidget(appBar: AppBarWidget(title: 'bidding_list'.tr,),
-            body: rideController.biddingList.isNotEmpty?
-            DriverRideRequestDialog(tripId: tripId, fromList: fromList):
-            const NoDataWidget(title : 'no_bid_request_found'),
-          );
-        }
-      ),
+      body: GetBuilder<RideController>(builder: (rideController) {
+        return BodyWidget(
+          appBar: AppBarWidget(
+            title: 'bidding_list'.tr,
+          ),
+          body: rideController.biddingList.isNotEmpty
+              ? DriverRideRequestDialog(tripId: tripId, fromList: fromList)
+              : const NoDataWidget(title: 'no_bid_request_found'),
+        );
+      }),
     );
   }
 }

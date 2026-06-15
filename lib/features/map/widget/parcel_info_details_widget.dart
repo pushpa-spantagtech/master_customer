@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
@@ -18,72 +17,87 @@ class ParcelInfoDetailsWidget extends StatefulWidget {
   const ParcelInfoDetailsWidget({super.key, required this.expandableKey});
 
   @override
-  State<ParcelInfoDetailsWidget> createState() => _ParcelInfoDetailsWidgetState();
+  State<ParcelInfoDetailsWidget> createState() =>
+      _ParcelInfoDetailsWidgetState();
 }
 
 class _ParcelInfoDetailsWidgetState extends State<ParcelInfoDetailsWidget> {
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ParcelController>(builder: (parcelController){
-      return GetBuilder<RideController>(builder: (rideController){
-        return Column(mainAxisSize: MainAxisSize.min,children: [
+    return GetBuilder<ParcelController>(builder: (parcelController) {
+      return GetBuilder<RideController>(builder: (rideController) {
+        return Column(mainAxisSize: MainAxisSize.min, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             const TollTipWidget(title: "delivery_details", showInsight: false),
-
-            if(rideController.parcelEstimatedFare?.data?.couponApplicable ?? false)
+            if (rideController.parcelEstimatedFare?.data?.couponApplicable ??
+                false)
               Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: Dimensions.paddingSizeSmall,
                     vertical: Dimensions.paddingSizeExtraSmall,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+                    color:
+                        Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                    borderRadius:
+                        BorderRadius.circular(Dimensions.paddingSizeSmall),
                   ),
                   child: Text(
                     'coupon_applied'.tr,
-                    style: textBold.copyWith(color: Theme.of(context).primaryColor),
-                  )
-              ),
+                    style: textBold.copyWith(
+                        color: Theme.of(context).primaryColor),
+                  )),
           ]),
           const SizedBox(height: Dimensions.paddingSizeDefault),
-
           RouteWidget(
-            totalDistance: Get.find<RideController>().parcelEstimatedFare!.data!.estimatedDistance!.toString(),
-            fromAddress: Get.find<ParcelController>().senderAddressController.text,
-            toAddress: Get.find<ParcelController>().receiverAddressController.text,
-            extraOneAddress: '', extraTwoAddress: '', entrance: '',
+            totalDistance: Get.find<RideController>()
+                .parcelEstimatedFare!
+                .data!
+                .estimatedDistance!
+                .toString(),
+            fromAddress:
+                Get.find<ParcelController>().senderAddressController.text,
+            toAddress:
+                Get.find<ParcelController>().receiverAddressController.text,
+            extraOneAddress: '',
+            extraTwoAddress: '',
+            entrance: '',
           ),
           const SizedBox(height: Dimensions.paddingSizeDefault),
-
-
           const ProductDetailsWidget(),
           const SizedBox(height: Dimensions.paddingSizeDefault),
-
           WhoWillPayButton(expandableKey: widget.expandableKey),
           const SizedBox(height: Dimensions.paddingSizeDefault),
-
           UserDetailsWidget(
             name: parcelController.senderNameController.text,
             contactNumber: parcelController.senderContactController.text,
             type: 'sender',
           ),
-
           UserDetailsWidget(
             name: parcelController.receiverNameController.text,
             contactNumber: parcelController.receiverContactController.text,
             type: 'receiver',
           ),
-          const SizedBox(height: Dimensions.paddingSizeDefault,),
-
-
-          FareInputWidget(
-            expandableKey: widget.expandableKey,fromRide: false,
-            fare: Get.find<RideController>().parcelEstimatedFare!.data!.estimatedFare.toString(),
-            discountAmount: Get.find<RideController>().parcelEstimatedFare!.data!.discountAmount,
-            discountFare: Get.find<RideController>().parcelEstimatedFare!.data!.discountFare,
+          const SizedBox(
+            height: Dimensions.paddingSizeDefault,
           ),
-
+          FareInputWidget(
+            expandableKey: widget.expandableKey,
+            fromRide: false,
+            fare: Get.find<RideController>()
+                .parcelEstimatedFare!
+                .data!
+                .estimatedFare
+                .toString(),
+            discountAmount: Get.find<RideController>()
+                .parcelEstimatedFare!
+                .data!
+                .discountAmount,
+            discountFare: Get.find<RideController>()
+                .parcelEstimatedFare!
+                .data!
+                .discountFare,
+          ),
         ]);
       });
     });

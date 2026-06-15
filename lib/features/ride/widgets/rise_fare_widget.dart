@@ -107,7 +107,8 @@ class _RiseFareWidgetState extends State<RiseFareWidget> {
                 decoration: InputDecoration(
                     hintText: 'enter_amount'.tr,
                     hintStyle: textRegular.copyWith(
-                        color: Theme.of(context).hintColor.withValues(alpha: .5)),
+                        color:
+                            Theme.of(context).hintColor.withValues(alpha: .5)),
                     border: InputBorder.none),
                 onChanged: (String amount) {
                   riseFareController.text =

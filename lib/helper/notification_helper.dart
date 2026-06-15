@@ -26,141 +26,200 @@ import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 
 class NotificationHelper {
-  static Future<void> initialize(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
-    var androidInitialize = const AndroidInitializationSettings('notification_icon');
+  static Future<void> initialize(
+      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+    var androidInitialize =
+        const AndroidInitializationSettings('notification_icon');
     var iOSInitialize = const DarwinInitializationSettings();
-    var initializationsSettings = InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
-    flutterLocalNotificationsPlugin.initialize(initializationsSettings, onDidReceiveNotificationResponse: (NotificationResponse payload) async {
+    var initializationsSettings =
+        InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
+    flutterLocalNotificationsPlugin.initialize(initializationsSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse payload) async {
       return;
-    },
-    onDidReceiveBackgroundNotificationResponse: myBackgroundMessageReceiver);
+    }, onDidReceiveBackgroundNotificationResponse: myBackgroundMessageReceiver);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      AndroidInitializationSettings androidInitialize = const AndroidInitializationSettings('notification_icon');
+      AndroidInitializationSettings androidInitialize =
+          const AndroidInitializationSettings('notification_icon');
       var iOSInitialize = const DarwinInitializationSettings();
-      var initializationsSettings = InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
+      var initializationsSettings = InitializationSettings(
+          android: androidInitialize, iOS: iOSInitialize);
       flutterLocalNotificationsPlugin.initialize(
         initializationsSettings,
-        onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        onDidReceiveNotificationResponse:
+            (NotificationResponse response) async {
           notificationRouteCheck(message);
           return;
         },
         onDidReceiveBackgroundNotificationResponse: myBackgroundMessageReceiver,
       );
 
-
       customPrint('onMessage: ${message.data}');
 
-      if(!(Get.find<ConfigController>().config!.maintenanceMode != null &&
-          Get.find<ConfigController>().config!.maintenanceMode!.maintenanceStatus == 1 &&
-          Get.find<ConfigController>().config!.maintenanceMode!.selectedMaintenanceSystem!.userApp == 1) || Get.find<ConfigController>().haveOngoingRides()){
-
-        if (Get.find<ConfigController>().pusherConnectionStatus == null || Get.find<ConfigController>().pusherConnectionStatus == 'Disconnected') {
-
+      if (!(Get.find<ConfigController>().config!.maintenanceMode != null &&
+              Get.find<ConfigController>()
+                      .config!
+                      .maintenanceMode!
+                      .maintenanceStatus ==
+                  1 &&
+              Get.find<ConfigController>()
+                      .config!
+                      .maintenanceMode!
+                      .selectedMaintenanceSystem!
+                      .userApp ==
+                  1) ||
+          Get.find<ConfigController>().haveOngoingRides()) {
+        if (Get.find<ConfigController>().pusherConnectionStatus == null ||
+            Get.find<ConfigController>().pusherConnectionStatus ==
+                'Disconnected') {
           if (message.data['action'] == 'driver_assigned') {
             Get.back();
-            Get.find<RideController>().getRideDetails(message.data['ride_request_id']).then((value) {
+            Get.find<RideController>()
+                .getRideDetails(message.data['ride_request_id'])
+                .then((value) {
               if (value.statusCode == 200) {
-                if(message.data['type'] == 'parcel'){
-                  Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.acceptRider);
+                if (message.data['type'] == 'parcel') {
+                  Get.find<ParcelController>()
+                      .updateParcelState(ParcelDeliveryState.acceptRider);
                   Get.find<RideController>().startLocationRecord();
                   Get.find<MapController>().notifyMapController();
-                  Get.to(() => const MapScreen(fromScreen: MapScreenType.parcel));
-                }else{
-                  Get.find<RideController>().updateRideCurrentState(RideState.acceptingRider);
+                  Get.to(
+                      () => const MapScreen(fromScreen: MapScreenType.parcel));
+                } else {
+                  Get.find<RideController>()
+                      .updateRideCurrentState(RideState.acceptingRider);
                   Get.find<RideController>().startLocationRecord();
                   Get.find<MapController>().notifyMapController();
-                  Get.to(() => const MapScreen(fromScreen: MapScreenType.splash));
+                  Get.to(
+                      () => const MapScreen(fromScreen: MapScreenType.splash));
                 }
               }
             });
-          } else if(message.data['action'] == "new_message_arrived"){
-            Get.find<MessageController>().getConversation(message.data['type'], 1);
-          } else if (message.data['action'] == 'otp_matched' && message.data['type'] == 'ride_request') {
+          } else if (message.data['action'] == "new_message_arrived") {
+            Get.find<MessageController>()
+                .getConversation(message.data['type'], 1);
+          } else if (message.data['action'] == 'otp_matched' &&
+              message.data['type'] == 'ride_request') {
             // Get.find<MapController>().getPolyline();
-            Get.find<RideController>().updateRideCurrentState(RideState.ongoingRide);
+            Get.find<RideController>()
+                .updateRideCurrentState(RideState.ongoingRide);
+
             ///If issues found........................
             Get.to(() => const MapScreen(fromScreen: MapScreenType.splash));
-          } else if (message.data['action'] == 'trip_waited_message' && message.data['type'] == 'ride_request') {
-            Get.find<RideController>().getRideDetails(message.data['ride_request_id']);
-          } else if (message.data['action'] == 'otp_matched' && message.data['type'] == 'parcel') {
+          } else if (message.data['action'] == 'trip_waited_message' &&
+              message.data['type'] == 'ride_request') {
+            Get.find<RideController>()
+                .getRideDetails(message.data['ride_request_id']);
+          } else if (message.data['action'] == 'otp_matched' &&
+              message.data['type'] == 'parcel') {
             Get.find<MapController>().getPolyline();
-            Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.parcelOngoing);
+            Get.find<ParcelController>()
+                .updateParcelState(ParcelDeliveryState.parcelOngoing);
 
-            if(Get.find<RideController>().tripDetails == null ){
-              Get.find<RideController>().getRideDetails(message.data['ride_request_id']).then((value) {
-                if (Get.find<RideController>().tripDetails!.parcelInformation!.payer == 'sender') {
-                  Get.find<RideController>().getFinalFare(message.data['ride_request_id']).then((value) {
+            if (Get.find<RideController>().tripDetails == null) {
+              Get.find<RideController>()
+                  .getRideDetails(message.data['ride_request_id'])
+                  .then((value) {
+                if (Get.find<RideController>()
+                        .tripDetails!
+                        .parcelInformation!
+                        .payer ==
+                    'sender') {
+                  Get.find<RideController>()
+                      .getFinalFare(message.data['ride_request_id'])
+                      .then((value) {
                     if (value.statusCode == 200) {
                       //  Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.parcelComplete);
                       Get.find<MapController>().notifyMapController();
-                      Get.off(() => const PaymentScreen(fromParcel: true,));
+                      Get.off(() => const PaymentScreen(
+                            fromParcel: true,
+                          ));
                     }
                   });
                 }
               });
-            }else{
-              if (Get.find<RideController>().tripDetails!.parcelInformation!.payer == 'sender') {
-                Get.find<RideController>().getFinalFare(message.data['ride_request_id']).then((value) {
+            } else {
+              if (Get.find<RideController>()
+                      .tripDetails!
+                      .parcelInformation!
+                      .payer ==
+                  'sender') {
+                Get.find<RideController>()
+                    .getFinalFare(message.data['ride_request_id'])
+                    .then((value) {
                   if (value.statusCode == 200) {
                     //  Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.parcelComplete);
                     Get.find<MapController>().notifyMapController();
-                    Get.off(() => const PaymentScreen(fromParcel: true,));
+                    Get.off(() => const PaymentScreen(
+                          fromParcel: true,
+                        ));
                   }
                 });
               }
             }
-
           } else if (message.data['action'] == 'payment_successful') {
-            if (Get.find<ConfigController>().config!.reviewStatus! && message.data['type'] == 'ride_request') {
-              Get.off(() => ReviewScreen(tripId: message.data['ride_request_id']));
+            if (Get.find<ConfigController>().config!.reviewStatus! &&
+                message.data['type'] == 'ride_request') {
+              Get.off(
+                  () => ReviewScreen(tripId: message.data['ride_request_id']));
               Get.find<RideController>().tripDetails = null;
             } else {
               Get.offAll(() => const DashboardScreen());
               Get.find<RideController>().tripDetails = null;
             }
-          } else if (message.data['action'] == 'ride_completed' && message.data['type'] == 'ride_request') {
+          } else if (message.data['action'] == 'ride_completed' &&
+              message.data['type'] == 'ride_request') {
             Get.dialog(
                 const ConfirmationTripDialog(
                   isStartedTrip: false,
                 ),
                 barrierDismissible: false);
-            Get.find<RideController>().getFinalFare(message.data['ride_request_id']).then((value) {
+            Get.find<RideController>()
+                .getFinalFare(message.data['ride_request_id'])
+                .then((value) {
               if (value.statusCode == 200) {
-                Get.find<RideController>().updateRideCurrentState(RideState.completeRide);
+                Get.find<RideController>()
+                    .updateRideCurrentState(RideState.completeRide);
                 Get.find<MapController>().notifyMapController();
                 Get.off(() => const PaymentScreen());
               }
             });
-          } else if (message.data['action'] == 'ride_completed' || message.data['action'] == 'parcel_completed') {
+          } else if (message.data['action'] == 'ride_completed' ||
+              message.data['action'] == 'parcel_completed') {
             Get.find<RideController>().clearRideDetails();
-            if(message.data['action'] == 'ride_completed'){
+            if (message.data['action'] == 'ride_completed') {
               Get.offAll(const DashboardScreen());
-            }else{
-              if(Get.find<ConfigController>().config!.reviewStatus!){
-                Get.offAll(ReviewScreen(tripId: message.data['ride_request_id']));
-              }else{
+            } else {
+              if (Get.find<ConfigController>().config!.reviewStatus!) {
+                Get.offAll(
+                    ReviewScreen(tripId: message.data['ride_request_id']));
+              } else {
                 Get.offAll(const DashboardScreen());
               }
             }
-          } else if (message.data['action'] == 'ride_cancelled' && message.data['type'] == 'ride_request') {
-            await Get.find<RideController>().getCurrentRideStatus(fromRefresh: true);
+          } else if (message.data['action'] == 'ride_cancelled' &&
+              message.data['type'] == 'ride_request') {
+            await Get.find<RideController>()
+                .getCurrentRideStatus(fromRefresh: true);
             Get.offAll(const DashboardScreen());
           } else if (message.data['action'] == 'driver_bid_received') {
-            Get.find<RideController>().getBiddingList(message.data['ride_request_id'], 1).then((value) {
+            Get.find<RideController>()
+                .getBiddingList(message.data['ride_request_id'], 1)
+                .then((value) {
               if (value.statusCode == 200) {
-                Get.find<RideController>().biddingList.length != 1 ? Get.back() : null;
+                Get.find<RideController>().biddingList.length != 1
+                    ? Get.back()
+                    : null;
 
                 Get.dialog(
                     barrierDismissible: true,
                     barrierColor: Colors.black.withValues(alpha: 0.5),
                     transitionDuration: const Duration(milliseconds: 500),
-                    DriverRideRequestDialog(tripId: message.data['ride_request_id'])
-                );
-
+                    DriverRideRequestDialog(
+                        tripId: message.data['ride_request_id']));
               }
             });
-          }else if(message.data['action'] == 'level_completed'){
+          } else if (message.data['action'] == 'level_completed') {
             Get.find<LevelController>().getProfileLevelInfo();
             showDialog(
               context: Get.context!,
@@ -171,10 +230,14 @@ class NotificationHelper {
                 reward: message.data['reward_amount'],
               ),
             );
-          }else if(message.data['action'] == 'driver_after_bid_trip_rejected'){
-            Get.find<RideController>().getBiddingList(message.data['ride_request_id'], 1).then((value) {
+          } else if (message.data['action'] ==
+              'driver_after_bid_trip_rejected') {
+            Get.find<RideController>()
+                .getBiddingList(message.data['ride_request_id'], 1)
+                .then((value) {
               if (value.statusCode == 200) {
-                if(Get.find<RideController>().biddingList.isEmpty && Get.isDialogOpen!){
+                if (Get.find<RideController>().biddingList.isEmpty &&
+                    Get.isDialogOpen!) {
                   Get.back();
                 }
               }
@@ -182,21 +245,27 @@ class NotificationHelper {
           }
         } else {
           if (message.data['action'] == 'driver_bid_received') {
-            Get.find<RideController>().getBiddingList(message.data['ride_request_id'], 1).then((value) {
+            Get.find<RideController>()
+                .getBiddingList(message.data['ride_request_id'], 1)
+                .then((value) {
               if (value.statusCode == 200) {
-                Get.find<RideController>().biddingList.length != 1 ? Get.back() : null;
+                Get.find<RideController>().biddingList.length != 1
+                    ? Get.back()
+                    : null;
 
                 Get.dialog(
                     barrierDismissible: true,
                     barrierColor: Colors.black.withValues(alpha: 0.5),
                     transitionDuration: const Duration(milliseconds: 500),
-                    DriverRideRequestDialog(tripId: message.data['ride_request_id'])
-                );
+                    DriverRideRequestDialog(
+                        tripId: message.data['ride_request_id']));
               }
             });
-          } else if (message.data['action'] == 'trip_waited_message' && message.data['type'] == 'ride_request') {
-            Get.find<RideController>().getRideDetails(message.data['ride_request_id']);
-          }else if(message.data['action'] == 'level_completed'){
+          } else if (message.data['action'] == 'trip_waited_message' &&
+              message.data['type'] == 'ride_request') {
+            Get.find<RideController>()
+                .getRideDetails(message.data['ride_request_id']);
+          } else if (message.data['action'] == 'level_completed') {
             Get.find<LevelController>().getProfileLevelInfo();
             showDialog(
               context: Get.context!,
@@ -207,8 +276,11 @@ class NotificationHelper {
                 reward: message.data['reward_amount'],
               ),
             );
-          }else if(message.data['action'] == 'driver_after_bid_trip_rejected'){
-            Get.find<RideController>().getBiddingList(message.data['ride_request_id'], 1).then((value) {
+          } else if (message.data['action'] ==
+              'driver_after_bid_trip_rejected') {
+            Get.find<RideController>()
+                .getBiddingList(message.data['ride_request_id'], 1)
+                .then((value) {
               if (value.statusCode == 200) {
                 /* if(Get.find<RideController>().biddingList.isEmpty && Get.isDialogOpen!){
                 Get.back();
@@ -217,12 +289,15 @@ class NotificationHelper {
             });
           }
         }
-        if(!(message.data['type'] == 'maintenance_mode_on' || message.data['type'] == 'maintenance_mode_off')){
-          NotificationHelper.showNotification(message, flutterLocalNotificationsPlugin, true);
+        if (!(message.data['type'] == 'maintenance_mode_on' ||
+            message.data['type'] == 'maintenance_mode_off')) {
+          NotificationHelper.showNotification(
+              message, flutterLocalNotificationsPlugin, true);
         }
       }
 
-      if(message.data['type'] == 'maintenance_mode_on' || message.data['type'] == 'maintenance_mode_off'){
+      if (message.data['type'] == 'maintenance_mode_on' ||
+          message.data['type'] == 'maintenance_mode_off') {
         Get.find<ConfigController>().getConfigData();
       }
     });
@@ -231,7 +306,6 @@ class NotificationHelper {
       customPrint('onOpenApp: ${message.data}');
       notificationRouteCheck(message);
     });
-
   }
 
   static Future<void> hintForBetterServiceLocationTurnOn({String? body}) async {
@@ -254,7 +328,8 @@ class NotificationHelper {
       showProgress: false,
       color: const Color(0xFF00A08D),
     );
-    var platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+    var platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
     flutterLocalNotificationsPlugin.show(
         0,
         'Faster pick-ups, safer trips',
@@ -264,26 +339,34 @@ class NotificationHelper {
         payload: 'item x');
   }
 
-  static Future<void> showNotification(RemoteMessage message, FlutterLocalNotificationsPlugin fln, bool data) async {
+  static Future<void> showNotification(RemoteMessage message,
+      FlutterLocalNotificationsPlugin fln, bool data) async {
     String title = message.data['title'];
     String body = message.data['body'];
     String? orderID = message.data['order_id'];
-    String? image = (message.data['image'] != null && message.data['image'].isNotEmpty)
+    String? image = (message.data['image'] != null &&
+            message.data['image'].isNotEmpty)
         ? message.data['image'].startsWith('http')
             ? message.data['image']
             : '${AppConstants.baseUrl}/storage/app/public/notification/${message.data['image']}'
         : null;
 
     try {
-      await showBigPictureNotificationHiddenLargeIcon(title, body, orderID, image, fln);
+      await showBigPictureNotificationHiddenLargeIcon(
+          title, body, orderID, image, fln);
     } catch (e) {
-      await showBigPictureNotificationHiddenLargeIcon(title, body, orderID, null, fln);
+      await showBigPictureNotificationHiddenLargeIcon(
+          title, body, orderID, null, fln);
       customPrint('Failed to show notification: ${e.toString()}');
     }
   }
 
   static Future<void> showBigPictureNotificationHiddenLargeIcon(
-      String title, String body, String? orderID, String? image, FlutterLocalNotificationsPlugin fln) async {
+      String title,
+      String body,
+      String? orderID,
+      String? image,
+      FlutterLocalNotificationsPlugin fln) async {
     String? largeIconPath;
     String? bigPicturePath;
     BigPictureStyleInformation? bigPictureStyleInformation;
@@ -307,21 +390,27 @@ class NotificationHelper {
         htmlFormatContentTitle: true,
       );
     }
-    final AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+    final AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
       '6amTech',
       '6amTech',
       priority: Priority.max,
       importance: Importance.max,
       playSound: true,
-      largeIcon: largeIconPath != null ? FilePathAndroidBitmap(largeIconPath) : null,
-      styleInformation: largeIconPath != null ? bigPictureStyleInformation : bigTextStyleInformation,
+      largeIcon:
+          largeIconPath != null ? FilePathAndroidBitmap(largeIconPath) : null,
+      styleInformation: largeIconPath != null
+          ? bigPictureStyleInformation
+          : bigTextStyleInformation,
       sound: const RawResourceAndroidNotificationSound('notification'),
     );
-    final NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+    final NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
     await fln.show(0, title, body, platformChannelSpecifics, payload: orderID);
   }
 
-  static Future<String> _downloadAndSaveFile(String url, String fileName) async {
+  static Future<String> _downloadAndSaveFile(
+      String url, String fileName) async {
     final Directory directory = await getApplicationDocumentsDirectory();
     final String filePath = '${directory.path}/$fileName';
     final http.Response response = await http.get(Uri.parse(url));
@@ -329,8 +418,6 @@ class NotificationHelper {
     await file.writeAsBytes(response.bodyBytes);
     return filePath;
   }
-
-
 }
 
 Future<dynamic> myBackgroundMessageHandler(RemoteMessage remoteMessage) async {
@@ -343,111 +430,165 @@ Future<dynamic> myBackgroundMessageHandler(RemoteMessage remoteMessage) async {
   // NotificationHelper.showNotification(message, flutterLocalNotificationsPlugin, true);
 }
 
-Future<dynamic> myBackgroundMessageReceiver(NotificationResponse response) async {
+Future<dynamic> myBackgroundMessageReceiver(
+    NotificationResponse response) async {
   customPrint('onBackgroundClicked: ${response.payload}');
-
 }
 
-  void notificationRouteCheck(RemoteMessage message){
-    if (message.data['action'] == "new_message_arrived") {
-      Get.find<MessageController>().getConversation(message.data['type'], 1);
-      Get.to(() => MessageScreen(channelId: message.data['type'], tripId: message.data['ride_request_id'], userName: message.data['user_name']));
-    }else if(message.data['action'] == 'driver_assigned'){
-      notificationToRouteNavigate(message.data['ride_request_id']);
-    }else if(message.data['action'] == 'otp_matched' && message.data['type'] == 'ride_request'){
-      notificationToRouteNavigate(message.data['ride_request_id']);
-    }else if(message.data['action'] == 'trip_waited_message' && message.data['type'] == 'ride_request'){
-      notificationToRouteNavigate(message.data['ride_request_id']);
-    }else if(message.data['action'] == 'otp_matched' && message.data['type'] == 'parcel'){
-      notificationToRouteNavigate(message.data['ride_request_id']);
-    }else if(message.data['action'] == 'payment_successful'){
-      notificationToRouteNavigate(message.data['ride_request_id']);
-    }else if(message.data['action'] == 'ride_completed' && message.data['type'] == 'ride_request'){
-      notificationToRouteNavigate(message.data['ride_request_id']);
-    }else if(message.data['action'] == 'ride_completed' || message.data['action'] == 'parcel_completed'){
-      notificationToRouteNavigate(message.data['ride_request_id']);
-    }else if(message.data['action'] == 'ride_cancelled' && message.data['type'] == 'ride_request'){
-      notificationToRouteNavigate(message.data['ride_request_id']);
-    }else if(message.data['action'] == 'driver_bid_received'){
-      Get.find<RideController>().getRideDetails(message.data['ride_request_id']).then((value) => {
-        if(Get.currentRoute != '/MapScreen'){
-          Get.find<RideController>().updateRideCurrentState(RideState.findingRider),
-          Get.to(()=> const MapScreen(fromScreen: MapScreenType.ride))
-        },
-
-        Get.find<RideController>().getBiddingList(message.data['ride_request_id'], 1).then((value) {
-          if (value.statusCode == 200) {
-            Get.dialog(
-                barrierDismissible: true,
-                barrierColor: Colors.black.withValues(alpha: 0.5),
-                transitionDuration: const Duration(milliseconds: 500),
-                DriverRideRequestDialog(tripId: message.data['ride_request_id'])
-            );
-          }})
-      });
-    }else if(message.data['action'] == 'level_completed'){
-      Get.find<LevelController>().getProfileLevelInfo();
-      showDialog(
-        context: Get.context!,
-        barrierDismissible: false,
-        builder: (_) => LevelCompleteDialogWidget(
-          levelName: message.data['next_level'],
-          rewardType: message.data['reward_type'],
-          reward: message.data['reward_amount'],
-        ),
-      );
-    }else if(message.data['action'] == 'privacy_policy_page_updated'){
-      Get.find<ConfigController>().getConfigData().then((value){
-        Get.to(()=> PolicyScreen(
-            isPolicy: true,
-            image: Get.find<ConfigController>().config?.privacyPolicy?.image??''
-        ));
-      });
-
-    }else if(message.data['action'] == 'legal_page_updated'){
-      Get.find<ConfigController>().getConfigData().then((value){
-        Get.to(()=> PolicyScreen(
-            isLegal: true,
-            image: Get.find<ConfigController>().config?.legal?.image??''
-        ));
-      });
-
-    }else if(message.data['action'] == 'terms_and_condition_page_updated'){
-      Get.find<ConfigController>().getConfigData().then((value){
-        Get.to(()=> PolicyScreen(
-            image: Get.find<ConfigController>().config?.termsAndConditions?.image??''
-        ));
-      });
-    }
+void notificationRouteCheck(RemoteMessage message) {
+  if (message.data['action'] == "new_message_arrived") {
+    Get.find<MessageController>().getConversation(message.data['type'], 1);
+    Get.to(() => MessageScreen(
+        channelId: message.data['type'],
+        tripId: message.data['ride_request_id'],
+        userName: message.data['user_name']));
+  } else if (message.data['action'] == 'driver_assigned') {
+    notificationToRouteNavigate(message.data['ride_request_id']);
+  } else if (message.data['action'] == 'otp_matched' &&
+      message.data['type'] == 'ride_request') {
+    notificationToRouteNavigate(message.data['ride_request_id']);
+  } else if (message.data['action'] == 'trip_waited_message' &&
+      message.data['type'] == 'ride_request') {
+    notificationToRouteNavigate(message.data['ride_request_id']);
+  } else if (message.data['action'] == 'otp_matched' &&
+      message.data['type'] == 'parcel') {
+    notificationToRouteNavigate(message.data['ride_request_id']);
+  } else if (message.data['action'] == 'payment_successful') {
+    notificationToRouteNavigate(message.data['ride_request_id']);
+  } else if (message.data['action'] == 'ride_completed' &&
+      message.data['type'] == 'ride_request') {
+    notificationToRouteNavigate(message.data['ride_request_id']);
+  } else if (message.data['action'] == 'ride_completed' ||
+      message.data['action'] == 'parcel_completed') {
+    notificationToRouteNavigate(message.data['ride_request_id']);
+  } else if (message.data['action'] == 'ride_cancelled' &&
+      message.data['type'] == 'ride_request') {
+    notificationToRouteNavigate(message.data['ride_request_id']);
+  } else if (message.data['action'] == 'driver_bid_received') {
+    Get.find<RideController>()
+        .getRideDetails(message.data['ride_request_id'])
+        .then((value) => {
+              if (Get.currentRoute != '/MapScreen')
+                {
+                  Get.find<RideController>()
+                      .updateRideCurrentState(RideState.findingRider),
+                  Get.to(() => const MapScreen(fromScreen: MapScreenType.ride))
+                },
+              Get.find<RideController>()
+                  .getBiddingList(message.data['ride_request_id'], 1)
+                  .then((value) {
+                if (value.statusCode == 200) {
+                  Get.dialog(
+                      barrierDismissible: true,
+                      barrierColor: Colors.black.withValues(alpha: 0.5),
+                      transitionDuration: const Duration(milliseconds: 500),
+                      DriverRideRequestDialog(
+                          tripId: message.data['ride_request_id']));
+                }
+              })
+            });
+  } else if (message.data['action'] == 'level_completed') {
+    Get.find<LevelController>().getProfileLevelInfo();
+    showDialog(
+      context: Get.context!,
+      barrierDismissible: false,
+      builder: (_) => LevelCompleteDialogWidget(
+        levelName: message.data['next_level'],
+        rewardType: message.data['reward_type'],
+        reward: message.data['reward_amount'],
+      ),
+    );
+  } else if (message.data['action'] == 'privacy_policy_page_updated') {
+    Get.find<ConfigController>().getConfigData().then((value) {
+      Get.to(() => PolicyScreen(
+          isPolicy: true,
+          image:
+              Get.find<ConfigController>().config?.privacyPolicy?.image ?? ''));
+    });
+  } else if (message.data['action'] == 'legal_page_updated') {
+    Get.find<ConfigController>().getConfigData().then((value) {
+      Get.to(() => PolicyScreen(
+          isLegal: true,
+          image: Get.find<ConfigController>().config?.legal?.image ?? ''));
+    });
+  } else if (message.data['action'] == 'terms_and_condition_page_updated') {
+    Get.find<ConfigController>().getConfigData().then((value) {
+      Get.to(() => PolicyScreen(
+          image:
+              Get.find<ConfigController>().config?.termsAndConditions?.image ??
+                  ''));
+    });
   }
+}
 
-  void notificationToRouteNavigate(String tripId){
+void notificationToRouteNavigate(String tripId) {
   Get.find<RideController>().getRideDetails(tripId).then((value) => {
-    if(Get.find<RideController>().tripDetails!.currentStatus == 'accepted' || Get.find<RideController>().tripDetails!.currentStatus == 'ongoing'){
-      if(Get.currentRoute != '/MapScreen'){
-        if(Get.find<RideController>().tripDetails!.type == 'parcel'){
-          if(Get.find<RideController>().tripDetails!.currentStatus == 'accepted'){
-            Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.acceptRider)
-          }else{
-            Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.parcelOngoing)
+        if (Get.find<RideController>().tripDetails!.currentStatus ==
+                'accepted' ||
+            Get.find<RideController>().tripDetails!.currentStatus == 'ongoing')
+          {
+            if (Get.currentRoute != '/MapScreen')
+              {
+                if (Get.find<RideController>().tripDetails!.type == 'parcel')
+                  {
+                    if (Get.find<RideController>().tripDetails!.currentStatus ==
+                        'accepted')
+                      {
+                        Get.find<ParcelController>()
+                            .updateParcelState(ParcelDeliveryState.acceptRider)
+                      }
+                    else
+                      {
+                        Get.find<ParcelController>().updateParcelState(
+                            ParcelDeliveryState.parcelOngoing)
+                      }
+                  }
+                else
+                  {
+                    if (Get.find<RideController>().tripDetails!.currentStatus ==
+                        'accepted')
+                      {
+                        Get.find<RideController>()
+                            .updateRideCurrentState(RideState.acceptingRider)
+                      }
+                    else
+                      {
+                        Get.find<RideController>()
+                            .updateRideCurrentState(RideState.ongoingRide)
+                      }
+                  },
+                Get.to(() => MapScreen(
+                    fromScreen:
+                        Get.find<RideController>().tripDetails!.type == 'parcel'
+                            ? MapScreenType.parcel
+                            : MapScreenType.ride))
+              }
           }
-        }else{
-          if(Get.find<RideController>().tripDetails!.currentStatus == 'accepted'){
-            Get.find<RideController>().updateRideCurrentState(RideState.acceptingRider)
-          }else{
-            Get.find<RideController>().updateRideCurrentState(RideState.ongoingRide)
+        else if (Get.find<RideController>().tripDetails!.currentStatus ==
+                'cancelled' ||
+            (Get.find<RideController>().tripDetails!.currentStatus ==
+                    'completed' &&
+                Get.find<RideController>().tripDetails!.paymentStatus ==
+                    'paid'))
+          {
+            if (Get.currentRoute != '/TripDetailsScreen')
+              {
+                Get.to(() => TripDetailsScreen(
+                      tripId: tripId,
+                      fromNotification: true,
+                    ))
+              }
           }
-        },
-        Get.to(()=> MapScreen(fromScreen: Get.find<RideController>().tripDetails!.type == 'parcel' ? MapScreenType.parcel : MapScreenType.ride))
-      }
-    }else if(Get.find<RideController>().tripDetails!.currentStatus == 'cancelled'  || (Get.find<RideController>().tripDetails!.currentStatus == 'completed' && Get.find<RideController>().tripDetails!.paymentStatus == 'paid')){
-      if(Get.currentRoute != '/TripDetailsScreen'){
-        Get.to(()=> TripDetailsScreen(tripId: tripId,fromNotification: true,))
-      }
-    }else if((Get.find<RideController>().tripDetails!.currentStatus == 'completed' && Get.find<RideController>().tripDetails!.paymentStatus == 'unpaid')){
-      if(Get.currentRoute != '/PaymentScreen'){
-        Get.to(()=> const PaymentScreen(fromParcel: false,))
-      }
-    }
-  });
+        else if ((Get.find<RideController>().tripDetails!.currentStatus ==
+                'completed' &&
+            Get.find<RideController>().tripDetails!.paymentStatus == 'unpaid'))
+          {
+            if (Get.currentRoute != '/PaymentScreen')
+              {
+                Get.to(() => const PaymentScreen(
+                      fromParcel: false,
+                    ))
+              }
+          }
+      });
 }

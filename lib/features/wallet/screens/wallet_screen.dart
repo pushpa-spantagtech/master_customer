@@ -17,6 +17,7 @@ class WalletScreen extends StatefulWidget {
   @override
   State<WalletScreen> createState() => _WalletScreenState();
 }
+
 class _WalletScreenState extends State<WalletScreen> {
   late TabController tabController;
 
@@ -40,30 +41,31 @@ class _WalletScreenState extends State<WalletScreen> {
           return Stack(children: [
             BodyWidget(
                 appBar: AppBarWidget(title: 'wallet'.tr, centerTitle: true),
-                body:Column(children: [
+                body: Column(children: [
                   const SizedBox(height: Dimensions.paddingSizeSignUp),
-
                   Expanded(
-                      child: walletController.currentTabIndex == 0 ?
-                      const  WalletMoneyScreen() :
-                      const LoyaltyPointScreen()
-                  ),
-                ])
-            ),
-
-            Positioned( top: Dimensions.topSpace,left: Dimensions.paddingSizeSmall,
-              child: SizedBox(height: Get.find<LocalizationController>().isLtr? 45 : 50,
-                width: Get.width-Dimensions.paddingSizeDefault,
+                      child: walletController.currentTabIndex == 0
+                          ? const WalletMoneyScreen()
+                          : const LoyaltyPointScreen()),
+                ])),
+            Positioned(
+              top: Dimensions.topSpace,
+              left: Dimensions.paddingSizeSmall,
+              child: SizedBox(
+                height: Get.find<LocalizationController>().isLtr ? 45 : 50,
+                width: Get.width - Dimensions.paddingSizeDefault,
                 child: ListView.builder(
                   shrinkWrap: true,
                   padding: EdgeInsets.zero,
                   scrollDirection: Axis.horizontal,
                   itemCount: walletController.walletType.length,
-                  itemBuilder: (context, index){
-                    return SizedBox(width: Get.width/2.2, child: ProfileTypeButtonWidget(
-                      profileTypeName : walletController.walletType[index], index: index,
-                    ));
-
+                  itemBuilder: (context, index) {
+                    return SizedBox(
+                        width: Get.width / 2.2,
+                        child: ProfileTypeButtonWidget(
+                          profileTypeName: walletController.walletType[index],
+                          index: index,
+                        ));
                   },
                 ),
               ),

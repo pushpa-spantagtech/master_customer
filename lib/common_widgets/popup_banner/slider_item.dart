@@ -16,22 +16,21 @@ class SliderItem extends StatefulWidget {
   final bool autoSlide;
   final Duration slideChangeDuration;
   final int initIndex;
-  const SliderItem({
-    super.key,
-    required this.imageList,
-    this.height = 180,
-    required this.onClick,
-    this.fromNetwork = true,
-    this.fit = BoxFit.cover,
-    this.dotsAlignment = Alignment.bottomLeft,
-    this.dotsColorActive = Colors.green,
-    this.dotsColorInactive = Colors.grey,
-    this.dotsMarginBottom = 10,
-    this.useDots = true,
-    this.autoSlide = true,
-    this.slideChangeDuration = const Duration(seconds: 6),
-    required this.initIndex
-  });
+  const SliderItem(
+      {super.key,
+      required this.imageList,
+      this.height = 180,
+      required this.onClick,
+      this.fromNetwork = true,
+      this.fit = BoxFit.cover,
+      this.dotsAlignment = Alignment.bottomLeft,
+      this.dotsColorActive = Colors.green,
+      this.dotsColorInactive = Colors.grey,
+      this.dotsMarginBottom = 10,
+      this.useDots = true,
+      this.autoSlide = true,
+      this.slideChangeDuration = const Duration(seconds: 6),
+      required this.initIndex});
 
   @override
   State<SliderItem> createState() => _SliderItemState();
@@ -114,13 +113,13 @@ class _SliderItemState extends State<SliderItem> {
             ),
             widget.useDots
                 ? Align(
-                  alignment: widget.dotsAlignment,
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 10, left: 20, right: 20, top: 10),
-                   child: _dotProgress(),
-              ),
-            )
+                    alignment: widget.dotsAlignment,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: 10, left: 20, right: 20, top: 10),
+                      child: _dotProgress(),
+                    ),
+                  )
                 : const SizedBox()
           ],
         ));
@@ -151,13 +150,13 @@ class _SliderItemState extends State<SliderItem> {
       margin: const EdgeInsets.symmetric(horizontal: 3),
       decoration: currentIndex == index
           ? BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: widget.dotsColorActive,
-      )
+              borderRadius: BorderRadius.circular(5),
+              color: widget.dotsColorActive,
+            )
           : BoxDecoration(
-        shape: BoxShape.circle,
-        color: widget.dotsColorInactive,
-      ),
+              shape: BoxShape.circle,
+              color: widget.dotsColorInactive,
+            ),
     );
   }
 
@@ -165,11 +164,11 @@ class _SliderItemState extends State<SliderItem> {
     return GestureDetector(
       onTap: () => widget.onClick(index),
       child: widget.fromNetwork
-          ? ImageWidget(image: item,fit: widget.fit)
+          ? ImageWidget(image: item, fit: widget.fit)
           : Image.asset(
-        item,
-        fit: widget.fit,
-      ),
+              item,
+              fit: widget.fit,
+            ),
     );
   }
 }

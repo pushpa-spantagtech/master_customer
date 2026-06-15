@@ -18,32 +18,59 @@ class SuggestedCategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: InkWell(onTap: () {
-          Get.find<RideController>().submitRideRequest('', true, categoryId: suggestedCategory.id!).then((value) {
-            if(value.statusCode == 200) {
-              Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.findingRider);
+      child: InkWell(
+        onTap: () {
+          Get.find<RideController>()
+              .submitRideRequest('', true, categoryId: suggestedCategory.id!)
+              .then((value) {
+            if (value.statusCode == 200) {
+              Get.find<ParcelController>()
+                  .updateParcelState(ParcelDeliveryState.findingRider);
               Get.find<MapController>().notifyMapController();
             }
           });
         },
-        child: Container(padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-          decoration: BoxDecoration(color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
-            boxShadow: [BoxShadow(color: Theme.of(context).primaryColor.withValues(alpha: .2), spreadRadius: 1, blurRadius: 1, offset: const Offset(1,1))]),
+        child: Container(
+          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+          decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+              boxShadow: [
+                BoxShadow(
+                    color: Theme.of(context).primaryColor.withValues(alpha: .2),
+                    spreadRadius: 1,
+                    blurRadius: 1,
+                    offset: const Offset(1, 1))
+              ]),
           child: Column(children: [
-
             Row(children: [
-              Expanded(child: Text(suggestedCategory.name!, style: textMedium.copyWith(color: Theme.of(context).primaryColor),)),
-              ImageWidget(image: '${Get.find<ConfigController>().config?.imageBaseUrl?.vehicleCategory}/${suggestedCategory.image}',
-                width: 50,height: 50, fit: BoxFit.contain),
+              Expanded(
+                  child: Text(
+                suggestedCategory.name!,
+                style:
+                    textMedium.copyWith(color: Theme.of(context).primaryColor),
+              )),
+              ImageWidget(
+                  image:
+                      '${Get.find<ConfigController>().config?.imageBaseUrl?.vehicleCategory}/${suggestedCategory.image}',
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.contain),
             ]),
-
-            RouteWidget(totalDistance: Get.find<RideController>().parcelEstimatedFare!.data!.estimatedDistance!.toString(),
-              fromAddress: Get.find<ParcelController>().senderAddressController.text,
-              toAddress: Get.find<ParcelController>().receiverAddressController.text,
-              extraOneAddress: '', extraTwoAddress: '', entrance: '',
+            RouteWidget(
+              totalDistance: Get.find<RideController>()
+                  .parcelEstimatedFare!
+                  .data!
+                  .estimatedDistance!
+                  .toString(),
+              fromAddress:
+                  Get.find<ParcelController>().senderAddressController.text,
+              toAddress:
+                  Get.find<ParcelController>().receiverAddressController.text,
+              extraOneAddress: '',
+              extraTwoAddress: '',
+              entrance: '',
             ),
-
           ]),
         ),
       ),

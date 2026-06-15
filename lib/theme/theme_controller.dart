@@ -12,13 +12,11 @@ class ThemeController extends GetxController {
   bool _darkTheme = false;
   bool get darkTheme => _darkTheme;
 
-
-   String _lightMap = '[]';
-   String _darkMap = '[]';
+  String _lightMap = '[]';
+  String _darkMap = '[]';
 
   String get lightMap => _lightMap;
   String get darkMap => _darkMap;
-
 
 /*  void toggleTheme() {
     _darkTheme = !_darkTheme;
@@ -26,12 +24,11 @@ class ThemeController extends GetxController {
     update();
   }*/
 
-  void changeThemeSetting(bool theme){
+  void changeThemeSetting(bool theme) {
     _darkTheme = theme;
     sharedPreferences.setBool(AppConstants.theme, theme);
     update();
   }
-
 
   void _loadCurrentTheme() async {
     _lightMap = await rootBundle.loadString('assets/map/light_map.json');

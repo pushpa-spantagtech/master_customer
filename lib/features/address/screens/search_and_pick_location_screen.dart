@@ -13,10 +13,12 @@ class SearchAndPickLocationScreen extends StatefulWidget {
   const SearchAndPickLocationScreen({super.key, this.mapController});
 
   @override
-  State<SearchAndPickLocationScreen> createState() => _SearchAndPickLocationScreenState();
+  State<SearchAndPickLocationScreen> createState() =>
+      _SearchAndPickLocationScreenState();
 }
 
-class _SearchAndPickLocationScreenState extends State<SearchAndPickLocationScreen> {
+class _SearchAndPickLocationScreenState
+    extends State<SearchAndPickLocationScreen> {
   TextEditingController controller = TextEditingController();
   int selectedCount = 0;
   bool _initialized = false;
@@ -28,18 +30,26 @@ class _SearchAndPickLocationScreenState extends State<SearchAndPickLocationScree
   }
 
   void _initializeLocation() {
-    if(Get.find<LocationController>().pickAddress.isNotEmpty && !_initialized){
+    if (Get.find<LocationController>().pickAddress.isNotEmpty &&
+        !_initialized) {
       _initialized = true;
       controller.text = Get.find<LocationController>().pickAddress;
-      Get.find<LocationController>().searchLocation(context, Get.find<LocationController>().pickAddress, fromMap: true);
+      Get.find<LocationController>().searchLocation(
+          context, Get.find<LocationController>().pickAddress,
+          fromMap: true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: SafeArea(child: Container(
-      color: Theme.of(context).cardColor,height: double.infinity,width: double.infinity,
-      child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+    return Scaffold(
+        body: SafeArea(
+            child: Container(
+      color: Theme.of(context).cardColor,
+      height: double.infinity,
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           TextField(
               controller: controller,
@@ -47,12 +57,13 @@ class _SearchAndPickLocationScreenState extends State<SearchAndPickLocationScree
                 hintText: 'search_location'.tr,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(style: BorderStyle.none, width: 0),
+                  borderSide:
+                      const BorderSide(style: BorderStyle.none, width: 0),
                 ),
                 hintStyle: Theme.of(context).textTheme.displayMedium!.copyWith(
-                  fontSize: Dimensions.fontSizeDefault,
-                  color: Get.isDarkMode ? Colors.white : Colors.black,
-                ),
+                      fontSize: Dimensions.fontSizeDefault,
+                      color: Get.isDarkMode ? Colors.white : Colors.black,
+                    ),
                 filled: true,
                 suffixIcon: const Icon(Icons.search),
                 fillColor: Colors.grey.withValues(alpha: .15),
@@ -61,86 +72,105 @@ class _SearchAndPickLocationScreenState extends State<SearchAndPickLocationScree
               autofocus: true,
               textCapitalization: TextCapitalization.words,
               keyboardType: TextInputType.streetAddress,
-              style: Theme.of(context)
-                  .textTheme
-                  .displayMedium!
-                  .copyWith(color: Theme.of(context).textTheme.bodyLarge!.color, fontSize: Dimensions.fontSizeLarge),
+              style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                  color: Theme.of(context).textTheme.bodyLarge!.color,
+                  fontSize: Dimensions.fontSizeLarge),
               onChanged: (String pattern) async {
-                await Get.find<LocationController>().searchLocation(context, pattern, fromMap: true);
+                await Get.find<LocationController>()
+                    .searchLocation(context, pattern, fromMap: true);
               }),
-
           GetBuilder<LocationController>(builder: (locationController) {
             return ListView.builder(
                 shrinkWrap: true,
                 itemCount: locationController.predictionList.length,
                 itemBuilder: (context, index) {
                   return InkWell(
-                      onTap: (){
-                        if(selectedCount == 0){
+                      onTap: () {
+                        if (selectedCount == 0) {
                           selectedCount = 1;
-                          Get.find<LocationController>().setLocation(
+                          Get.find<LocationController>()
+                              .setLocation(
                             locationController.predictionList[index].placeId!,
-                            locationController.predictionList[index].description!,
-                            widget.mapController, type: LocationType.location,
-                          ).then((value)  {
-                            locationController.locationController.text = value?.address ?? 'no';
+                            locationController
+                                .predictionList[index].description!,
+                            widget.mapController,
+                            type: LocationType.location,
+                          )
+                              .then((value) {
+                            locationController.locationController.text =
+                                value?.address ?? 'no';
                             Get.back();
                           });
                         }
                       },
                       child: Padding(
-                        padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                        padding:
+                            const EdgeInsets.all(Dimensions.paddingSizeSmall),
                         child: Row(children: [
                           const Icon(Icons.location_on),
-
-                          const SizedBox(width: Dimensions.paddingSizeDefault,),
-                          Expanded(child: Text(
-                            locationController.predictionList[index].description ?? '',
+                          const SizedBox(
+                            width: Dimensions.paddingSizeDefault,
+                          ),
+                          Expanded(
+                              child: Text(
+                            locationController
+                                    .predictionList[index].description ??
+                                '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                              color: Theme.of(context).textTheme.bodyLarge!.color,
-                              fontSize: Dimensions.fontSizeLarge,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .displayMedium!
+                                .copyWith(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .color,
+                                  fontSize: Dimensions.fontSizeLarge,
+                                ),
                           )),
                         ]),
-                      )
-                  );
-                }
-            );
+                      ));
+                });
           }),
-
           GetBuilder<LocationController>(builder: (locationController) {
             return InkWell(
-              onTap: (){
+              onTap: () {
                 Get.back();
-                RouteHelper.goPageAndHideTextField(context, PickMapScreen(
-                  type: LocationType.location,
-                  onLocationPicked: (Position position, String address) {
-                    locationController.mapController!.moveCamera(
-                      CameraUpdate.newCameraPosition(CameraPosition(
-                        target: LatLng(position.latitude, position.longitude), zoom: 16,
-                      )),
-                    );
-                    locationController.locationController.text = address;
-                  },
-                  oldLocationExist: locationController.pickAddress.isNotEmpty ? true : false,
-                ));
+                RouteHelper.goPageAndHideTextField(
+                    context,
+                    PickMapScreen(
+                      type: LocationType.location,
+                      onLocationPicked: (Position position, String address) {
+                        locationController.mapController!.moveCamera(
+                          CameraUpdate.newCameraPosition(CameraPosition(
+                            target:
+                                LatLng(position.latitude, position.longitude),
+                            zoom: 16,
+                          )),
+                        );
+                        locationController.locationController.text = address;
+                      },
+                      oldLocationExist:
+                          locationController.pickAddress.isNotEmpty
+                              ? true
+                              : false,
+                    ));
               },
               child: Padding(
                 padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                 child: Row(children: [
                   const Icon(Icons.share_location_rounded),
                   const SizedBox(width: Dimensions.paddingSizeDefault),
-
-                  Expanded(child: Text(
+                  Expanded(
+                      child: Text(
                     'set_location_on_map'.tr,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                      color: Theme.of(context).textTheme.bodyLarge!.color,
-                      fontSize: Dimensions.fontSizeLarge,
-                    ),
+                          color: Theme.of(context).textTheme.bodyLarge!.color,
+                          fontSize: Dimensions.fontSizeLarge,
+                        ),
                   )),
                 ]),
               ),

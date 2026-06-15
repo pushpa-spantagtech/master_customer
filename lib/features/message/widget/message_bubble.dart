@@ -213,8 +213,8 @@ class _ConversationBubbleState extends State<ConversationBubble> {
                                                         width: 100,
                                                         color: Colors
                                                             .transparent
-                                                            .withValues(alpha: 
-                                                          0.5,
+                                                            .withValues(
+                                                          alpha: 0.5,
                                                         ),
                                                         child: Center(
                                                             child: Text(

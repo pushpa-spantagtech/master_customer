@@ -16,31 +16,61 @@ class ProductDetailsWidget extends StatefulWidget {
 class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ParcelController>(builder: (parcelController){
-      return ExpansionTile(initiallyExpanded: true,
-        collapsedBackgroundColor: Theme.of(context).primaryColor.withValues(alpha: .4),
-        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-        title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-
-          Row(children: [Image.asset(Images.parcelDetails,width: Dimensions.iconSizeSmall,),
-            const SizedBox(width: Dimensions.paddingSizeSmall,),
+    return GetBuilder<ParcelController>(builder: (parcelController) {
+      return ExpansionTile(
+        initiallyExpanded: true,
+        collapsedBackgroundColor:
+            Theme.of(context).primaryColor.withValues(alpha: .4),
+        collapsedShape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+        title:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Row(children: [
+            Image.asset(
+              Images.parcelDetails,
+              width: Dimensions.iconSizeSmall,
+            ),
+            const SizedBox(
+              width: Dimensions.paddingSizeSmall,
+            ),
             Text('parcel_details'.tr),
-            const SizedBox(width: Dimensions.paddingSizeSmall,),
-            InkWell(onTap: (){
-              parcelController.updateParcelState(ParcelDeliveryState.addOtherParcelDetails);
-              Get.find<MapController>().notifyMapController();},
-                child: Image.asset(Images.editIcon,width: 15,height: 15))])]),
-
-
+            const SizedBox(
+              width: Dimensions.paddingSizeSmall,
+            ),
+            InkWell(
+                onTap: () {
+                  parcelController.updateParcelState(
+                      ParcelDeliveryState.addOtherParcelDetails);
+                  Get.find<MapController>().notifyMapController();
+                },
+                child: Image.asset(Images.editIcon, width: 15, height: 15))
+          ])
+        ]),
         children: <Widget>[
-          Column(mainAxisSize: MainAxisSize.min,
-            children: [Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
-                color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.1)),
-              padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-              child: Column(children: [
-                RowText(title: 'weight', leadingText: '${parcelController.parcelWeightController.text} kg'),
-                RowText(title: 'type', leadingText: parcelController.parcelTypeController.text)])),
-              const SizedBox(height: Dimensions.paddingSizeDefault,),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                  decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(Dimensions.radiusLarge),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onPrimary
+                          .withValues(alpha: 0.1)),
+                  padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                  child: Column(children: [
+                    RowText(
+                        title: 'weight',
+                        leadingText:
+                            '${parcelController.parcelWeightController.text} kg'),
+                    RowText(
+                        title: 'type',
+                        leadingText: parcelController.parcelTypeController.text)
+                  ])),
+              const SizedBox(
+                height: Dimensions.paddingSizeDefault,
+              ),
             ],
           )
         ],
@@ -57,11 +87,23 @@ class RowText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall,vertical: 5),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.symmetric(
+          horizontal: Dimensions.paddingSizeSmall, vertical: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title.tr,style: textMedium.copyWith(color: Theme.of(context).textTheme.displayLarge!.color,fontSize: Dimensions.fontSizeDefault),),
-          Text(leadingText??'',style: textMedium.copyWith(color: Theme.of(context).primaryColor,fontSize: Dimensions.fontSizeDefault),),
+          Text(
+            title.tr,
+            style: textMedium.copyWith(
+                color: Theme.of(context).textTheme.displayLarge!.color,
+                fontSize: Dimensions.fontSizeDefault),
+          ),
+          Text(
+            leadingText ?? '',
+            style: textMedium.copyWith(
+                color: Theme.of(context).primaryColor,
+                fontSize: Dimensions.fontSizeDefault),
+          ),
         ],
       ),
     );

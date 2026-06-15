@@ -142,15 +142,14 @@ class OfferCouponCardWidget extends StatelessWidget {
                                             250, 173, 2, 1),
                                         border: Border.all(
                                             color: Color.fromRGBO(
-                                                255, 128, 128, 0.2))
-                                        ),
+                                                255, 128, 128, 0.2))),
                                     child: Text(
                                       couponController.couponModel!.data![index]
                                               .isApplied!
                                           ? 'applied'.tr
                                           : 'apply'.tr,
                                       style: textRegular.copyWith(
-                                        color:  Color.fromRGBO(255, 255, 255, 1),
+                                        color: Color.fromRGBO(255, 255, 255, 1),
                                       ),
                                     ),
                                   ),

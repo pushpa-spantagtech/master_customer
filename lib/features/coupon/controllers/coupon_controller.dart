@@ -15,25 +15,22 @@ class CouponController extends GetxController implements GetxService {
   Future<Response> getCouponList(int offset, {bool isUpdate = true}) async {
     isLoading = true;
 
-    if(isUpdate) {
+    if (isUpdate) {
       update();
     }
-    Response response = await couponServiceInterface.getList(offset : offset);
+    Response response = await couponServiceInterface.getList(offset: offset);
 
     if (response.statusCode == 200) {
-      if(offset == 1){
+      if (offset == 1) {
         couponModel = CouponModel.fromJson(response.body);
-
-      }else{
+      } else {
         couponModel?.data!.addAll(CouponModel.fromJson(response.body).data!);
         couponModel?.offset = CouponModel.fromJson(response.body).offset;
         couponModel?.totalSize = CouponModel.fromJson(response.body).totalSize;
-
       }
 
       isLoading = false;
-
-    }else{
+    } else {
       isLoading = false;
       ApiChecker.checkApi(response);
     }
@@ -43,17 +40,17 @@ class CouponController extends GetxController implements GetxService {
     return response;
   }
 
-
   bool isApplying = false;
   Future<Response> applyCoupon(String couponCode, String tripId) async {
     isApplying = true;
     update();
-    Response response = await couponServiceInterface.applyCoupon(couponCode, tripId);
+    Response response =
+        await couponServiceInterface.applyCoupon(couponCode, tripId);
     if (response.statusCode == 200) {
       await Get.find<RideController>().getFinalFare(tripId);
       isApplying = false;
       showCustomSnackBar('coupon_applied_successfully'.tr, isError: false);
-    }else{
+    } else {
       isApplying = false;
       ApiChecker.checkApi(response);
     }
@@ -69,8 +66,7 @@ class CouponController extends GetxController implements GetxService {
       await Get.find<RideController>().getFinalFare(tripId);
       isApplying = false;
       showCustomSnackBar('coupon_removed_successfully'.tr, isError: false);
-
-    }else{
+    } else {
       isApplying = false;
       ApiChecker.checkApi(response);
     }
@@ -81,13 +77,17 @@ class CouponController extends GetxController implements GetxService {
   Future<Response> customerAppliedCoupon(String couponId, int index) async {
     couponModel!.data![index].isLoading = true;
     update();
-    Response response = await couponServiceInterface.customerAppliedCoupon(couponId);
+    Response response =
+        await couponServiceInterface.customerAppliedCoupon(couponId);
     if (response.statusCode == 200) {
       couponModel!.data![index].isLoading = false;
-      showCustomSnackBar(couponModel!.data![index].isApplied! ? 'coupon_removed_successfully'.tr :
-      'coupon_applied_successfully'.tr, isError:couponModel!.data![index].isApplied! ? true : false);
+      showCustomSnackBar(
+          couponModel!.data![index].isApplied!
+              ? 'coupon_removed_successfully'.tr
+              : 'coupon_applied_successfully'.tr,
+          isError: couponModel!.data![index].isApplied! ? true : false);
       getCouponList(1);
-    }else{
+    } else {
       couponModel!.data![index].isLoading = false;
       ApiChecker.checkApi(response);
     }

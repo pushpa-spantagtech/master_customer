@@ -6,15 +6,13 @@ class ParcelCategoryModel {
   String? offset;
   List<ParcelCategory>? data;
 
-
   ParcelCategoryModel(
       {this.responseCode,
-        this.message,
-        this.totalSize,
-        this.limit,
-        this.offset,
-        this.data
-      });
+      this.message,
+      this.totalSize,
+      this.limit,
+      this.offset,
+      this.data});
 
   ParcelCategoryModel.fromJson(Map<String, dynamic> json) {
     responseCode = json['response_code'];
@@ -28,9 +26,7 @@ class ParcelCategoryModel {
         data!.add(ParcelCategory.fromJson(v));
       });
     }
-
   }
-
 }
 
 class ParcelCategory {
@@ -44,12 +40,12 @@ class ParcelCategory {
 
   ParcelCategory(
       {this.id,
-        this.name,
-        this.description,
-        this.image,
-        this.isActive,
-        this.weightFares,
-        this.createdAt});
+      this.name,
+      this.description,
+      this.image,
+      this.isActive,
+      this.weightFares,
+      this.createdAt});
 
   ParcelCategory.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -65,7 +61,6 @@ class ParcelCategory {
     }
     createdAt = json['created_at'];
   }
-
 }
 
 class WeightFares {
@@ -86,13 +81,12 @@ class WeightFares {
     parcelWeight = json['parcel_weight'] != null
         ? ParcelWeight.fromJson(json['parcel_weight'])
         : null;
-    if(json['fare'] != null){
+    if (json['fare'] != null) {
       fare = json['fare'].toDouble();
     }
 
     createdAt = json['created_at'];
   }
-
 }
 
 class ParcelFare {
@@ -105,31 +99,30 @@ class ParcelFare {
 
   ParcelFare(
       {this.id,
-        this.baseFare,
-        this.baseFarePerKm,
-        this.cancellationFeePercent,
-        this.minCancellationFee,
-        this.createdAt});
+      this.baseFare,
+      this.baseFarePerKm,
+      this.cancellationFeePercent,
+      this.minCancellationFee,
+      this.createdAt});
 
   ParcelFare.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    if(json['base_fare'] != null){
+    if (json['base_fare'] != null) {
       baseFare = json['base_fare'].toDouble();
     }
-    if(json['base_fare_per_km'] != null){
+    if (json['base_fare_per_km'] != null) {
       baseFarePerKm = json['base_fare_per_km'].toDouble();
     }
 
-   if(json['cancellation_fee_percent'] != null){
-     cancellationFeePercent = json['cancellation_fee_percent'].toDouble();
-   }
-    if(json['min_cancellation_fee'] != null){
+    if (json['cancellation_fee_percent'] != null) {
+      cancellationFeePercent = json['cancellation_fee_percent'].toDouble();
+    }
+    if (json['min_cancellation_fee'] != null) {
       minCancellationFee = json['min_cancellation_fee'].toDouble();
     }
 
     createdAt = json['created_at'];
   }
-
 }
 
 class ParcelWeight {
@@ -138,19 +131,17 @@ class ParcelWeight {
   double? maxWeight;
   String? createdAt;
 
-  ParcelWeight(
-      {this.id, this.minWeight, this.maxWeight, this.createdAt});
+  ParcelWeight({this.id, this.minWeight, this.maxWeight, this.createdAt});
 
   ParcelWeight.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    if(json['min_weight'] != null){
+    if (json['min_weight'] != null) {
       minWeight = json['min_weight'].toDouble();
     }
-    if(json['max_weight'] != null){
+    if (json['max_weight'] != null) {
       maxWeight = json['max_weight'].toDouble();
     }
 
     createdAt = json['created_at'];
   }
-
 }

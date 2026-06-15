@@ -44,15 +44,15 @@ class Banner {
 
   Banner(
       {this.id,
-        this.name,
-        this.description,
-        this.timePeriod,
-        this.displayPosition,
-        this.redirectLink,
-        this.bannerGroup,
-        this.startDate,
-        this.endDate,
-        this.image});
+      this.name,
+      this.description,
+      this.timePeriod,
+      this.displayPosition,
+      this.redirectLink,
+      this.bannerGroup,
+      this.startDate,
+      this.endDate,
+      this.image});
 
   Banner.fromJson(Map<String, dynamic> json) {
     id = json['id'];

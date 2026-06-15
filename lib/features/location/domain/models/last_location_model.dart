@@ -10,13 +10,13 @@ class LastLocationModel {
 
   LastLocationModel(
       {this.id,
-        this.userId,
-        this.type,
-        this.latitude,
-        this.longitude,
-        this.zoneId,
-        this.createdAt,
-        this.updatedAt});
+      this.userId,
+      this.type,
+      this.latitude,
+      this.longitude,
+      this.zoneId,
+      this.createdAt,
+      this.updatedAt});
 
   LastLocationModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];

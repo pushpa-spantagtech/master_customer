@@ -16,61 +16,72 @@ class TransactionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Dimensions.paddingSizeDefault, 0, Dimensions.paddingSizeDefault, Dimensions.paddingSizeDefault),
-      child: GetBuilder<WalletController>(
-          builder: (walletController) {
-            return Column(children: [
-              Padding(padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
-                child: Row(children: [
-                  Image.asset(
-                    Images.myEarnIcon,
-                    height: Dimensions.paddingSizeExtraLarge,
-                    width: Dimensions.paddingSizeExtraLarge,
-                  ),
-
-                  Expanded(child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const SizedBox(width: Dimensions.paddingSizeSmall),
-                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(
-                        ' ${transaction.attribute!.tr}',
-                        style: textSemiBold.copyWith(color: Theme.of(context).primaryColor),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall),
-                        child: Text(DateConverter.isoStringToDateTimeString(transaction.createdAt ?? ''),
-                            style: textRegular.copyWith(color: Theme.of(context).hintColor)),
-                      ),
-                    ])),
-                  ])),
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Dimensions.paddingSizeDefault,
-                      vertical: Dimensions.paddingSizeSeven,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: transaction.debit! > 0 ?
-                      Theme.of(context).colorScheme.error.withValues(alpha: 0.15) :
-                      Theme.of(context).primaryColor.withValues(alpha: 0.15),
-                    ),
-                    child: Text(
-                      PriceConverter.convertPrice(transaction.debit! > 0 ?
-                      transaction.debit! :
-                      transaction.credit!),
-                      style: textBold.copyWith(color: Theme.of(context).primaryColor),
-                    ),
-                  ),
-
-                ]),
+      padding: const EdgeInsets.fromLTRB(Dimensions.paddingSizeDefault, 0,
+          Dimensions.paddingSizeDefault, Dimensions.paddingSizeDefault),
+      child: GetBuilder<WalletController>(builder: (walletController) {
+        return Column(children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+            child: Row(children: [
+              Image.asset(
+                Images.myEarnIcon,
+                height: Dimensions.paddingSizeExtraLarge,
+                width: Dimensions.paddingSizeExtraLarge,
               ),
-
-              CustomDivider(height: .5,color: Theme.of(context).hintColor.withValues(alpha: 0.75)),
-
-            ]);
-          }
-      ),
+              Expanded(
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                    const SizedBox(width: Dimensions.paddingSizeSmall),
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text(
+                            ' ${transaction.attribute!.tr}',
+                            style: textSemiBold.copyWith(
+                                color: Theme.of(context).primaryColor),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: Dimensions.paddingSizeExtraSmall),
+                            child: Text(
+                                DateConverter.isoStringToDateTimeString(
+                                    transaction.createdAt ?? ''),
+                                style: textRegular.copyWith(
+                                    color: Theme.of(context).hintColor)),
+                          ),
+                        ])),
+                  ])),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dimensions.paddingSizeDefault,
+                  vertical: Dimensions.paddingSizeSeven,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: transaction.debit! > 0
+                      ? Theme.of(context)
+                          .colorScheme
+                          .error
+                          .withValues(alpha: 0.15)
+                      : Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                ),
+                child: Text(
+                  PriceConverter.convertPrice(transaction.debit! > 0
+                      ? transaction.debit!
+                      : transaction.credit!),
+                  style:
+                      textBold.copyWith(color: Theme.of(context).primaryColor),
+                ),
+              ),
+            ]),
+          ),
+          CustomDivider(
+              height: .5,
+              color: Theme.of(context).hintColor.withValues(alpha: 0.75)),
+        ]);
+      }),
     );
   }
 }

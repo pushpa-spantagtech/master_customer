@@ -6,8 +6,7 @@ import 'package:ride_sharing_user_app/features/wallet/domain/models/transaction_
 import 'package:ride_sharing_user_app/features/wallet/domain/repositories/wallet_repository.dart';
 import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 
-
-class WalletController extends GetxController implements GetxService{
+class WalletController extends GetxController implements GetxService {
   final WalletRepository walletRepo;
 
   WalletController({required this.walletRepo});
@@ -17,7 +16,7 @@ class WalletController extends GetxController implements GetxService{
 
   bool isLoading = false;
 
-  List<String> walletType = ['wallet_money','loyalty_point'];
+  List<String> walletType = ['wallet_money', 'loyalty_point'];
 
   TransactionModel? transactionModel;
   Future<Response> getTransactionList(int offset) async {
@@ -26,22 +25,23 @@ class WalletController extends GetxController implements GetxService{
     Response? response = await walletRepo.getTransactionList(offset);
     if (response!.statusCode == 200) {
       isLoading = false;
-      if(offset == 1){
+      if (offset == 1) {
         transactionModel = TransactionModel.fromJson(response.body);
-      }else{
-        transactionModel!.data!.addAll(TransactionModel.fromJson(response.body).data!);
-        transactionModel!.offset = TransactionModel.fromJson(response.body).offset;
-        transactionModel!.totalSize = TransactionModel.fromJson(response.body).totalSize;
+      } else {
+        transactionModel!.data!
+            .addAll(TransactionModel.fromJson(response.body).data!);
+        transactionModel!.offset =
+            TransactionModel.fromJson(response.body).offset;
+        transactionModel!.totalSize =
+            TransactionModel.fromJson(response.body).totalSize;
       }
-
-    }else{
+    } else {
       isLoading = false;
       ApiChecker.checkApi(response);
     }
     update();
     return response;
   }
-
 
   LoyaltyPointModel? loyaltyPointModel;
   Future<Response> getLoyaltyPointList(int offset) async {
@@ -50,14 +50,17 @@ class WalletController extends GetxController implements GetxService{
     Response? response = await walletRepo.getLoyaltyPointList(offset);
     if (response!.statusCode == 200) {
       isLoading = false;
-      if(offset == 1){
+      if (offset == 1) {
         loyaltyPointModel = LoyaltyPointModel.fromJson(response.body);
-      }else{
-        loyaltyPointModel!.data!.addAll(LoyaltyPointModel.fromJson(response.body).data!);
-        loyaltyPointModel!.offset = LoyaltyPointModel.fromJson(response.body).offset;
-        loyaltyPointModel!.totalSize = LoyaltyPointModel.fromJson(response.body).totalSize;
+      } else {
+        loyaltyPointModel!.data!
+            .addAll(LoyaltyPointModel.fromJson(response.body).data!);
+        loyaltyPointModel!.offset =
+            LoyaltyPointModel.fromJson(response.body).offset;
+        loyaltyPointModel!.totalSize =
+            LoyaltyPointModel.fromJson(response.body).totalSize;
       }
-    }else{
+    } else {
       isLoading = false;
       ApiChecker.checkApi(response);
     }
@@ -65,17 +68,15 @@ class WalletController extends GetxController implements GetxService{
     return response;
   }
 
-
-
   Future<Response> convertPoint(String point) async {
     isLoading = true;
     update();
     Response? response = await walletRepo.convertPoint(point);
     if (response!.statusCode == 200) {
-     Get.find<ProfileController>().getProfileInfo();
-     getTransactionList(1);
+      Get.find<ProfileController>().getProfileInfo();
+      getTransactionList(1);
       isLoading = false;
-    }else{
+    } else {
       isLoading = false;
       ApiChecker.checkApi(response);
     }
@@ -85,9 +86,8 @@ class WalletController extends GetxController implements GetxService{
 
   int currentTabIndex = 0;
 
-  void updateCurrentTabIndex(int index){
+  void updateCurrentTabIndex(int index) {
     currentTabIndex = index;
     update();
   }
-
 }

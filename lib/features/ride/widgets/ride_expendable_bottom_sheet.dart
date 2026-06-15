@@ -193,8 +193,9 @@ class _RideExpendableBottomSheetState extends State<RideExpendableBottomSheet> {
                                                                 .textTheme
                                                                 .bodyMedium!
                                                                 .color!
-                                                                .withValues(alpha:
-                                                                    0.8)),
+                                                                .withValues(
+                                                                    alpha:
+                                                                        0.8)),
                                                         children: [
                                                           TextSpan(
                                                             text:

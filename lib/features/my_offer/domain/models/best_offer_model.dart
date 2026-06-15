@@ -1,5 +1,3 @@
-
-
 class BestOfferModel {
   String? responseCode;
   String? message;
@@ -8,15 +6,14 @@ class BestOfferModel {
   String? offset;
   List<OfferModel>? data;
 
-
-  BestOfferModel(
-      {this.responseCode,
-        this.message,
-        this.totalSize,
-        this.limit,
-        this.offset,
-        this.data,
-      });
+  BestOfferModel({
+    this.responseCode,
+    this.message,
+    this.totalSize,
+    this.limit,
+    this.offset,
+    this.data,
+  });
 
   BestOfferModel.fromJson(Map<String, dynamic> json) {
     responseCode = json['response_code'];
@@ -30,11 +27,10 @@ class BestOfferModel {
         data!.add(OfferModel.fromJson(v));
       });
     }
-
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['response_code'] = responseCode;
     data['message'] = message;
     data['total_size'] = totalSize;
@@ -70,23 +66,23 @@ class OfferModel {
 
   OfferModel(
       {this.id,
-        this.title,
-        this.shortDescription,
-        this.termsConditions,
-        this.image,
-        this.discountAmount,
-        this.zoneDiscount,
-        this.customerLevelDiscount,
-        this.customerDiscount,
-        this.moduleDiscount,
-        this.discountAmountType,
-        this.maxDiscountAmount,
-        this.minTripAmount,
-        this.limit,
-        this.startDate,
-        this.endDate,
-        this.isActive,
-        this.createdAt});
+      this.title,
+      this.shortDescription,
+      this.termsConditions,
+      this.image,
+      this.discountAmount,
+      this.zoneDiscount,
+      this.customerLevelDiscount,
+      this.customerDiscount,
+      this.moduleDiscount,
+      this.discountAmountType,
+      this.maxDiscountAmount,
+      this.minTripAmount,
+      this.limit,
+      this.startDate,
+      this.endDate,
+      this.isActive,
+      this.createdAt});
 
   OfferModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];

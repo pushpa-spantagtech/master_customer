@@ -25,6 +25,7 @@ import 'package:ride_sharing_user_app/features/location/view/access_location_scr
 import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/payment/controllers/payment_controller.dart';
+import 'package:ride_sharing_user_app/features/ride/domain/models/outstation_tariff_model.dart';
 
 enum RideState {
   initial,
@@ -80,8 +81,6 @@ class RideController extends GetxController implements GetxService {
   double localFare = 0;
   bool isOutstationRide = false;
   String outstationVehicle = '';
-  double outstationFare = 0;
-
   TripDetails? get currentTripDetails => tripDetails;
 
   TextEditingController inputFarePriceController =
@@ -269,16 +268,6 @@ class RideController extends GetxController implements GetxService {
         : tripDetails == null
             ? locController.toAddress!
             : Address();
-
-    print(
-      'isLocalRide=$isLocalRide, '
-      'isRentalRide=$isRentalRide, '
-      'localFare=$localFare, '
-      'rentalPackageFare=$rentalPackageFare, '
-      'estimatedFare=$estimatedFare, '
-      'actualFare=$actualFare',
-    );
-
     Response response = await rideServiceInterface.submitRideRequest(
         pickupLat: pickUpPosition.latitude.toString(),
         pickupLng: pickUpPosition.longitude.toString(),
@@ -834,18 +823,77 @@ class RideController extends GetxController implements GetxService {
     countingTimeStates();
   }
 
-  void setRentalRide(bool value) {
-    isRentalRide = value;
+  void setLocalRide(bool value) {
+    isLocalRide = value;
+    if (value) {
+      isRentalRide = false;
+      isOutstationRide = false;
+    }
     update();
   }
 
-  void setLocalRide(bool value) {
-    isLocalRide = value;
+  void setRentalRide(bool value) {
+    isRentalRide = value;
+    if (value) {
+      isLocalRide = false;
+      isOutstationRide = false;
+    }
     update();
   }
 
   void setOutstationRide(bool value) {
     isOutstationRide = value;
+    if (value) {
+      isLocalRide = false;
+      isRentalRide = false;
+    }
+    update();
+  }
+
+  double outstationFare = 0;
+  List<OutstationTariff> outstationTariffs = [];
+  Future<void> getOutstationTariffs() async {
+    Response response = await rideServiceInterface.getOutstationTariffs();
+
+    if (response.statusCode == 200) {
+      outstationTariffs =
+          OutstationTariffModel.fromJson(response.body).data ?? [];
+
+      print('Outstation Tariffs Loaded: ${outstationTariffs.length}');
+    } else {
+      ApiChecker.checkApi(response);
+    }
+
+    update();
+  }
+
+  double calculateOutstationFare(
+    OutstationTariff tariff,
+    double distance,
+  ) {
+    final baseKm = tariff.baseKm ?? 0;
+    final baseFare = double.tryParse(tariff.baseFare ?? '0') ?? 0;
+    final extraPerKm = double.tryParse(tariff.extraPerKm ?? '0') ?? 0;
+
+    if (distance <= baseKm) {
+      return baseFare;
+    }
+
+    return baseFare + ((distance - baseKm) * extraPerKm);
+  }
+
+  Future<void> getCalculatedOutstationFare(
+    String vehicleType,
+  ) async {
+    double distance = double.tryParse(estimatedDistance) ?? 0;
+
+    Response response = await rideServiceInterface.calculateOutstationFare(
+      vehicleType,
+      distance,
+    );
+
+    print(response.body);
+
     update();
   }
 }

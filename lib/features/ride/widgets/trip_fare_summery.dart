@@ -188,8 +188,6 @@ class TripFareSummery extends StatelessWidget {
                     : PaymentItemInfoWidget(
                         icon: Images.farePrice,
                         title: 'fare_price'.tr,
-                        // amount: rideController.finalFare?.distanceWiseFare ?? 0,
-
                         amount: rideController.isLocalRide
                             ? localFare
                             : rideController.isOutstationRide

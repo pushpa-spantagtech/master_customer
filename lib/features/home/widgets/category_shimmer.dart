@@ -10,7 +10,8 @@ class CategoryShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical : Dimensions.paddingSizeSmall),
+      padding:
+          const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
       child: ListView.builder(
         itemCount: 5,
         shrinkWrap: true,
@@ -25,23 +26,29 @@ class CategoryShimmer extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor.withValues(alpha: 0.07),
-                borderRadius: const BorderRadius.all(Radius.circular(Dimensions.radiusLarge)),
+                borderRadius: const BorderRadius.all(
+                    Radius.circular(Dimensions.radiusLarge)),
               ),
               child: Column(
-                children:  [
-                   const ImageWidget(
-                     image: '',
-                     radius: Dimensions.radiusDefault,
-                     height: 50, width: 50,
-                     placeholder: Images.carPlaceholder,
-                   ),
-                  const SizedBox(height: Dimensions.paddingSizeSmall,),
+                children: [
+                  const ImageWidget(
+                    image: '',
+                    radius: Dimensions.radiusDefault,
+                    height: 50,
+                    width: 50,
+                    placeholder: Images.carPlaceholder,
+                  ),
+                  const SizedBox(
+                    height: Dimensions.paddingSizeSmall,
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Container(width: 70, height: 5, color: Colors.white,),
+                    child: Container(
+                      width: 70,
+                      height: 5,
+                      color: Colors.white,
+                    ),
                   ),
-
-
                 ],
               ),
             ),

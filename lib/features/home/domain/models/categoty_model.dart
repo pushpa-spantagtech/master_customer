@@ -6,15 +6,14 @@ class CategoryModel {
   String? offset;
   List<Category>? data;
 
-
-  CategoryModel(
-      {this.responseCode,
-        this.message,
-        this.totalSize,
-        this.limit,
-        this.offset,
-        this.data,
-        });
+  CategoryModel({
+    this.responseCode,
+    this.message,
+    this.totalSize,
+    this.limit,
+    this.offset,
+    this.data,
+  });
 
   CategoryModel.fromJson(Map<String, dynamic> json) {
     responseCode = json['response_code'];
@@ -28,7 +27,6 @@ class CategoryModel {
         data!.add(Category.fromJson(v));
       });
     }
-
   }
 
   Map<String, dynamic> toJson() {
@@ -92,15 +90,15 @@ class Fare {
 
   Fare(
       {this.id,
-        this.baseFare,
-        this.baseFarePerKm,
-        this.waitingFeePerMin,
-        this.minCancellationFee,
-        this.idleFeePerMin,
-        this.tripDelayFeePerMin,
-        this.penaltyFeeForCancel,
-        this.feeAddToNext,
-        this.createdAt});
+      this.baseFare,
+      this.baseFarePerKm,
+      this.waitingFeePerMin,
+      this.minCancellationFee,
+      this.idleFeePerMin,
+      this.tripDelayFeePerMin,
+      this.penaltyFeeForCancel,
+      this.feeAddToNext,
+      this.createdAt});
 
   Fare.fromJson(Map<String, dynamic> json) {
     id = json['id'];

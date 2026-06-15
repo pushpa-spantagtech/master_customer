@@ -19,81 +19,121 @@ class ParcelExpendableBottomSheet extends StatefulWidget {
   const ParcelExpendableBottomSheet({super.key, required this.expandableKey});
 
   @override
-  State<ParcelExpendableBottomSheet> createState() => _ParcelExpendableBottomSheetState();
+  State<ParcelExpendableBottomSheet> createState() =>
+      _ParcelExpendableBottomSheetState();
 }
 
-class _ParcelExpendableBottomSheetState extends State<ParcelExpendableBottomSheet> {
+class _ParcelExpendableBottomSheetState
+    extends State<ParcelExpendableBottomSheet> {
   @override
   void initState() {
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ParcelController>(builder: (parcelController) {
-      return GetBuilder<RideController>(
-        builder: (rideController) {
-          return Container(width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(color: Theme.of(context).canvasColor,
-              borderRadius : const BorderRadius.only(
-                topLeft: Radius.circular(Dimensions.paddingSizeDefault),
-                topRight : Radius.circular(Dimensions.paddingSizeDefault),
-              ),
-              boxShadow: [BoxShadow(
+      return GetBuilder<RideController>(builder: (rideController) {
+        return Container(
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            color: Theme.of(context).canvasColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(Dimensions.paddingSizeDefault),
+              topRight: Radius.circular(Dimensions.paddingSizeDefault),
+            ),
+            boxShadow: [
+              BoxShadow(
                   color: Theme.of(context).hintColor,
-                  blurRadius: 5, spreadRadius: 1, offset: const Offset(0,2)
-              )],
-            ),
-
-            child: Padding(
-              padding:  const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeDefault),
-              child : Column(mainAxisSize: MainAxisSize.min, children: [
-                Container(height: 7, width: 70,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).highlightColor,
-                    borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
-                  ),
+                  blurRadius: 5,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 2))
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                vertical: Dimensions.paddingSizeDefault),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Container(
+                height: 7,
+                width: 70,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).highlightColor,
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
                 ),
-
-                const Padding(
-                  padding:  EdgeInsets.fromLTRB(Dimensions.paddingSizeDefault, Dimensions.paddingSizeSmall,
-                    Dimensions.paddingSizeDefault, Dimensions.paddingSizeDefault),
-                  child: SizedBox(),
-                ),
-
-                GetBuilder<ParcelController>(builder: (parcelController) {
-                  return Padding(padding: const EdgeInsets.symmetric(horizontal:Dimensions.paddingSizeDefault),
-                    child: Column(mainAxisSize: MainAxisSize.min, children:  [
-
-                      (parcelController.currentParcelState == ParcelDeliveryState.initial) ?
-                      SenderReceiverInfoWidget(expandableKey: widget.expandableKey)
-                      : (parcelController.currentParcelState == ParcelDeliveryState.addOtherParcelDetails) ?
-                      ParcelDetailInputView(expandableKey: widget.expandableKey)
-                      : (parcelController.currentParcelState == ParcelDeliveryState.parcelInfoDetails) ?
-                       ParcelInfoDetailsWidget(expandableKey: widget.expandableKey):
-
-                      (parcelController.currentParcelState == ParcelDeliveryState.riseFare)?
-                       RiseFareWidget(expandableKey: widget.expandableKey, fromPage: RiseFare.parcel) :
-                      (parcelController.currentParcelState == ParcelDeliveryState.suggestVehicle)?
-                      const ChooseEfficientVehicleWidget() :
-                      (parcelController.currentParcelState == ParcelDeliveryState.findingRider)?
-                       FindingRiderWidget(fromPage: FindingRide.parcel,expandableKey: widget.expandableKey,) :
-                      (parcelController.currentParcelState == ParcelDeliveryState.acceptRider)?
-                       ParcelAcceptedRideWidget(expandableKey: widget.expandableKey): 
-                      (parcelController.currentParcelState == ParcelDeliveryState.otpSent) ?
-                      ParcelOtpBottomSheetWidget(expandableKey: widget.expandableKey):
-                      (parcelController.currentParcelState == ParcelDeliveryState.parcelOngoing) ?
-                      ParcelOngoingBottomSheetWidget(expandableKey: widget.expandableKey) :
-                      const SizedBox(),
-
-                    ]),
-                  );
-                }),
-
-              ]),
-            ),
-          );
-        }
-      );
+              ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(
+                    Dimensions.paddingSizeDefault,
+                    Dimensions.paddingSizeSmall,
+                    Dimensions.paddingSizeDefault,
+                    Dimensions.paddingSizeDefault),
+                child: SizedBox(),
+              ),
+              GetBuilder<ParcelController>(builder: (parcelController) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeDefault),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    (parcelController.currentParcelState ==
+                            ParcelDeliveryState.initial)
+                        ? SenderReceiverInfoWidget(
+                            expandableKey: widget.expandableKey)
+                        : (parcelController.currentParcelState ==
+                                ParcelDeliveryState.addOtherParcelDetails)
+                            ? ParcelDetailInputView(
+                                expandableKey: widget.expandableKey)
+                            : (parcelController.currentParcelState ==
+                                    ParcelDeliveryState.parcelInfoDetails)
+                                ? ParcelInfoDetailsWidget(
+                                    expandableKey: widget.expandableKey)
+                                : (parcelController.currentParcelState ==
+                                        ParcelDeliveryState.riseFare)
+                                    ? RiseFareWidget(
+                                        expandableKey: widget.expandableKey,
+                                        fromPage: RiseFare.parcel)
+                                    : (parcelController.currentParcelState ==
+                                            ParcelDeliveryState.suggestVehicle)
+                                        ? const ChooseEfficientVehicleWidget()
+                                        : (parcelController
+                                                    .currentParcelState ==
+                                                ParcelDeliveryState
+                                                    .findingRider)
+                                            ? FindingRiderWidget(
+                                                fromPage: FindingRide.parcel,
+                                                expandableKey:
+                                                    widget.expandableKey,
+                                              )
+                                            : (parcelController
+                                                        .currentParcelState ==
+                                                    ParcelDeliveryState
+                                                        .acceptRider)
+                                                ? ParcelAcceptedRideWidget(
+                                                    expandableKey:
+                                                        widget.expandableKey)
+                                                : (parcelController
+                                                            .currentParcelState ==
+                                                        ParcelDeliveryState
+                                                            .otpSent)
+                                                    ? ParcelOtpBottomSheetWidget(
+                                                        expandableKey: widget
+                                                            .expandableKey)
+                                                    : (parcelController
+                                                                .currentParcelState ==
+                                                            ParcelDeliveryState
+                                                                .parcelOngoing)
+                                                        ? ParcelOngoingBottomSheetWidget(
+                                                            expandableKey: widget
+                                                                .expandableKey)
+                                                        : const SizedBox(),
+                  ]),
+                );
+              }),
+            ]),
+          ),
+        );
+      });
     });
   }
 }

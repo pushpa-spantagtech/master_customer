@@ -1,4 +1,4 @@
-abstract class CouponServiceInterface{
+abstract class CouponServiceInterface {
   Future<dynamic> getList({int? offset = 1});
   Future<dynamic> applyCoupon(String couponCode, String tripId);
   Future<dynamic> customerAppliedCoupon(String couponId);

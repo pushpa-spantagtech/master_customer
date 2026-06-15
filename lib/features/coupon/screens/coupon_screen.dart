@@ -27,30 +27,40 @@ class _CouponScreenState extends State<CouponScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: BodyWidget(
+    return Scaffold(
+        body: BodyWidget(
       appBar: AppBarWidget(title: 'coupon'.tr, centerTitle: true),
       body: GetBuilder<CouponController>(builder: (couponController) {
-        return couponController.couponModel != null ? (couponController.couponModel!.data != null && couponController.couponModel!.data!.isNotEmpty) ?
-        SingleChildScrollView(
-          controller: scrollController,
-          child: PaginatedListWidget(
-            scrollController: scrollController,
-            totalSize: couponController.couponModel?.totalSize,
-            offset: int.parse(couponController.couponModel!.offset.toString()),
-            onPaginate: (int? offset) async {
-              await couponController.getCouponList(offset!);
-            },
-            itemView: ListView.builder(
-              itemCount: couponController.couponModel!.data!.length,
-              padding: const EdgeInsets.all(0),
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (BuildContext context, int index) {
-                return CouponWidget(coupon: couponController.couponModel!.data![index]);
-              },
-            ),
-          ),
-        ) : const NoDataWidget(title: 'no_coupon_found',): const NotificationShimmer();
+        return couponController.couponModel != null
+            ? (couponController.couponModel!.data != null &&
+                    couponController.couponModel!.data!.isNotEmpty)
+                ? SingleChildScrollView(
+                    controller: scrollController,
+                    child: PaginatedListWidget(
+                      scrollController: scrollController,
+                      totalSize: couponController.couponModel?.totalSize,
+                      offset: int.parse(
+                          couponController.couponModel!.offset.toString()),
+                      onPaginate: (int? offset) async {
+                        await couponController.getCouponList(offset!);
+                      },
+                      itemView: ListView.builder(
+                        itemCount: couponController.couponModel!.data!.length,
+                        padding: const EdgeInsets.all(0),
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          return CouponWidget(
+                              coupon:
+                                  couponController.couponModel!.data![index]);
+                        },
+                      ),
+                    ),
+                  )
+                : const NoDataWidget(
+                    title: 'no_coupon_found',
+                  )
+            : const NotificationShimmer();
       }),
     ));
   }

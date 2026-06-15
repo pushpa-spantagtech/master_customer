@@ -3,12 +3,10 @@ import 'package:ride_sharing_user_app/data/api_client.dart';
 import 'package:ride_sharing_user_app/features/wallet/domain/repositories/wallet_repository_interface.dart';
 import 'package:ride_sharing_user_app/util/app_constants.dart';
 
-class WalletRepository implements WalletRepositoryInterface{
+class WalletRepository implements WalletRepositoryInterface {
   final ApiClient apiClient;
 
   WalletRepository({required this.apiClient});
-
-
 
   @override
   Future<Response?> getTransactionList(int offset) async {
@@ -17,14 +15,13 @@ class WalletRepository implements WalletRepositoryInterface{
 
   @override
   Future<Response?> getLoyaltyPointList(int offset) async {
-    return await apiClient.getData('${AppConstants.loyaltyPointListUri}$offset');
+    return await apiClient
+        .getData('${AppConstants.loyaltyPointListUri}$offset');
   }
 
   @override
   Future<Response?> convertPoint(String point) async {
-    return await apiClient.postData(AppConstants.pointConvert,{
-      'points' : point
-    });
+    return await apiClient
+        .postData(AppConstants.pointConvert, {'points': point});
   }
-
 }

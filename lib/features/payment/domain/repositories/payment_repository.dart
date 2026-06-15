@@ -1,40 +1,37 @@
-
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/data/api_client.dart';
 import 'package:ride_sharing_user_app/features/payment/domain/repositories/payment_repository_interface.dart';
 import 'package:ride_sharing_user_app/util/app_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PaymentRepository implements PaymentRepositoryInterface{
+class PaymentRepository implements PaymentRepositoryInterface {
   final ApiClient apiClient;
   final SharedPreferences sharedPreferences;
 
-  PaymentRepository({required this.apiClient,required this.sharedPreferences});
-
+  PaymentRepository({required this.apiClient, required this.sharedPreferences});
 
   @override
-  Future<Response> submitReview(String id, int ratting, String comment ) async {
-    return await apiClient.postData(AppConstants.submitReview,{
-      "ride_request_id" : id,
-      "rating" : ratting,
-      "feedback" : comment
-    });
+  Future<Response> submitReview(String id, int ratting, String comment) async {
+    return await apiClient.postData(AppConstants.submitReview,
+        {"ride_request_id": id, "rating": ratting, "feedback": comment});
   }
 
   @override
-  Future<Response> paymentSubmit(String tripId, String paymentMethod ) async {
-    return await apiClient.getData('${AppConstants.paymentUri}?trip_request_id=$tripId&payment_method=$paymentMethod');
+  Future<Response> paymentSubmit(String tripId, String paymentMethod) async {
+    return await apiClient.getData(
+        '${AppConstants.paymentUri}?trip_request_id=$tripId&payment_method=$paymentMethod');
   }
+
   @override
-  Future getPaymentGetWayList() async{
+  Future getPaymentGetWayList() async {
     return await apiClient.getData(AppConstants.getPaymentMethods);
   }
 
   @override
   Future<bool?> saveLastPaymentMethod(String method) async {
-    return await sharedPreferences.setString(AppConstants.paymentMethod, method);
+    return await sharedPreferences.setString(
+        AppConstants.paymentMethod, method);
   }
-
 
   @override
   String getLastPaymentMethod() {
@@ -45,7 +42,6 @@ class PaymentRepository implements PaymentRepositoryInterface{
   Future<bool?> saveLastPaymentType(String type) async {
     return await sharedPreferences.setString(AppConstants.paymentType, type);
   }
-
 
   @override
   String getLastPaymentType() {
@@ -81,7 +77,4 @@ class PaymentRepository implements PaymentRepositoryInterface{
     // TODO: implement update
     throw UnimplementedError();
   }
-
-
-
 }

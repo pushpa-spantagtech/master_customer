@@ -271,4 +271,25 @@ class RideRepository implements RideRepositoryInterface {
     // TODO: implement update
     throw UnimplementedError();
   }
+
+  @override
+  Future<Response> getOutstationTariffs() async {
+    return await apiClient.getData(
+      AppConstants.outstationTariffs,
+    );
+  }
+
+  @override
+  Future<Response> calculateOutstationFare(
+    String vehicleType,
+    double distanceKm,
+  ) async {
+    return await apiClient.postData(
+      AppConstants.calculateOutstationFare,
+      {
+        "vehicle_type": vehicleType,
+        "distance_km": distanceKm,
+      },
+    );
+  }
 }

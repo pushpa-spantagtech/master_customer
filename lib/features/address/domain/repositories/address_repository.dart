@@ -4,17 +4,14 @@ import 'package:ride_sharing_user_app/features/address/domain/repositories/addre
 import 'package:ride_sharing_user_app/util/app_constants.dart';
 import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';
 
-
-class AddressRepository implements AddressRepositoryInterface{
+class AddressRepository implements AddressRepositoryInterface {
   final ApiClient apiClient;
   AddressRepository({required this.apiClient});
 
-
-
-
   @override
   Future<Response?> add(Address address) async {
-    return await apiClient.postData(AppConstants.addNewAddress, address.toJson());
+    return await apiClient.postData(
+        AppConstants.addNewAddress, address.toJson());
   }
 
   @override
@@ -22,19 +19,18 @@ class AddressRepository implements AddressRepositoryInterface{
     Map<String, dynamic> fields = {};
     fields.addAll(<String, dynamic>{
       'latitude': address.latitude,
-      'longitude' : address.longitude,
+      'longitude': address.longitude,
       'address': address.address,
       'address_label': address.addressLabel,
       'id': address.id,
       'street': address.street,
       'contact_person_name': address.contactPersonName,
       'contact_person_phone': address.contactPersonPhone,
-      'zone_id' : address.zoneId,
-      "_method" : "put"
+      'zone_id': address.zoneId,
+      "_method": "put"
     });
     return await apiClient.postData(AppConstants.updateAddress, fields);
   }
-
 
   @override
   Future<Response?> getList({int? offset}) async {
@@ -43,13 +39,9 @@ class AddressRepository implements AddressRepositoryInterface{
 
   @override
   Future<Response?> delete(String addressId) async {
-    return await apiClient.postData(AppConstants.deleteAddress,{
-      '_method' : "delete",
-      "address_id" : addressId
-    });
+    return await apiClient.postData(AppConstants.deleteAddress,
+        {'_method': "delete", "address_id": addressId});
   }
-
-
 
   @override
   Future get(String id) {

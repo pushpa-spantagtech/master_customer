@@ -6,5 +6,9 @@ class NavigationModel {
   String inactiveIcon;
   Widget screen;
 
-  NavigationModel({required this.name, required this.activeIcon, required this.inactiveIcon, required this.screen});
+  NavigationModel(
+      {required this.name,
+      required this.activeIcon,
+      required this.inactiveIcon,
+      required this.screen});
 }

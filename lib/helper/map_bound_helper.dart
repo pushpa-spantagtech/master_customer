@@ -1,8 +1,5 @@
-
-
 class MapBoundHelper {
-
-  static double boundMapArea (double? circle){
+  static double boundMapArea(double? circle) {
     double zoomLevel = 16;
     if (circle != null) {
       double radius = circle + circle / 2;
@@ -11,5 +8,4 @@ class MapBoundHelper {
     }
     return zoomLevel;
   }
-
 }

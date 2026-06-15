@@ -1,7 +1,7 @@
 import 'package:ride_sharing_user_app/features/splash/domain/repositories/config_repository_interface.dart';
 import 'package:ride_sharing_user_app/features/splash/domain/services/config_service_interface.dart';
 
-class ConfigService implements ConfigServiceInterface{
+class ConfigService implements ConfigServiceInterface {
   ConfigRepositoryInterface configRepositoryInterface;
 
   ConfigService({required this.configRepositoryInterface});
@@ -40,5 +40,4 @@ class ConfigService implements ConfigServiceInterface{
   void saveOngoingRides(bool value) {
     return configRepositoryInterface.saveOngoingRides(value);
   }
-
 }

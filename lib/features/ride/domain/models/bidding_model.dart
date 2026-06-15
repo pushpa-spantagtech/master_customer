@@ -6,14 +6,7 @@ class BiddingModel {
   String? offset;
   List<Bidding>? data;
 
-
-  BiddingModel(
-      {
-        this.totalSize,
-        this.limit,
-        this.offset,
-        this.data
-      });
+  BiddingModel({this.totalSize, this.limit, this.offset, this.data});
 
   BiddingModel.fromJson(Map<String, dynamic> json) {
     totalSize = json['total_size'];
@@ -33,7 +26,6 @@ class BiddingModel {
     data['limit'] = limit;
     data['offset'] = offset;
 
-
     return data;
   }
 }
@@ -48,27 +40,27 @@ class Bidding {
 
   Bidding(
       {this.id,
-        this.tripRequestsId,
-        this.driver,
-        this.driverLastLocation,
-        this.bidFare,
-        this.driverAvgRating});
+      this.tripRequestsId,
+      this.driver,
+      this.driverLastLocation,
+      this.bidFare,
+      this.driverAvgRating});
 
   Bidding.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     tripRequestsId = json['trip_requests_id'];
-    driver =
-    json['driver'] != null ? Driver.fromJson(json['driver']) : null;
+    driver = json['driver'] != null ? Driver.fromJson(json['driver']) : null;
 
     driverLastLocation = json['driver_last_location'] != null
         ? DriverLastLocation.fromJson(json['driver_last_location'])
         : null;
-    bidFare = json['bid_fare'] != null ? double.parse(json['bid_fare'].toString()) : 0;
+    bidFare = json['bid_fare'] != null
+        ? double.parse(json['bid_fare'].toString())
+        : 0;
     driverAvgRating = json['driver_avg_rating'];
   }
-
-
 }
+
 class DriverLastLocation {
   String? userId;
   String? type;
@@ -86,6 +78,4 @@ class DriverLastLocation {
     longitude = json['longitude'];
     zoneId = json['zone_id'];
   }
-
-
 }

@@ -6,14 +6,14 @@ class CouponModel {
   String? offset;
   List<Coupon>? data;
 
-  CouponModel(
-      {this.responseCode,
-        this.message,
-        this.totalSize,
-        this.limit,
-        this.offset,
-        this.data,
-      });
+  CouponModel({
+    this.responseCode,
+    this.message,
+    this.totalSize,
+    this.limit,
+    this.offset,
+    this.data,
+  });
 
   CouponModel.fromJson(Map<String, dynamic> json) {
     responseCode = json['response_code'];
@@ -67,26 +67,25 @@ class Coupon {
 
   Coupon(
       {this.id,
-        this.name,
-        this.description,
-        this.zoneCoupon,
-        this.customerLevelCoupon,
-        this.customerCoupon,
-        this.categoryCoupon,
-        this.minTripAmount,
-        this.maxCouponAmount,
-        this.coupon,
-        this.amountType,
-        this.couponType,
-        this.couponCode,
-        this.limit,
-        this.startDate,
-        this.endDate,
-        this.isActive,
-        this.isApplied,
-        this.createdAt,
-        this.isLoading = false
-      });
+      this.name,
+      this.description,
+      this.zoneCoupon,
+      this.customerLevelCoupon,
+      this.customerCoupon,
+      this.categoryCoupon,
+      this.minTripAmount,
+      this.maxCouponAmount,
+      this.coupon,
+      this.amountType,
+      this.couponType,
+      this.couponCode,
+      this.limit,
+      this.startDate,
+      this.endDate,
+      this.isActive,
+      this.isApplied,
+      this.createdAt,
+      this.isLoading = false});
 
   Coupon.fromJson(Map<String, dynamic> json) {
     id = json['id'];

@@ -8,11 +8,11 @@ class TripOverView {
 
   TripOverView(
       {this.successRate,
-        this.totalTrips,
-        this.totalEarn,
-        this.totalCancel,
-        this.totalReviews,
-        this.incomeStat});
+      this.totalTrips,
+      this.totalEarn,
+      this.totalCancel,
+      this.totalReviews,
+      this.incomeStat});
 
   TripOverView.fromJson(Map<String, dynamic> json) {
     successRate = json['success_rate'];

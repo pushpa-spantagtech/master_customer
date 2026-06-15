@@ -50,7 +50,10 @@ class MessageItem extends StatelessWidget {
                   ],
                   color: unReadCount == 0
                       ? Theme.of(context).cardColor
-                      : Theme.of(context).colorScheme.primary.withValues(alpha: .1)),
+                      : Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: .1)),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,

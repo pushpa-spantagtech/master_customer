@@ -102,6 +102,9 @@ class AppConstants {
       '/api/customer/discount/list?limit=10&offset=';
   static const String changeLanguage = '/api/customer/change-language';
   static const String getProfileLevel = '/api/customer/level';
+  static const String outstationTariffs = '/api/v1/customer/outstation-tariffs';
+  static const String calculateOutstationFare =
+      '/api/v1/customer/calculate-outstation-fare';
 
   ///Pusher web socket
   static const String appKey = 'drivemond';

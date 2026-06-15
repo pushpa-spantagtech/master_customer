@@ -15,26 +15,44 @@ class AddParcelDetailsButton extends StatefulWidget {
 class _AddParcelDetailsButtonState extends State<AddParcelDetailsButton> {
   @override
   Widget build(BuildContext context) {
-    return InkWell(onTap: (){
-        Get.find<ParcelController>().updateParcelState(ParcelDeliveryState.addOtherParcelDetails);
+    return InkWell(
+      onTap: () {
+        Get.find<ParcelController>()
+            .updateParcelState(ParcelDeliveryState.addOtherParcelDetails);
         Get.find<MapController>().notifyMapController();
-        },
-      child: Column(children: [
-
-        Container(decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Dimensions.radiusOverLarge),
-            color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.5)),
-            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault,vertical: Dimensions.paddingSizeSmall),
-
-
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Row(children: [Image.asset(Images.parcelDetails,width: Dimensions.iconSizeMedium,),
-                const SizedBox(width: Dimensions.paddingSizeSmall,),
-                Text('add_product_details'.tr)]),
-
-
-              Icon(Icons.arrow_forward_ios_outlined,color: Theme.of(context).primaryColor,size: 16)])),
-          const SizedBox(height: Dimensions.paddingSizeDefault,),
+      },
+      child: Column(
+        children: [
+          Container(
+              decoration: BoxDecoration(
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.radiusOverLarge),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onPrimary
+                      .withValues(alpha: 0.5)),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: Dimensions.paddingSizeDefault,
+                  vertical: Dimensions.paddingSizeSmall),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(children: [
+                      Image.asset(
+                        Images.parcelDetails,
+                        width: Dimensions.iconSizeMedium,
+                      ),
+                      const SizedBox(
+                        width: Dimensions.paddingSizeSmall,
+                      ),
+                      Text('add_product_details'.tr)
+                    ]),
+                    Icon(Icons.arrow_forward_ios_outlined,
+                        color: Theme.of(context).primaryColor, size: 16)
+                  ])),
+          const SizedBox(
+            height: Dimensions.paddingSizeDefault,
+          ),
         ],
       ),
     );

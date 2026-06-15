@@ -135,17 +135,13 @@ class _InitialWidgetState extends State<InitialWidget> {
             ],
             const SizedBox(height: 16),
           ] else if (rideController.isOutstationRide) ...[
-            outstationCarCard("Mini", 290),
-            const SizedBox(height: 12),
-            outstationCarCard("Sedan", 300),
-            const SizedBox(height: 12),
-            outstationCarCard("Eeco", 350),
-            const SizedBox(height: 12),
-            outstationCarCard("Ertiga", 700),
-            const SizedBox(height: 12),
-            outstationCarCard("Suv", 750),
-            const SizedBox(height: 12),
-            outstationCarCard("Innova", 1100),
+            ...rideController.outstationTariffs.map((tariff) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: outstationCarCard(
+                    tariff.vehicleType ?? '',
+                    double.parse(tariff.baseFare ?? '0'),
+                  ),
+                )),
             const SizedBox(height: 16),
           ] else ...[
             RideCategoryWidget(onTap: (value) async {
@@ -266,17 +262,20 @@ class _InitialWidgetState extends State<InitialWidget> {
           } else if (rideController.isOutstationRide) {
             rideController.outstationVehicle = selectedOutstationVehicle!;
 
-            rideController.outstationFare = selectedOutstationVehicle == "Mini"
-                ? 290
-                : selectedOutstationVehicle == "Sedan"
-                    ? 300
-                    : selectedOutstationVehicle == "Eeco"
-                        ? 350
-                        : selectedOutstationVehicle == "Ertiga"
-                            ? 700
-                            : selectedOutstationVehicle == "Suv"
-                                ? 750
-                                : 1100;
+            final tariff = rideController.outstationTariffs.firstWhere(
+              (e) =>
+                  e.vehicleType!.toUpperCase() ==
+                  selectedOutstationVehicle!.toUpperCase(),
+            );
+
+            final distance =
+                double.tryParse(rideController.estimatedDistance) ?? 0;
+
+            rideController.outstationFare =
+                rideController.calculateOutstationFare(
+              tariff,
+              distance,
+            );
           } else if (rideController.isRentalRide) {
             rideController.rentalVehicle = selectedVehicle!;
             rideController.rentalHour = selectedHour;
@@ -439,7 +438,7 @@ class _InitialWidgetState extends State<InitialWidget> {
 
   Widget outstationCarCard(
     String title,
-    int fare,
+    double fare,
   ) {
     bool selected = selectedOutstationVehicle == title;
 

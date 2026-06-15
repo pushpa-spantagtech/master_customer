@@ -19,24 +19,23 @@ class DialogItem extends StatelessWidget {
   final Widget? customCloseButton;
   final Duration slideChangeDuration;
   final int initIndex;
-  const DialogItem({
-    super.key,
-    required this.context,
-    required this.images,
-    this.fromNetwork = true,
-    this.height,
-    this.fit = BoxFit.fill,
-    required this.onClick,
-    this.dotsAlignment = Alignment.bottomLeft,
-    this.dotsColorActive = Colors.green,
-    this.dotsColorInactive = Colors.grey,
-    this.dotsMarginBottom = 10,
-    this.useDots = true,
-    this.slideChangeDuration = const Duration(seconds: 6),
-    this.autoSlide = false,
-    this.customCloseButton,
-    required this.initIndex
-  });
+  const DialogItem(
+      {super.key,
+      required this.context,
+      required this.images,
+      this.fromNetwork = true,
+      this.height,
+      this.fit = BoxFit.fill,
+      required this.onClick,
+      this.dotsAlignment = Alignment.bottomLeft,
+      this.dotsColorActive = Colors.green,
+      this.dotsColorInactive = Colors.grey,
+      this.dotsMarginBottom = 10,
+      this.useDots = true,
+      this.slideChangeDuration = const Duration(seconds: 6),
+      this.autoSlide = false,
+      this.customCloseButton,
+      required this.initIndex});
 
   @override
   Widget build(BuildContext context) {
@@ -52,41 +51,51 @@ class DialogItem extends StatelessWidget {
   }
 
   Widget _dialogContent(BuildContext context) {
-    return Container(height: Get.height,width: Get.width,
+    return Container(
+        height: Get.height,
+        width: Get.width,
         decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(10),
-            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 0.0, offset: Offset(0.0, 0.0))]),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.end, children: <Widget>[
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: customCloseButton ??
-                const Padding(
-                  padding: EdgeInsets.all(Dimensions.paddingSizeSmall),
-                  child: Icon(
-                    Icons.close,
-                    color: Colors.red,
-                  ),
-                ),
-          ),
-
-          ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: SliderItem(
-                height: height ?? (MediaQuery.of(context).size.height * 0.88),
-                fromNetwork: fromNetwork,
-                fit: fit,
-                imageList: images,
-                dotsAlignment: dotsAlignment,
-                onClick: (index) => onClick(index),
-                useDots: useDots,
-                dotsColorActive: dotsColorActive,
-                dotsColorInactive: dotsColorInactive,
-                dotsMarginBottom: dotsMarginBottom,
-                autoSlide: autoSlide,
-                initIndex: initIndex,
-              ))
-        ]));
+            boxShadow: const [
+              BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 0.0,
+                  offset: Offset(0.0, 0.0))
+            ]),
+        child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: customCloseButton ??
+                    const Padding(
+                      padding: EdgeInsets.all(Dimensions.paddingSizeSmall),
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.red,
+                      ),
+                    ),
+              ),
+              ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: SliderItem(
+                    height:
+                        height ?? (MediaQuery.of(context).size.height * 0.88),
+                    fromNetwork: fromNetwork,
+                    fit: fit,
+                    imageList: images,
+                    dotsAlignment: dotsAlignment,
+                    onClick: (index) => onClick(index),
+                    useDots: useDots,
+                    dotsColorActive: dotsColorActive,
+                    dotsColorInactive: dotsColorInactive,
+                    dotsMarginBottom: dotsMarginBottom,
+                    autoSlide: autoSlide,
+                    initIndex: initIndex,
+                  ))
+            ]));
   }
 }

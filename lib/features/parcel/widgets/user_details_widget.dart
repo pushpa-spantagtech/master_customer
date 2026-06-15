@@ -9,7 +9,11 @@ class UserDetailsWidget extends StatefulWidget {
   final String contactNumber;
   final String type;
 
-  const UserDetailsWidget({super.key, required this.name, required this.contactNumber, required this.type});
+  const UserDetailsWidget(
+      {super.key,
+      required this.name,
+      required this.contactNumber,
+      required this.type});
 
   @override
   State<UserDetailsWidget> createState() => _UserDetailsWidgetState();
@@ -18,14 +22,15 @@ class UserDetailsWidget extends StatefulWidget {
 class _UserDetailsWidgetState extends State<UserDetailsWidget> {
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ParcelController>(builder: (parcelController){
-      return Padding(padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+    return GetBuilder<ParcelController>(builder: (parcelController) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text(
             '${widget.type.tr} ${'details'.tr}',
             style: textSemiBold.copyWith(color: Theme.of(context).primaryColor),
           ),
-
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(
               widget.name,
@@ -35,7 +40,6 @@ class _UserDetailsWidgetState extends State<UserDetailsWidget> {
               ),
               overflow: TextOverflow.ellipsis,
             ),
-
             Text(
               widget.contactNumber,
               style: textMedium.copyWith(

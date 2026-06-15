@@ -3,7 +3,7 @@ import 'package:ride_sharing_user_app/data/api_client.dart';
 import 'package:ride_sharing_user_app/features/parcel/domain/repositories/parcel_repository_interface.dart';
 import 'package:ride_sharing_user_app/util/app_constants.dart';
 
-class ParcelRepository implements ParcelRepositoryInterface{
+class ParcelRepository implements ParcelRepositoryInterface {
   final ApiClient apiClient;
   ParcelRepository({required this.apiClient});
 
@@ -14,13 +14,15 @@ class ParcelRepository implements ParcelRepositoryInterface{
 
   @override
   Future<Response> getSuggestedVehicleCategory(String weight) async {
-    return await apiClient.getData('${AppConstants.suggestedVehicleCategory}$weight');
+    return await apiClient
+        .getData('${AppConstants.suggestedVehicleCategory}$weight');
   }
 
   @override
   Future<Response> getOnGoingParcelList(int offset) async {
     return await apiClient.getData(AppConstants.parcelOngoingList);
   }
+
   @override
   Future<Response> getUnpaidParcelList(int offset) async {
     return await apiClient.getData(AppConstants.parcelUnpaidList);

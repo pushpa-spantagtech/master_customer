@@ -1,3 +1,3 @@
-abstract class NotificationServiceInterface{
+abstract class NotificationServiceInterface {
   Future<dynamic> getList({int? offset = 1});
 }

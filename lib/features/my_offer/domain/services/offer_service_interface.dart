@@ -1,4 +1,3 @@
-
-abstract class OfferServiceInterface{
+abstract class OfferServiceInterface {
   Future<dynamic> getOfferList(int offset);
 }

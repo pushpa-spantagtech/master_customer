@@ -6,13 +6,12 @@ class TripModel {
   String? offset;
   List<TripDetails>? data;
 
-  TripModel(
-      {
-        this.totalSize,
-        this.limit,
-        this.offset,
-        this.data,
-        });
+  TripModel({
+    this.totalSize,
+    this.limit,
+    this.offset,
+    this.data,
+  });
 
   TripModel.fromJson(Map<String, dynamic> json) {
     totalSize = json['total_size'];
@@ -24,8 +23,5 @@ class TripModel {
         data!.add(TripDetails.fromJson(v));
       });
     }
-
   }
-
 }
-

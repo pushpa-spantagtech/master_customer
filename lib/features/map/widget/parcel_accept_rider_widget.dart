@@ -103,7 +103,8 @@ class _ParcelAcceptedRideWidgetState extends State<ParcelAcceptedRideWidget> {
               isLtr: Get.find<LocalizationController>().isLtr,
               boxShadow: const BoxShadow(blurRadius: 0),
               buttonColor: Colors.transparent,
-              backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.15),
+              backgroundColor:
+                  Theme.of(context).primaryColor.withValues(alpha: 0.15),
               baseColor: Theme.of(context).primaryColor,
             )),
           ]),

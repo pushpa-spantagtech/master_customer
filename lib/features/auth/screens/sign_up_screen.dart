@@ -283,13 +283,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 return;
                               } else {
                                 authController.register(SignUpBody(
-                                  fName: fName,
-                                  lName: lName,
-                                  phone: authController.countryDialCode + phone,
-                                  password: password,
-                                  confirmPassword: confirmPassword,
-                                  userType: AppConstants.customerType
-                                ));
+                                    fName: fName,
+                                    lName: lName,
+                                    phone:
+                                        authController.countryDialCode + phone,
+                                    password: password,
+                                    confirmPassword: confirmPassword,
+                                    userType: AppConstants.customerType));
                               }
                             },
                           ),

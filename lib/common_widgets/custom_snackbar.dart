@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 
-void customSnackBar(String? message, {bool isError = true, double margin = Dimensions.paddingSizeSmall}) {
-  if(message != null && message.isNotEmpty) {
+void customSnackBar(String? message,
+    {bool isError = true, double margin = Dimensions.paddingSizeSmall}) {
+  if (message != null && message.isNotEmpty) {
     ScaffoldMessenger.of(Get.context!).removeCurrentSnackBar();
     ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar();
     Get.showSnackbar(GetSnackBar(

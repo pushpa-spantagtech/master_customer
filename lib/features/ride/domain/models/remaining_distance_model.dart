@@ -9,12 +9,12 @@ class RemainingDistanceModel {
 
   RemainingDistanceModel(
       {this.distance,
-        this.distanceText,
-        this.duration,
-        this.durationSec,
-        this.status,
-        this.driveMode,
-        this.encodedPolyline});
+      this.distanceText,
+      this.duration,
+      this.durationSec,
+      this.status,
+      this.driveMode,
+      this.encodedPolyline});
 
   RemainingDistanceModel.fromJson(Map<String, dynamic> json) {
     distance = json['distance'].toDouble();
@@ -25,5 +25,4 @@ class RemainingDistanceModel {
     driveMode = json['drive_mode'];
     encodedPolyline = json['encoded_polyline'];
   }
-
 }

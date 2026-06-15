@@ -14,17 +14,19 @@ class BannerShimmer extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor.withValues(alpha: 0.07),
-          borderRadius: const BorderRadius.all(Radius.circular(Dimensions.radiusLarge)),
+          borderRadius:
+              const BorderRadius.all(Radius.circular(Dimensions.radiusLarge)),
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: 10,
           vertical: 10,
         ),
-
-        child: Container(width: Get.width,height: 130,
-          decoration: BoxDecoration(color: Colors.white,
-              borderRadius: BorderRadius.circular(20)
-          ),),
+        child: Container(
+          width: Get.width,
+          height: 130,
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(20)),
+        ),
       ),
     );
   }

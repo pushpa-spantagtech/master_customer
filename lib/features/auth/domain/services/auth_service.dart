@@ -2,18 +2,18 @@ import 'package:ride_sharing_user_app/features/auth/domain/models/sign_up_body.d
 import 'package:ride_sharing_user_app/features/auth/domain/repositories/auth_repository_interface.dart';
 import 'package:ride_sharing_user_app/features/auth/domain/services/auth_service_interface.dart';
 
-class AuthService implements AuthServiceInterface{
+class AuthService implements AuthServiceInterface {
   AuthRepositoryInterface authRepositoryInterface;
   AuthService({required this.authRepositoryInterface});
 
   @override
-  Future changePassword(String oldPassword, String password) async{
+  Future changePassword(String oldPassword, String password) async {
     return await authRepositoryInterface.changePassword(oldPassword, password);
   }
 
   @override
-  Future checkEmail(String email) async{
-   return await authRepositoryInterface.checkEmail(email);
+  Future checkEmail(String email) async {
+    return await authRepositoryInterface.checkEmail(email);
   }
 
   @override
@@ -28,11 +28,11 @@ class AuthService implements AuthServiceInterface{
 
   @override
   Future<bool> clearUserNumberAndPassword() {
-   return authRepositoryInterface.clearUserNumberAndPassword();
+    return authRepositoryInterface.clearUserNumberAndPassword();
   }
 
   @override
-  Future forgetPassword(String? phone) async{
+  Future forgetPassword(String? phone) async {
     return await authRepositoryInterface.forgetPassword(phone);
   }
 
@@ -62,33 +62,36 @@ class AuthService implements AuthServiceInterface{
   }
 
   @override
-  Future logOut() async{
+  Future logOut() async {
     return await authRepositoryInterface.logOut();
   }
 
   @override
-  Future login({required String phone, required String password}) async{
-    return await authRepositoryInterface.login(phone: phone, password: password);
+  Future login({required String phone, required String password}) async {
+    return await authRepositoryInterface.login(
+        phone: phone, password: password);
   }
 
   @override
-  Future otpLogin({required String phone, required String otp}) async{
+  Future otpLogin({required String phone, required String otp}) async {
     return await authRepositoryInterface.otpLogin(phone: phone, otp: otp);
   }
 
   @override
-  Future registration({required SignUpBody signUpBody}) async{
+  Future registration({required SignUpBody signUpBody}) async {
     return await authRepositoryInterface.registration(signUpBody: signUpBody);
   }
 
   @override
-  Future resetPassword(String phoneOrEmail, String password) async{
+  Future resetPassword(String phoneOrEmail, String password) async {
     return await authRepositoryInterface.resetPassword(phoneOrEmail, password);
   }
 
   @override
-  Future<void> saveUserNumberAndPassword(String code, String number, String password) {
-    return authRepositoryInterface.saveUserNumberAndPassword(code, number, password);
+  Future<void> saveUserNumberAndPassword(
+      String code, String number, String password) {
+    return authRepositoryInterface.saveUserNumberAndPassword(
+        code, number, password);
   }
 
   @override
@@ -97,32 +100,32 @@ class AuthService implements AuthServiceInterface{
   }
 
   @override
-  Future sendOtp({required String phone}) async{
+  Future sendOtp({required String phone}) async {
     return await authRepositoryInterface.sendOtp(phone: phone);
   }
 
   @override
-  Future updateToken() async{
+  Future updateToken() async {
     return await authRepositoryInterface.updateToken();
   }
 
   @override
-  Future verifyEmail(String email, String token) async{
+  Future verifyEmail(String email, String token) async {
     return await authRepositoryInterface.verifyEmail(email, token);
   }
 
   @override
-  Future verifyOtp({required String phone, required String otp}) async{
+  Future verifyOtp({required String phone, required String otp}) async {
     return await authRepositoryInterface.verifyOtp(phone: phone, otp: otp);
   }
 
   @override
-  Future verifyPhone(String phone, String otp) async{
+  Future verifyPhone(String phone, String otp) async {
     return await authRepositoryInterface.verifyPhone(phone, otp);
   }
 
   @override
-  Future verifyToken(String phone, String otp) async{
+  Future verifyToken(String phone, String otp) async {
     return await authRepositoryInterface.verifyToken(phone, otp);
   }
 
@@ -138,7 +141,6 @@ class AuthService implements AuthServiceInterface{
 
   @override
   Future remainingTime() {
-    return  authRepositoryInterface.remainingTime();
+    return authRepositoryInterface.remainingTime();
   }
-
 }

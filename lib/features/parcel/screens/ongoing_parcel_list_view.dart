@@ -8,7 +8,8 @@ import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 class OngoingParcelListView extends StatefulWidget {
   final String title;
   final ParcelListModel parcelListModel;
-  const OngoingParcelListView({super.key, required this.title, required this.parcelListModel});
+  const OngoingParcelListView(
+      {super.key, required this.title, required this.parcelListModel});
 
   @override
   State<OngoingParcelListView> createState() => _OngoingParcelListViewState();
@@ -24,10 +25,11 @@ class _OngoingParcelListViewState extends State<OngoingParcelListView> {
             padding: EdgeInsets.zero,
             shrinkWrap: true,
             itemCount: widget.parcelListModel.data!.length,
-            itemBuilder: (context, index){
-              return ParcelItem(rideRequest: widget.parcelListModel.data![index],index: index);
-            }
-        ),
+            itemBuilder: (context, index) {
+              return ParcelItem(
+                  rideRequest: widget.parcelListModel.data![index],
+                  index: index);
+            }),
       ),
     );
   }

@@ -2,17 +2,12 @@ class ParcelEstimatedFare {
   String? responseCode;
   ParcelFare? data;
 
-
-  ParcelEstimatedFare(
-      {this.responseCode,
-        this.data});
+  ParcelEstimatedFare({this.responseCode, this.data});
 
   ParcelEstimatedFare.fromJson(Map<String, dynamic> json) {
     responseCode = json['response_code'];
     data = json['data'] != null ? ParcelFare.fromJson(json['data']) : null;
-
   }
-
 }
 
 class ParcelFare {
@@ -32,18 +27,18 @@ class ParcelFare {
 
   ParcelFare(
       {this.id,
-        this.zoneId,
-        this.baseFare,
-        this.baseFarePerKm,
-        this.fare,
-        this.estimatedDistance,
-        this.estimatedDuration,
-        this.estimatedFare,
-        this.discountAmount,
-        this.discountFare,
-        this.requestType,
-        this.couponApplicable,
-        this.encodedPolyline});
+      this.zoneId,
+      this.baseFare,
+      this.baseFarePerKm,
+      this.fare,
+      this.estimatedDistance,
+      this.estimatedDuration,
+      this.estimatedFare,
+      this.discountAmount,
+      this.discountFare,
+      this.requestType,
+      this.couponApplicable,
+      this.encodedPolyline});
 
   ParcelFare.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -56,13 +51,11 @@ class ParcelFare {
         fare!.add(Fare.fromJson(v));
       });
     }
-    if(json['estimated_distance'] != null){
-      try{
+    if (json['estimated_distance'] != null) {
+      try {
         estimatedDistance = json['estimated_distance'].toDouble();
-
-      }catch(e){
+      } catch (e) {
         estimatedDistance = double.parse(json['estimated_distance'].toString());
-
       }
     }
     estimatedDuration = json['estimated_duration'].toString();
@@ -73,7 +66,6 @@ class ParcelFare {
     requestType = json['request type'];
     encodedPolyline = json['encoded_polyline'];
   }
-
 }
 
 class Fare {
@@ -88,13 +80,13 @@ class Fare {
 
   Fare(
       {this.id,
-        this.parcelFareId,
-        this.parcelWeightId,
-        this.parcelCategoryId,
-        this.fare,
-        this.zoneId,
-        this.createdAt,
-        this.updatedAt});
+      this.parcelFareId,
+      this.parcelWeightId,
+      this.parcelCategoryId,
+      this.fare,
+      this.zoneId,
+      this.createdAt,
+      this.updatedAt});
 
   Fare.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -106,5 +98,4 @@ class Fare {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
-
 }

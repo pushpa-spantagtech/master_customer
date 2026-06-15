@@ -10,7 +10,7 @@ class RouteHelper {
     GetPage(name: splash, page: () => const SplashScreen()),
   ];
 
-  static goPageAndHideTextField(BuildContext context, Widget page){
+  static goPageAndHideTextField(BuildContext context, Widget page) {
     FocusScopeNode currentFocus = FocusScope.of(context);
 
     if (!currentFocus.hasPrimaryFocus) {
@@ -19,11 +19,8 @@ class RouteHelper {
     currentFocus.requestFocus(FocusNode());
     SystemChannels.textInput.invokeMethod('TextInput.hide');
 
-    Future.delayed(const Duration(milliseconds: 300)).then((_){
+    Future.delayed(const Duration(milliseconds: 300)).then((_) {
       Get.to(() => page);
-
     });
-
   }
-
 }

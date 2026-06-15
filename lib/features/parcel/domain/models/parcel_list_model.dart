@@ -8,14 +8,14 @@ class ParcelListModel {
   String? offset;
   List<TripDetails>? data;
 
-
-  ParcelListModel(
-      {this.responseCode,
-        this.message,
-        this.totalSize,
-        this.limit,
-        this.offset,
-        this.data,});
+  ParcelListModel({
+    this.responseCode,
+    this.message,
+    this.totalSize,
+    this.limit,
+    this.offset,
+    this.data,
+  });
 
   ParcelListModel.fromJson(Map<String, dynamic> json) {
     responseCode = json['response_code'];
@@ -30,7 +30,4 @@ class ParcelListModel {
       });
     }
   }
-
-
 }
-

@@ -1,4 +1,4 @@
-abstract class ParcelServiceInterface{
+abstract class ParcelServiceInterface {
   Future<dynamic> getParcelCategory();
   Future<dynamic> getSuggestedVehicleCategory(String weight);
   Future<dynamic> getOnGoingParcelList(int offset);

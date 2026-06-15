@@ -1,6 +1,6 @@
 import 'package:ride_sharing_user_app/interface/repository_interface.dart';
 
-abstract class ParcelRepositoryInterface implements RepositoryInterface{
+abstract class ParcelRepositoryInterface implements RepositoryInterface {
   Future<dynamic> getParcelCategory();
   Future<dynamic> getSuggestedVehicleCategory(String weight);
   Future<dynamic> getOnGoingParcelList(int offset);

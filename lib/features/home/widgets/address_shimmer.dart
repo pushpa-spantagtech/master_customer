@@ -9,7 +9,8 @@ class AddressShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(height: 60,
+    return SizedBox(
+      height: 60,
       child: ListView.builder(
         itemCount: 10,
         shrinkWrap: true,
@@ -24,26 +25,32 @@ class AddressShimmer extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 15),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor.withValues(alpha: 0.07),
-                borderRadius: const BorderRadius.all(Radius.circular(Dimensions.radiusLarge)),
+                borderRadius: const BorderRadius.all(
+                    Radius.circular(Dimensions.radiusLarge)),
               ),
               child: Row(
-                children:  [
-                   const Padding(
+                children: [
+                  const Padding(
                     padding: EdgeInsets.only(top: 10.0),
                     child: ImageWidget(
                       image: '',
                       radius: Dimensions.radiusDefault,
-                      height: 30, width: 30,
+                      height: 30,
+                      width: 30,
                       placeholder: Images.carPlaceholder,
                     ),
                   ),
-                  const SizedBox(width: Dimensions.paddingSizeSmall,),
+                  const SizedBox(
+                    width: Dimensions.paddingSizeSmall,
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Container(width: 80, height: 15, color: Colors.white,),
+                    child: Container(
+                      width: 80,
+                      height: 15,
+                      color: Colors.white,
+                    ),
                   ),
-
-
                 ],
               ),
             ),

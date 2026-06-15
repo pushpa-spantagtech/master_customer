@@ -236,6 +236,7 @@ class LocationController extends GetxController implements GetxService {
               address: address,
               zoneId: responseModel.zoneId,
             );
+            fromAddress = addressModel;
           }
         }
 

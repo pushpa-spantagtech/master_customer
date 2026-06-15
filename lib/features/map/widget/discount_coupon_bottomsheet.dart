@@ -44,7 +44,9 @@ class _DiscountAndCouponBottomSheetState
                   alignment: Alignment.topRight,
                   child: Container(
                       decoration: BoxDecoration(
-                          color: Theme.of(context).hintColor.withValues(alpha: 0.2),
+                          color: Theme.of(context)
+                              .hintColor
+                              .withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(50)),
                       padding: const EdgeInsets.all(
                           Dimensions.paddingSizeExtraSmall),

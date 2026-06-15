@@ -1,8 +1,7 @@
 import 'package:ride_sharing_user_app/features/auth/domain/models/sign_up_body.dart';
 import 'package:ride_sharing_user_app/interface/repository_interface.dart';
 
-abstract class AuthRepositoryInterface implements RepositoryInterface{
-
+abstract class AuthRepositoryInterface implements RepositoryInterface {
   Future<dynamic> login({required String phone, required String password});
   Future<dynamic> logOut();
   Future<dynamic> registration({required SignUpBody signUpBody});
@@ -21,7 +20,8 @@ abstract class AuthRepositoryInterface implements RepositoryInterface{
   String getUserToken();
   bool isLoggedIn();
   bool clearSharedData();
-  Future<void> saveUserNumberAndPassword(String code, String number, String password);
+  Future<void> saveUserNumberAndPassword(
+      String code, String number, String password);
   String getUserNumber();
   String getUserPassword();
   Future<bool> clearUserNumberAndPassword();
