@@ -5,11 +5,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/data/api_client.dart';
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/features/ride/domain/repositories/ride_repository_interface.dart';
 import 'package:ride_sharing_user_app/util/app_constants.dart';
 
 class RideRepository implements RideRepositoryInterface {
   final ApiClient apiClient;
+
   RideRepository({required this.apiClient});
 
   @override
@@ -91,7 +93,7 @@ class RideRepository implements RideRepositoryInterface {
       String? weight,
       String? payer,
       String? tripRequestId}) async {
-    return await apiClient.postData(AppConstants.rideRequest, {
+    Map<String, dynamic> body = {
       "pickup_coordinates": '[$pickupLat,$pickupLng]',
       "destination_coordinates": '[$destinationLat,$destinationLng]',
       "customer_coordinates": '[$customerCurrentLat,$customerCurrentLng]',
@@ -151,14 +153,18 @@ class RideRepository implements RideRepositoryInterface {
       "payer": type == 'parcel'
           ? Get.find<ParcelController>().payReceiver
               ? 'receiver'
-              : "sender"
+              : 'sender'
           : payer,
       "encoded_polyline": encodedPolyline,
       "trip_request_id": tripRequestId,
       "zone_id": Get.find<LocationController>().getUserAddress()?.zoneId ??
           Get.find<LocationController>().zoneID ??
           '',
-    });
+      "outstation_ride": Get.find<RideController>().isOutstationRide,
+    };
+    Response response =
+        await apiClient.postData(AppConstants.rideRequest, body);
+    return response;
   }
 
   @override

@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/features/location/widget/location_search_dialog.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/theme/theme_controller.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
@@ -13,6 +14,7 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
+import 'package:ride_sharing_user_app/common_widgets/local_ride_bottom_sheet.dart';
 
 class PickMapScreen extends StatefulWidget {
   final LocationType type;
@@ -181,19 +183,24 @@ class _PickMapScreenState extends State<PickMapScreen> {
                       child: SpinKitCircle(
                           color: Color.fromRGBO(250, 173, 2, 1), size: 40.0))
                   : ButtonWidget(
-                      textColor: locationController.inZone
+                      textColor: locationController.inZone ||
+                              Get.find<RideController>().isOutstationRide
                           ? const Color.fromRGBO(255, 255, 255, 1)
                           : const Color.fromRGBO(88, 89, 89, 1),
-                      borderColor: locationController.inZone
+                      borderColor: locationController.inZone ||
+                              Get.find<RideController>().isOutstationRide
                           ? const Color.fromRGBO(255, 128, 128, 0.2)
                           : const Color.fromRGBO(20, 20, 20, 0.2),
-                      backgroundColor: locationController.inZone
+                      backgroundColor: locationController.inZone ||
+                              Get.find<RideController>().isOutstationRide
                           ? const Color.fromRGBO(250, 173, 2, 1)
                           : const Color.fromRGBO(248, 249, 250, 1),
                       fontSize: Dimensions.fontSizeDefault,
-                      buttonText: locationController.inZone
+                      buttonText: Get.find<RideController>().isOutstationRide
                           ? 'pick_location'.tr
-                          : 'service_not_available_in_this_area'.tr,
+                          : locationController.inZone
+                              ? 'pick_location'.tr
+                              : 'service_not_available_in_this_area'.tr,
                       onPressed: (locationController.buttonDisabled ||
                               locationController.loading)
                           ? null
@@ -201,6 +208,12 @@ class _PickMapScreenState extends State<PickMapScreen> {
                               if (locationController.pickPosition.latitude !=
                                       0 &&
                                   locationController.pickAddress.isNotEmpty) {
+                                if (Get.find<RideController>()
+                                        .isOutstationRide &&
+                                    locationController.inZone) {
+                                  LocalRideBottomSheet.show();
+                                  return;
+                                }
                                 if (widget.onLocationPicked != null) {
                                   locationController
                                       .setAddAddressData(widget.type);

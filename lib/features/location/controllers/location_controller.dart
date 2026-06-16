@@ -5,10 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:ride_sharing_user_app/common_widgets/local_ride_bottom_sheet.dart';
 import 'package:ride_sharing_user_app/features/location/domain/models/place_details_model.dart';
 import 'package:ride_sharing_user_app/features/location/domain/models/prediction_model.dart';
 import 'package:ride_sharing_user_app/features/location/domain/models/zone_response.dart';
 import 'package:ride_sharing_user_app/features/location/domain/services/location_service_interface.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
@@ -31,6 +33,7 @@ enum LocationType {
 
 class LocationController extends GetxController implements GetxService {
   final LocationServiceInterface locationServiceInterface;
+
   LocationController({required this.locationServiceInterface});
 
   Position _position = Position(
@@ -84,16 +87,27 @@ class LocationController extends GetxController implements GetxService {
   LocationType locationType = LocationType.from;
 
   List<PredictionModel> get predictionList => _predictionList;
+
   bool get isLoading => _isLoading;
+
   bool get loading => _loading;
+
   Position get position => _position;
+
   Position get pickPosition => _pickPosition;
+
   String get address => _address;
+
   String get pickAddress => _pickAddress;
+
   List<AddressModel>? get addressList => _addressList;
+
   bool get inZone => _inZone;
+
   String? get zoneID => _zoneID;
+
   bool get buttonDisabled => _buttonDisabled;
+
   LatLng get initialPosition => _initialPosition;
 
   final TextEditingController locationController = TextEditingController();
@@ -190,6 +204,7 @@ class LocationController extends GetxController implements GetxService {
   }
 
   StreamSubscription? _locationSubscription;
+
   Future<Address?> getCurrentLocation(
       {bool isAnimate = true,
       GoogleMapController? mapController,
@@ -294,6 +309,7 @@ class LocationController extends GetxController implements GetxService {
   }
 
   bool selectLocation = false;
+
   Future<ZoneResponseModel> getZone(
       String lat, String long, bool markerLoad) async {
     _isLoading = true;
@@ -453,13 +469,12 @@ class LocationController extends GetxController implements GetxService {
             positionLatLng.latitude.toString(),
             positionLatLng.longitude.toString(),
             true);
-        // if (!responseModel.isSuccess || _zoneID == null) {
-        //   showCustomSnackBar('service_not_available_in_this_area'.tr);
-        //   _buttonDisabled = true;
-        //   return;
-        // }
-        if (responseModel.isSuccess) {
+        if (Get.find<RideController>().isOutstationRide) {
           _buttonDisabled = false;
+        } else if (responseModel.isSuccess) {
+          _buttonDisabled = false;
+        } else {
+          _buttonDisabled = true;
         }
         if (_changeAddress) {
           String addressFromGeocode = await getAddressFromGeocode(
@@ -552,6 +567,7 @@ class LocationController extends GetxController implements GetxService {
   }
 
   bool selecting = false;
+
   Future<Address?> setLocation(
       String placeID, String address, GoogleMapController? mapController,
       {LocationType type = LocationType.from, bool fromSearch = false}) async {
@@ -580,10 +596,18 @@ class LocationController extends GetxController implements GetxService {
                 address: address);
             pickupLocationController.text = address;
           } else if (type == LocationType.to) {
+            if (Get.find<RideController>().isOutstationRide) {
+              selecting = false;
+              _loading = false;
+              update();
+              LocalRideBottomSheet.show();
+              return null;
+            }
             toAddress = Address(
-                latitude: latLng.latitude,
-                longitude: latLng.longitude,
-                address: address);
+              latitude: latLng.latitude,
+              longitude: latLng.longitude,
+              address: address,
+            );
             destinationLocationController.text = address;
           } else if (type == LocationType.extraOne) {
             extraRouteAddress = Address(
@@ -629,6 +653,48 @@ class LocationController extends GetxController implements GetxService {
           zoneId: _zoneID,
         );
       } else {
+        if (Get.find<RideController>().isOutstationRide) {
+          toAddress = Address(
+            latitude: latLng.latitude,
+            longitude: latLng.longitude,
+            address: address,
+          );
+
+          destinationLocationController.text = address;
+
+          _pickPosition = Position(
+            latitude: latLng.latitude,
+            longitude: latLng.longitude,
+            timestamp: DateTime.now(),
+            accuracy: 1,
+            altitude: 1,
+            heading: 1,
+            speed: 1,
+            speedAccuracy: 1,
+            altitudeAccuracy: 1,
+            headingAccuracy: 1,
+          );
+
+          _pickAddress = address;
+          _changeAddress = false;
+
+          if (mapController != null) {
+            mapController.animateCamera(
+              CameraUpdate.newCameraPosition(
+                CameraPosition(
+                  target: latLng,
+                  zoom: 16,
+                ),
+              ),
+            );
+          }
+
+          selecting = false;
+          _loading = false;
+          update();
+
+          return toAddress;
+        }
         selecting = false;
         showCustomSnackBar('service_not_available_in_this_area'.tr);
       }

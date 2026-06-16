@@ -133,23 +133,21 @@ class ActivityScreenRiderDetails extends StatelessWidget {
                               overflow: TextOverflow.ellipsis),
                         ]),
                     const Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(Dimensions.radiusDefault),
-                          color: Colors.transparent),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: Dimensions.paddingSizeThree),
-                      child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(Dimensions.radiusOverLarge),
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(
+                        height: 80,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusOverLarge,
+                          ),
                           child: ImageWidget(
-                            height: 50,
-                            width: 150,
-                            image: rideController.tripDetails!.vehicle != null
-                                ? '${Get.find<ConfigController>().config!.imageBaseUrl!.vehicleModel!}/${rideController.tripDetails!.vehicle!.model!.image!}'
-                                : '',
-                          )),
+                            image:
+                                '${Get.find<ConfigController>().config!.imageBaseUrl!.vehicleModel!}/${rideController.tripDetails!.vehicle!.model!.image!}',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
                     ),
                   ])
                 : const SizedBox(),

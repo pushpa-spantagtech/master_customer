@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
 import 'package:ride_sharing_user_app/features/auth/controllers/auth_controller.dart';
+import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/fare_input_widget.dart';
@@ -287,11 +288,38 @@ class _InitialWidgetState extends State<InitialWidget> {
               .submitRideRequest(rideController.noteController.text, false)
               .then((value) {
             if (value.statusCode == 200) {
-              Get.find<AuthController>().saveFindingRideCreatedTime();
-              rideController.updateRideCurrentState(RideState.findingRider);
-              Get.find<MapController>().initializeData();
-              Get.find<MapController>().setOwnCurrentLocation();
-              Get.find<MapController>().notifyMapController();
+              if (rideController.isOutstationRide) {
+                Get.dialog(
+                  AlertDialog(
+                    title: const Text('Thank You!'),
+                    content: const Text(
+                      'Thank you for choosing Seven Taxi.\n'
+                      'Our team will contact you shortly.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          rideController.tripDetails = null;
+                          rideController.rideDetails = null;
+                          rideController
+                              .updateRideCurrentState(RideState.initial);
+
+                          Get.back();
+                          Get.offAll(() => const DashboardScreen());
+                        },
+                        child: const Text('OK, Got It'),
+                      ),
+                    ],
+                  ),
+                  barrierDismissible: false,
+                );
+              } else {
+                Get.find<AuthController>().saveFindingRideCreatedTime();
+                rideController.updateRideCurrentState(RideState.findingRider);
+                Get.find<MapController>().initializeData();
+                Get.find<MapController>().setOwnCurrentLocation();
+                Get.find<MapController>().notifyMapController();
+              }
             }
           });
         });

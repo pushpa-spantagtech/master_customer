@@ -9,6 +9,7 @@ import 'package:ride_sharing_user_app/features/set_destination/screens/set_desti
 class HomeSearchWidget extends StatelessWidget {
   final bool isLocal;
   final bool isOutstation;
+
   const HomeSearchWidget({
     super.key,
     this.isLocal = false,
@@ -57,18 +58,18 @@ class HomeSearchWidget extends StatelessWidget {
         hintStyle: textMedium.copyWith(
           color: const Color.fromRGBO(20, 20, 20, 1),
         ),
-        suffixIcon: IconButton(
-          color: Theme.of(context).hintColor,
-          onPressed: () {
-            Get.dialog(const VoiceSearchDialog(), barrierDismissible: false);
-          },
-          icon: Image.asset(
-            Images.microPhoneIcon,
-            color: Get.isDarkMode ? Theme.of(context).hintColor : null,
-            height: 20,
-            width: 20,
-          ),
-        ),
+        // suffixIcon: IconButton(
+        //   color: Theme.of(context).hintColor,
+        //   onPressed: () {
+        //     Get.dialog(const VoiceSearchDialog(), barrierDismissible: false);
+        //   },
+        //   icon: Image.asset(
+        //     Images.microPhoneIcon,
+        //     color: Get.isDarkMode ? Theme.of(context).hintColor : null,
+        //     height: 20,
+        //     width: 20,
+        //   ),
+        // ),
         prefixIcon: IconButton(
           onPressed: () => Get.to(
             () => SetDestinationScreen(
