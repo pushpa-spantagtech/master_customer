@@ -82,7 +82,7 @@ class HomeMapViewState extends State<HomeMapView> {
                                 .data!
                                 .isNotEmpty)
                     ? Get.height * 0.75
-                    : Get.height * 0.20,
+                    : Get.height * 0.55,
                 decoration: BoxDecoration(
                   borderRadius:
                       BorderRadius.circular(Dimensions.paddingSizeSmall),

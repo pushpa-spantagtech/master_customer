@@ -38,25 +38,11 @@ class _InitialWidgetState extends State<InitialWidget> {
   String? selectedLocalVehicle;
   String? selectedOutstationVehicle;
 
-  Map<int, Map<String, int>> rentalFare = {
-    1: {"Mini": 300, "Sedan": 310, "Eeco": 360},
-    2: {"Mini": 440, "Sedan": 450, "Eeco": 490},
-    3: {"Mini": 570, "Sedan": 610, "Eeco": 630},
-    4: {"Mini": 710, "Sedan": 775, "Eeco": 790},
-    5: {"Mini": 880, "Sedan": 945, "Eeco": 940},
-    6: {"Mini": 1070, "Sedan": 1135, "Eeco": 1090},
-    7: {"Mini": 1260, "Sedan": 1325, "Eeco": 1240},
-    8: {"Mini": 1450, "Sedan": 1510, "Eeco": 1390},
-    9: {"Mini": 1640, "Sedan": 1700, "Eeco": 1540},
-    10: {"Mini": 1790, "Sedan": 1890},
-    11: {"Mini": 1875, "Sedan": 1965},
-    12: {"Mini": 1950, "Sedan": 2040},
-  };
-
   @override
   void initState() {
     var rideController = Get.find<RideController>();
     rideController.getLocalTariffs();
+    rideController.getHourlyTariffs();
     if (Get.find<PaymentController>().paymentType == 'wallet' &&
         (rideController.discountAmount.toDouble() > 0
                 ? rideController.discountFare
@@ -101,41 +87,39 @@ class _InitialWidgetState extends State<InitialWidget> {
             const SizedBox(height: 12),
             SizedBox(
               height: 60,
-              child: ListView(
+              child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                children: [
-                  rentalBox(1, 10),
-                  rentalBox(2, 20),
-                  rentalBox(3, 30),
-                  rentalBox(4, 40),
-                  rentalBox(5, 50),
-                  rentalBox(6, 60),
-                  rentalBox(7, 70),
-                  rentalBox(8, 80),
-                  rentalBox(9, 90),
-                  rentalBox(10, 100),
-                  rentalBox(11, 100),
-                  rentalBox(12, 100),
-                ],
+                itemCount: rideController.rentalPackages.length,
+                itemBuilder: (context, index) {
+                  final package = rideController.rentalPackages[index];
+                  return rentalBox(
+                    package['free_hours'],
+                    package['free_km'],
+                  );
+                },
               ),
             ),
             const SizedBox(height: 20),
-            rentalCarCard(
-              "Mini",
-              rentalFare[selectedHour]!["Mini"] ?? 0,
-            ),
-            const SizedBox(height: 12),
-            rentalCarCard(
-              "Sedan",
-              rentalFare[selectedHour]!["Sedan"] ?? 0,
-            ),
-            if (rentalFare[selectedHour]!.containsKey("Eeco")) ...[
-              const SizedBox(height: 12),
-              rentalCarCard(
-                "Eeco",
-                rentalFare[selectedHour]!["Eeco"] ?? 0,
-              ),
-            ],
+            ...(() {
+              final tariffs = rideController.hourlyTariffs
+                  .where((e) => e['free_hours'] == selectedHour)
+                  .toList();
+
+              tariffs.sort(
+                (a, b) =>
+                    (a['package_rate'] ?? 0).compareTo(b['package_rate'] ?? 0),
+              );
+
+              return tariffs.map((tariff) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: rentalCarCard(
+                    tariff['vehicle_category']['name'],
+                    tariff['package_rate'],
+                  ),
+                );
+              }).toList();
+            })(),
             const SizedBox(height: 16),
           ] else if (rideController.isOutstationRide) ...[
             ...rideController.outstationTariffs.map((tariff) => Padding(
@@ -275,8 +259,9 @@ class _InitialWidgetState extends State<InitialWidget> {
             rideController.rentalHour = selectedHour;
             rideController.rentalPackageFare = selectedFare.toDouble();
           }
-          print('selectedLocalVehicle=$selectedLocalVehicle, '
-              'localFare=${rideController.localFare}');
+          print('selectedVehicle=$selectedVehicle');
+          print('selectedFare=$selectedFare');
+          print('rentalPackageFare=${rideController.rentalPackageFare}');
           rideController
               .submitRideRequest(rideController.noteController.text, false)
               .then((value) {
@@ -426,6 +411,9 @@ class _InitialWidgetState extends State<InitialWidget> {
           selectedVehicle = title;
           selectedFare = fare;
         });
+
+        print('Vehicle=$title');
+        print('Fare=$fare');
       },
       child: Container(
         padding: const EdgeInsets.all(8),

@@ -41,23 +41,29 @@ class EstimatedFareAndDistance extends StatelessWidget {
                             : '0'),
                     FareWidget(
                         title: 'fare_price'.tr,
-                        value: PriceConverter.convertPrice(
-                          fromPickLocation
-                              ? rideController.estimatedFare
-                              : rideController.tripDetails?.paymentStatus ==
-                                      'paid'
-                                  ? rideController.tripDetails?.paidFare ?? 0
-                                  : ((rideController.tripDetails
-                                                  ?.discountAmount ??
-                                              0) >
-                                          0)
-                                      ? rideController.tripDetails
-                                              ?.discountActualFare ??
-                                          0
-                                      : rideController
-                                              .tripDetails?.actualFare ??
-                                          0,
-                        )),
+                        value: PriceConverter.convertPrice(fromPickLocation
+                                ? rideController.estimatedFare
+                                : rideController.tripDetails?.paymentStatus ==
+                                        'paid'
+                                    ? rideController.tripDetails?.paidFare ?? 0
+                                    : rideController.tripDetails?.actualFare ??
+                                        0
+                            // fromPickLocation
+                            //     ? rideController.estimatedFare
+                            //     : rideController.tripDetails?.paymentStatus ==
+                            //             'paid'
+                            //         ? rideController.tripDetails?.paidFare ?? 0
+                            //         : ((rideController.tripDetails
+                            //                         ?.discountAmount ??
+                            //                     0) >
+                            //                 0)
+                            //             ? rideController.tripDetails
+                            //                     ?.discountActualFare ??
+                            //                 0
+                            //             : rideController
+                            //                     .tripDetails?.actualFare ??
+                            //                 0,
+                            )),
                   ]),
             )
           : const SizedBox();

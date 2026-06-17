@@ -167,6 +167,8 @@ class $AssetsImageGen {
       const AssetGenImage('assets/image/map_icon.png');
   final AssetGenImage mapLocationIcon =
       const AssetGenImage('assets/image/map_location_icon.png');
+  final AssetGenImage mapLocationIconOne =
+      const AssetGenImage('assets/image/map_location_icon_one.png');
   final AssetGenImage mercadopago =
       const AssetGenImage('assets/image/mercadopago.png');
   final AssetGenImage microPhoneIcon =

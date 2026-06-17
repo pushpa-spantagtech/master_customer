@@ -94,4 +94,6 @@ abstract class RideServiceInterface {
   );
 
   Future<dynamic> getLocalTariffs();
+
+  Future<dynamic> getHourlyTariffs();
 }

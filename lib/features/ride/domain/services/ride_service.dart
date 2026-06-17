@@ -188,4 +188,9 @@ class RideService implements RideServiceInterface {
   Future getLocalTariffs() async {
     return await rideRepositoryInterface.getLocalTariffs();
   }
+
+  @override
+  Future getHourlyTariffs() async {
+    return await rideRepositoryInterface.getHourlyTariffs();
+  }
 }

@@ -150,17 +150,22 @@ class _AcceptingAndOngoingBottomSheetState
                                           vertical:
                                               Dimensions.paddingSizeExtraSmall),
                                       child: Text(
+                                        // PriceConverter.convertPrice(
+                                        //     ((rideController.tripDetails
+                                        //                     ?.discountAmount ??
+                                        //                 0) >
+                                        //             0)
+                                        //         ? rideController.tripDetails
+                                        //                 ?.discountActualFare ??
+                                        //             0
+                                        //         : rideController.tripDetails
+                                        //                 ?.actualFare ??
+                                        //             0),
                                         PriceConverter.convertPrice(
-                                            ((rideController.tripDetails
-                                                            ?.discountAmount ??
-                                                        0) >
-                                                    0)
-                                                ? rideController.tripDetails
-                                                        ?.discountActualFare ??
-                                                    0
-                                                : rideController.tripDetails
-                                                        ?.actualFare ??
-                                                    0),
+                                          rideController
+                                                  .tripDetails?.actualFare ??
+                                              0,
+                                        ),
                                         style: textBold.copyWith(
                                             fontSize: Dimensions.fontSizeSmall,
                                             color: const Color.fromRGBO(

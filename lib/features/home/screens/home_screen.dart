@@ -8,6 +8,7 @@ import 'package:ride_sharing_user_app/features/home/screens/ride_bottom_sheet.da
 import 'package:ride_sharing_user_app/features/home/widgets/banner_view.dart';
 import 'package:ride_sharing_user_app/features/home/widgets/best_offers_widget.dart';
 import 'package:ride_sharing_user_app/features/home/widgets/coupon_home_widget.dart';
+import 'package:ride_sharing_user_app/features/home/widgets/home_map_view.dart';
 import 'package:ride_sharing_user_app/features/my_offer/controller/offer_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/driver_request_dialog.dart';
@@ -157,103 +158,108 @@ class _HomeScreenState extends State<HomeScreen> {
                             //   padding: EdgeInsets.all(8.0),
                             //   child: HomeSearchWidget(),
                             // ),
-                            SizedBox(
-                              height: Get.height * 0.45,
-                              child: GetBuilder<LocationController>(
-                                builder: (locationController) {
-                                  if (locationController.getUserAddress() ==
-                                      null) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
+                            // SizedBox(
+                            //   height: Get.height * 0.45,
+                            //   child: GetBuilder<LocationController>(
+                            //     builder: (locationController) {
+                            //       if (locationController.getUserAddress() ==
+                            //           null) {
+                            //         return const Center(
+                            //           child: CircularProgressIndicator(),
+                            //         );
+                            //       }
+                            //
+                            //       return Stack(
+                            //         children: [
+                            //           GoogleMap(
+                            //             compassEnabled: true,
+                            //             myLocationEnabled: true,
+                            //             myLocationButtonEnabled: false,
+                            //             zoomControlsEnabled: false,
+                            //             zoomGesturesEnabled: true,
+                            //             scrollGesturesEnabled: true,
+                            //             rotateGesturesEnabled: true,
+                            //             tiltGesturesEnabled: true,
+                            //             onMapCreated:
+                            //                 (GoogleMapController controller) {
+                            //               _mapController = controller;
+                            //             },
+                            //             gestureRecognizers: <Factory<
+                            //                 OneSequenceGestureRecognizer>>{
+                            //               Factory<OneSequenceGestureRecognizer>(
+                            //                 () => EagerGestureRecognizer(),
+                            //               ),
+                            //             },
+                            //             initialCameraPosition: CameraPosition(
+                            //               target: LatLng(
+                            //                 locationController
+                            //                     .getUserAddress()!
+                            //                     .latitude!,
+                            //                 locationController
+                            //                     .getUserAddress()!
+                            //                     .longitude!,
+                            //               ),
+                            //               zoom: 16,
+                            //             ),
+                            //           ),
+                            //           Positioned(
+                            //             top: 10,
+                            //             right: 10,
+                            //             child: Material(
+                            //               elevation: 5,
+                            //               borderRadius:
+                            //                   BorderRadius.circular(8),
+                            //               child: InkWell(
+                            //                 borderRadius:
+                            //                     BorderRadius.circular(8),
+                            //                 onTap: () async {
+                            //                   Position position =
+                            //                       await Geolocator
+                            //                           .getCurrentPosition(
+                            //                     desiredAccuracy:
+                            //                         LocationAccuracy.high,
+                            //                   );
+                            //
+                            //                   await _mapController
+                            //                       ?.animateCamera(
+                            //                     CameraUpdate.newCameraPosition(
+                            //                       CameraPosition(
+                            //                         target: LatLng(
+                            //                           position.latitude,
+                            //                           position.longitude,
+                            //                         ),
+                            //                         zoom: 16,
+                            //                       ),
+                            //                     ),
+                            //                   );
+                            //                 },
+                            //                 child: Container(
+                            //                   width: 48,
+                            //                   height: 48,
+                            //                   decoration: BoxDecoration(
+                            //                     color: const Color.fromRGBO(
+                            //                         250, 173, 2, 1),
+                            //                     borderRadius:
+                            //                         BorderRadius.circular(8),
+                            //                   ),
+                            //                   child: const Icon(
+                            //                     Icons.my_location,
+                            //                     color: Color(0xFFFFFFFF),
+                            //                     size: 24,
+                            //                   ),
+                            //                 ),
+                            //               ),
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       );
+                            //     },
+                            //   ),
+                            // ),
 
-                                  return Stack(
-                                    children: [
-                                      GoogleMap(
-                                        compassEnabled: true,
-                                        myLocationEnabled: true,
-                                        myLocationButtonEnabled: false,
-                                        zoomControlsEnabled: false,
-                                        zoomGesturesEnabled: true,
-                                        scrollGesturesEnabled: true,
-                                        rotateGesturesEnabled: true,
-                                        tiltGesturesEnabled: true,
-                                        onMapCreated:
-                                            (GoogleMapController controller) {
-                                          _mapController = controller;
-                                        },
-                                        gestureRecognizers: <Factory<
-                                            OneSequenceGestureRecognizer>>{
-                                          Factory<OneSequenceGestureRecognizer>(
-                                            () => EagerGestureRecognizer(),
-                                          ),
-                                        },
-                                        initialCameraPosition: CameraPosition(
-                                          target: LatLng(
-                                            locationController
-                                                .getUserAddress()!
-                                                .latitude!,
-                                            locationController
-                                                .getUserAddress()!
-                                                .longitude!,
-                                          ),
-                                          zoom: 16,
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: 10,
-                                        right: 10,
-                                        child: Material(
-                                          elevation: 5,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: InkWell(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            onTap: () async {
-                                              Position position =
-                                                  await Geolocator
-                                                      .getCurrentPosition(
-                                                desiredAccuracy:
-                                                    LocationAccuracy.high,
-                                              );
-
-                                              await _mapController
-                                                  ?.animateCamera(
-                                                CameraUpdate.newCameraPosition(
-                                                  CameraPosition(
-                                                    target: LatLng(
-                                                      position.latitude,
-                                                      position.longitude,
-                                                    ),
-                                                    zoom: 16,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            child: Container(
-                                              width: 48,
-                                              height: 48,
-                                              decoration: BoxDecoration(
-                                                color: const Color.fromRGBO(
-                                                    250, 173, 2, 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: const Icon(
-                                                Icons.my_location,
-                                                color: Color(0xFFFFFFFF),
-                                                size: 24,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: HomeMapView(),
                             ),
                             GetBuilder<OfferController>(
                               builder: (offerController) {

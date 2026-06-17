@@ -414,6 +414,11 @@ class RideController extends GetxController implements GetxService {
     if (response.statusCode == 200) {
       Get.find<MapController>().notifyMapController();
       tripDetails = TripDetailsModel.fromJson(response.body).data!;
+      print('========== RIDE DETAILS ==========');
+      print('actualFare = ${tripDetails?.actualFare}');
+      print('paidFare = ${tripDetails?.paidFare}');
+      print('estimatedFare = ${tripDetails?.estimatedFare}');
+      print('==================================');
       estimatedDistance = tripDetails!.estimatedDistance!.toString();
       isLoading = false;
       encodedPolyLine = tripDetails!.encodedPolyline!;
@@ -914,5 +919,26 @@ class RideController extends GetxController implements GetxService {
       }
       update();
     }
+  }
+
+  List<dynamic> hourlyTariffs = [];
+  List<dynamic> rentalPackages = [];
+
+  Future<void> getHourlyTariffs() async {
+    Response response = await rideServiceInterface.getHourlyTariffs();
+
+    if (response.statusCode == 200) {
+      hourlyTariffs = response.body['data'];
+      rentalPackages = [];
+      for (var item in hourlyTariffs) {
+        if (!rentalPackages.any(
+          (e) => e['free_hours'] == item['free_hours'],
+        )) {
+          rentalPackages.add(item);
+        }
+      }
+    }
+
+    update();
   }
 }

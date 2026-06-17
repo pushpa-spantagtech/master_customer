@@ -128,7 +128,7 @@ class MapController extends GetxController implements GetxService {
                 Get.find<RideController>().nearestDriverList[i].latitude!),
             double.parse(
                 Get.find<RideController>().nearestDriverList[i].longitude!)),
-        icon: BitmapDescriptor.bytes(
+        icon: BitmapDescriptor.fromBytes(
             Get.find<RideController>().nearestDriverList[i].category ==
                     'motor_bike'
                 ? bikeMarkerIcon
@@ -163,7 +163,7 @@ class MapController extends GetxController implements GetxService {
         title: Get.find<RideController>().tripDetails?.pickupAddress ?? '',
         snippet: 'pick_up_location'.tr,
       ),
-      icon: BitmapDescriptor.bytes(fromMarker),
+      icon: BitmapDescriptor.fromBytes(fromMarker),
     ));
 
     markers.add(Marker(
@@ -174,7 +174,7 @@ class MapController extends GetxController implements GetxService {
         title: Get.find<RideController>().tripDetails?.destinationAddress ?? '',
         snippet: 'destination'.tr,
       ),
-      icon: BitmapDescriptor.bytes(toMarker),
+      icon: BitmapDescriptor.fromBytes(toMarker),
     ));
 
     // if(Get.find<RideController>().tripDetails != null) {
@@ -229,10 +229,10 @@ class MapController extends GetxController implements GetxService {
               : _polylineCoordinateList.last,
         ),
         draggable: false,
-        zIndexInt: 2,
+        zIndex: 2,
         flat: true,
         anchor: const Offset(0.5, 0.5),
-        icon: BitmapDescriptor.bytes(car),
+        icon: BitmapDescriptor.fromBytes(car),
       ));
       update();
     }
@@ -317,7 +317,7 @@ class MapController extends GetxController implements GetxService {
     markers.removeWhere((marker) => marker.markerId.value == "my_location");
 
     Uint8List myIcon =
-        await convertAssetToUnit8List(Images.mapLocationIcon, width: 250);
+        await convertAssetToUnit8List(Images.mapLocationIcon, width: 70);
 
     LatLng? latlng = await Get.find<LocationController>().getCurrentPosition();
 
@@ -391,10 +391,10 @@ class MapController extends GetxController implements GetxService {
           latLngList.length > 1 ? latLngList[1] : latLngList.last,
         ),
         draggable: false,
-        zIndexInt: 2,
+        zIndex: 2,
         flat: true,
         anchor: const Offset(0.5, 0.5),
-        icon: BitmapDescriptor.bytes(car),
+        icon: BitmapDescriptor.fromBytes(car),
       ));
       update();
     }

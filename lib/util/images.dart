@@ -181,6 +181,8 @@ class Images {
   static const String tablerLocation = 'assets/image/tabler_location.png';
   static const String searchingCarIcon = 'assets/image/searching_car_icon.png';
   static const String callIcon = 'assets/image/call_icon.png';
+  static const String mapLocationIconOne =
+      'assets/image/map_location_icon_one.png';
 
   // static const String mapCarIcon = 'assets/image/map_car_icon.png';
   static const String forgetPageInfography =

@@ -303,4 +303,11 @@ class RideRepository implements RideRepositoryInterface {
   Future getLocalTariffs() async {
     return await apiClient.getData(AppConstants.localTariffsUri);
   }
+
+  @override
+  Future getHourlyTariffs() async {
+    return await apiClient.getData(
+      AppConstants.hourlyTariffsUri,
+    );
+  }
 }

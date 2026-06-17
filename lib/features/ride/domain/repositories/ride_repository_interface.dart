@@ -94,4 +94,6 @@ abstract class RideRepositoryInterface implements RepositoryInterface {
   );
 
   Future<dynamic> getLocalTariffs();
+
+  Future<dynamic> getHourlyTariffs();
 }

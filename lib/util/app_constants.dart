@@ -106,6 +106,7 @@ class AppConstants {
   static const String calculateOutstationFare =
       '/api/v1/customer/calculate-outstation-fare';
   static const String localTariffsUri = '/api/v1/customer/local-tariffs';
+  static const String hourlyTariffsUri = '/api/v1/customer/hourly-tariffs';
 
   ///Pusher web socket
   static const String appKey = 'drivemond';
