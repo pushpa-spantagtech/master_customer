@@ -1,5 +1,6 @@
 class NearestDriverModel {
   List<Nearest>? data;
+
   NearestDriverModel({
     this.data,
   });

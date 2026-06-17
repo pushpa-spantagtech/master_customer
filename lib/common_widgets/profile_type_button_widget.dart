@@ -7,6 +7,7 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 class ProfileTypeButtonWidget extends StatelessWidget {
   final int index;
   final String profileTypeName;
+
   const ProfileTypeButtonWidget(
       {super.key, required this.index, required this.profileTypeName});
 

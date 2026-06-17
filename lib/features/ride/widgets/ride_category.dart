@@ -7,6 +7,7 @@ import 'package:ride_sharing_user_app/common_widgets/category_widget.dart';
 
 class RideCategoryWidget extends StatelessWidget {
   final Function(void)? onTap;
+
   const RideCategoryWidget({super.key, this.onTap});
 
   @override

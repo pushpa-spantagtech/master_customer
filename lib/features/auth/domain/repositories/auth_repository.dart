@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthRepository implements AuthRepositoryInterface {
   final ApiClient apiClient;
   final SharedPreferences sharedPreferences;
+
   AuthRepository({required this.apiClient, required this.sharedPreferences});
 
   @override

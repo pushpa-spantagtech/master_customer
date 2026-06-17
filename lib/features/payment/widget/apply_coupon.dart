@@ -10,6 +10,7 @@ import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.
 
 class ApplyCoupon extends StatefulWidget {
   final String tripId;
+
   const ApplyCoupon({super.key, required this.tripId});
 
   @override

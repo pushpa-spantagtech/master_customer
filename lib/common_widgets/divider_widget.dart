@@ -5,6 +5,7 @@ class CustomDivider extends StatelessWidget {
   final double dashWidth;
   final Color color;
   final Axis axis;
+
   const CustomDivider(
       {super.key,
       this.height = 1,

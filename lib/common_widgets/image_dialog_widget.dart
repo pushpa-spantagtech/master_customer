@@ -7,6 +7,7 @@ class ImageDialogWidget extends StatelessWidget {
   final String imageUrl;
   final String? title;
   final String? subTitle;
+
   const ImageDialogWidget(
       {super.key, required this.imageUrl, this.title, this.subTitle});
 

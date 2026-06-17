@@ -5,9 +5,11 @@ import 'package:ride_sharing_user_app/features/home/domain/repositories/banner_r
 
 class BannerController extends GetxController implements GetxService {
   final BannerRepo bannerRepo;
+
   BannerController({required this.bannerRepo});
 
   int? _currentIndex = 0;
+
   int? get currentIndex => _currentIndex;
   bool isLoading = false;
   List<Banner>? bannerList;

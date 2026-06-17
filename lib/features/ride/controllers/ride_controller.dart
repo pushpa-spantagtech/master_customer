@@ -76,11 +76,14 @@ class RideController extends GetxController implements GetxService {
 
   bool isLocalRide = false;
   bool isRentalRide = false;
+  double? selectedIdleFee;
+  List<dynamic> localTariffs = [];
 
   String localVehicle = '';
   double localFare = 0;
   bool isOutstationRide = false;
   String outstationVehicle = '';
+
   TripDetails? get currentTripDetails => tripDetails;
 
   TextEditingController inputFarePriceController =
@@ -115,6 +118,7 @@ class RideController extends GetxController implements GetxService {
   String categoryName = '';
   String selectedCategoryId = '';
   FareModel? selectedType;
+
   void setRideCategoryIndex(int newIndex) {
     rideCategoryIndex = newIndex;
     categoryName =
@@ -852,6 +856,7 @@ class RideController extends GetxController implements GetxService {
 
   double outstationFare = 0;
   List<OutstationTariff> outstationTariffs = [];
+
   Future<void> getOutstationTariffs() async {
     Response response = await rideServiceInterface.getOutstationTariffs();
 
@@ -895,5 +900,19 @@ class RideController extends GetxController implements GetxService {
     print(response.body);
 
     update();
+  }
+
+  Future<void> getLocalTariffs() async {
+    Response response = await rideServiceInterface.getLocalTariffs();
+    if (response.statusCode == 200) {
+      final currentZoneId = Get.find<LocationController>().zoneID;
+      localTariffs = (response.body['data'] as List)
+          .where((e) => e['zone_id'] == currentZoneId)
+          .toList();
+      for (var item in localTariffs) {
+        print("ZONE => ${item['zone']['name']}");
+      }
+      update();
+    }
   }
 }

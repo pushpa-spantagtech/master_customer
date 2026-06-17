@@ -11,6 +11,7 @@ import 'package:ride_sharing_user_app/common_widgets/divider_widget.dart';
 
 class TransactionCard extends StatelessWidget {
   final Transaction transaction;
+
   const TransactionCard({super.key, required this.transaction});
 
   @override

@@ -9,6 +9,7 @@ class CustomTitle extends StatelessWidget {
   final String? icon;
   final String? count;
   final double? fontSize;
+
   const CustomTitle(
       {super.key,
       required this.title,
@@ -16,6 +17,7 @@ class CustomTitle extends StatelessWidget {
       this.icon,
       this.count,
       this.fontSize});
+
   @override
   Widget build(BuildContext context) {
     return Padding(

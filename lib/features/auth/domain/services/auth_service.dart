@@ -4,6 +4,7 @@ import 'package:ride_sharing_user_app/features/auth/domain/services/auth_service
 
 class AuthService implements AuthServiceInterface {
   AuthRepositoryInterface authRepositoryInterface;
+
   AuthService({required this.authRepositoryInterface});
 
   @override

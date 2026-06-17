@@ -19,6 +19,7 @@ class DigitalPaymentScreen extends StatefulWidget {
   final String paymentMethod;
   final bool fromParcel;
   final String tips;
+
   const DigitalPaymentScreen(
       {super.key,
       required this.tripId,

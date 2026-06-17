@@ -7,6 +7,7 @@ import 'package:ride_sharing_user_app/features/ride/widgets/rider_details_widget
 class DriverRideRequestDialog extends StatelessWidget {
   final bool fromList;
   final String tripId;
+
   const DriverRideRequestDialog(
       {super.key, required this.tripId, this.fromList = false});
 

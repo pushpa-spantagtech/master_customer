@@ -8,6 +8,7 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 
 class DiscountCartWidget extends StatelessWidget {
   final OfferModel offerModel;
+
   const DiscountCartWidget({super.key, required this.offerModel});
 
   @override

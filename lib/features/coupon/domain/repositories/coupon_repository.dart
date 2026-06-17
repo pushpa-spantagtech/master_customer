@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/util/app_constants.dart';
 
 class CouponRepository implements CouponRepositoryInterface {
   final ApiClient apiClient;
+
   CouponRepository({required this.apiClient});
 
   @override

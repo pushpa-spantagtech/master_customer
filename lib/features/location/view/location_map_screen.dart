@@ -13,6 +13,7 @@ import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 
 class LocationScreen extends StatefulWidget {
   final AddressModel? address;
+
   const LocationScreen({super.key, @required this.address});
 
   @override

@@ -4,6 +4,7 @@ import 'package:ride_sharing_user_app/util/app_constants.dart';
 
 class OfferRepository implements OfferRepositoryInterface {
   final ApiClient apiClient;
+
   OfferRepository({required this.apiClient});
 
   @override

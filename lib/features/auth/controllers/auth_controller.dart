@@ -27,7 +27,9 @@ class AuthController extends GetxController implements GetxService {
   bool _hasOpenedTerms = false;
 
   bool get isLoading => _isLoading;
+
   String get verificationCode => _verificationCode;
+
   bool get isActiveRememberMe => _isActiveRememberMe;
 
   bool get isTermsAccepted => _isTermsAccepted;

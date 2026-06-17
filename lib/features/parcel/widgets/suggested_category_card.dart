@@ -12,6 +12,7 @@ import 'package:ride_sharing_user_app/common_widgets/image_widget.dart';
 
 class SuggestedCategoryCard extends StatelessWidget {
   final SuggestedCategory suggestedCategory;
+
   const SuggestedCategoryCard({super.key, required this.suggestedCategory});
 
   @override

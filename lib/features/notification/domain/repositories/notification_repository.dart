@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/util/app_constants.dart';
 
 class NotificationRepository implements NotificationRepositoryInterface {
   final ApiClient apiClient;
+
   NotificationRepository({required this.apiClient});
 
   @override

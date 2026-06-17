@@ -6,6 +6,7 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 
 class NoDataWidget extends StatelessWidget {
   final String? title;
+
   const NoDataWidget({super.key, this.title});
 
   @override

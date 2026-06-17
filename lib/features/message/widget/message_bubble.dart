@@ -19,6 +19,7 @@ class ConversationBubble extends StatefulWidget {
   final Message? previousMessage;
   final int index;
   final int length;
+
   const ConversationBubble({
     super.key,
     required this.message,

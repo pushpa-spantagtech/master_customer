@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/util/app_constants.dart';
 
 class TripRepository implements TripRepositoryInterface {
   final ApiClient apiClient;
+
   TripRepository({required this.apiClient});
 
   @override

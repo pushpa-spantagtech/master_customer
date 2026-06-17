@@ -13,6 +13,7 @@ import 'package:ride_sharing_user_app/features/coupon/domain/models/coupon_model
 
 class CouponWidget extends StatefulWidget {
   final Coupon coupon;
+
   const CouponWidget({super.key, required this.coupon});
 
   @override

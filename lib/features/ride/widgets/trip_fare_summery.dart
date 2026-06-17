@@ -37,29 +37,13 @@ class TripFareSummery extends StatelessWidget {
 
           if (rideController.isLocalRide) {
             double waitingMinutes = rideController.finalFare?.idleTime ?? 0;
-            // Local Ride:
-            // 5 mins arrival grace period +
-            // 15 mins free waiting = 20 mins free total
-            if (waitingMinutes > 15) {
-              localWaitingCharge = (waitingMinutes - 15) * 1.66;
+            final idleRate = rideController.selectedIdleFee ?? 0;
+            if (waitingMinutes > 20) {
+              localWaitingCharge = (waitingMinutes - 20) * idleRate;
             }
           }
           double total = 0;
-          print('================ LOCAL DEBUG ================');
-          print('isLocalRide=${rideController.isLocalRide}');
-          print('idleTime=${rideController.finalFare?.idleTime}');
-          print('idleFee=${rideController.finalFare?.idleFee}');
-          print('delayTime=${rideController.finalFare?.delayTime}');
-          print('delayFee=${rideController.finalFare?.delayFee}');
-          print(
-              'distanceWiseFare=${rideController.finalFare?.distanceWiseFare}');
-          print('paidFare=${rideController.finalFare?.paidFare}');
-          print('vatTax=${rideController.finalFare?.vatTax}');
-          print('============================================');
           if (fromPayment) {
-            // total = rideController.finalFare!.paidFare! +
-            //     double.parse(paymentController.tipAmount);
-
             if (rideController.isLocalRide) {
               total = localFare +
                   localWaitingCharge +

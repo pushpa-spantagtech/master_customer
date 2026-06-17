@@ -16,6 +16,7 @@ class SliderItem extends StatefulWidget {
   final bool autoSlide;
   final Duration slideChangeDuration;
   final int initIndex;
+
   const SliderItem(
       {super.key,
       required this.imageList,

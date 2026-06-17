@@ -44,6 +44,7 @@ class SliderButton extends StatefulWidget {
 
   final bool disable;
   final bool isLtr;
+
   const SliderButton({
     super.key,
     required this.action,

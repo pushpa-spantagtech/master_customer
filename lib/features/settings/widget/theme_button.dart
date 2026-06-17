@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/theme/theme_controller.dart';
 class ThemeButton extends StatelessWidget {
   final bool isDarkTheme;
   final bool isSelected;
+
   const ThemeButton(
       {super.key, required this.isDarkTheme, required this.isSelected});
 

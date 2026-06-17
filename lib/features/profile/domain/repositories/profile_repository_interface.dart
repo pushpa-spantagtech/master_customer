@@ -3,6 +3,7 @@ import 'package:ride_sharing_user_app/data/api_client.dart';
 
 abstract class ProfileRepositoryInterface {
   Future<dynamic> getProfileInfo();
+
   Future<dynamic> updateProfileInfo(
       String firstName,
       String lastname,

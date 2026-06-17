@@ -19,6 +19,7 @@ class WalletController extends GetxController implements GetxService {
   List<String> walletType = ['wallet_money', 'loyalty_point'];
 
   TransactionModel? transactionModel;
+
   Future<Response> getTransactionList(int offset) async {
     isLoading = true;
     update();
@@ -44,6 +45,7 @@ class WalletController extends GetxController implements GetxService {
   }
 
   LoyaltyPointModel? loyaltyPointModel;
+
   Future<Response> getLoyaltyPointList(int offset) async {
     isLoading = true;
     update();

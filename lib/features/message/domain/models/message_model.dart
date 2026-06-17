@@ -36,6 +36,7 @@ class Message {
   String? createdAt;
   List<ConversationFiles>? conversationFiles;
   User? user;
+
   Message(
       {this.id,
       this.userId,

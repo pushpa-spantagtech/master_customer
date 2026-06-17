@@ -82,6 +82,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
 class RowText extends StatelessWidget {
   final String title;
   final String? leadingText;
+
   const RowText({super.key, required this.title, required this.leadingText});
 
   @override

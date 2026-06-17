@@ -9,6 +9,7 @@ class ImageWidget extends StatelessWidget {
   final BoxFit? fit;
   final String? placeholder;
   final double radius;
+
   const ImageWidget(
       {super.key,
       required this.image,

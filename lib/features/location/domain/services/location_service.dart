@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/features/location/domain/services/location
 
 class LocationService implements LocationServiceInterface {
   LocationRepositoryInterface locationRepositoryInterface;
+
   LocationService({required this.locationRepositoryInterface});
 
   @override

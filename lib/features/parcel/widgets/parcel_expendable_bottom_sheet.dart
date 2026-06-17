@@ -16,6 +16,7 @@ import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.
 
 class ParcelExpendableBottomSheet extends StatefulWidget {
   final GlobalKey<ExpandableBottomSheetState> expandableKey;
+
   const ParcelExpendableBottomSheet({super.key, required this.expandableKey});
 
   @override

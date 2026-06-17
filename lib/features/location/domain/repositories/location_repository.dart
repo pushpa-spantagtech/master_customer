@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LocationRepository implements LocationRepositoryInterface {
   final ApiClient apiClient;
   final SharedPreferences sharedPreferences;
+
   LocationRepository(
       {required this.apiClient, required this.sharedPreferences});
 

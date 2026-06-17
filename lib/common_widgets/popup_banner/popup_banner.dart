@@ -17,6 +17,7 @@ class PopupBanner {
   final Duration slideChangeDuration;
   final Function(int) onClick;
   final int initIndex;
+
   PopupBanner(
       {required this.context,
       required this.images,

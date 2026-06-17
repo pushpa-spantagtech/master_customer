@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -25,10 +26,13 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 
 // Background handler for FCM
 Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  // Handle background message
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (_) {}
 }
 
 Future<void> main() async {
@@ -41,13 +45,21 @@ Future<void> main() async {
 
   // Initialize Firebase safely
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    print("✅ Firebase initialized successfully");
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+    if (kDebugMode) {
+      print("✅ Firebase initialized successfully");
+    }
   } catch (e, stack) {
-    print("❌ Firebase initialization failed: $e");
-    print(stack);
+    if (kDebugMode) {
+      print("❌ Firebase initialization failed: $e");
+    }
+    if (kDebugMode) {
+      print(stack);
+    }
   }
 
   final Map<String, Map<String, String>> languages = await di.init();
@@ -63,7 +75,9 @@ Future<void> main() async {
         .subscribeToTopic('customer_maintenance_mode_off');
     FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
   } catch (e) {
-    print("⚠️ FCM setup failed: $e");
+    if (kDebugMode) {
+      print("⚠️ FCM setup failed: $e");
+    }
   }
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);

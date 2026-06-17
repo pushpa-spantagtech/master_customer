@@ -30,6 +30,7 @@ class Errors {
   String? _message;
 
   String? get code => _code;
+
   String? get message => _message;
 
   Errors({String? code, String? message}) {

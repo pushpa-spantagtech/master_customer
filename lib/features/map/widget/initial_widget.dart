@@ -56,6 +56,7 @@ class _InitialWidgetState extends State<InitialWidget> {
   @override
   void initState() {
     var rideController = Get.find<RideController>();
+    rideController.getLocalTariffs();
     if (Get.find<PaymentController>().paymentType == 'wallet' &&
         (rideController.discountAmount.toDouble() > 0
                 ? rideController.discountFare
@@ -78,16 +79,17 @@ class _InitialWidgetState extends State<InitialWidget> {
         final bool isNight = hour >= 22 || hour < 6;
         return Column(mainAxisSize: MainAxisSize.min, children: [
           if (rideController.isLocalRide) ...[
-            localCarCard(
-              "Hatchback / Sedan",
-              isNight ? 120 : 100,
-            ),
-            const SizedBox(height: 12),
-            localCarCard(
-              "Omni / Eeco",
-              isNight ? 170 : 140,
-            ),
-            const SizedBox(height: 16),
+            ...rideController.localTariffs.expand((zone) {
+              return (zone['trip_fares'] as List).map((tripFare) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: localCarCard(
+                    tripFare['vehicle_category']['name'],
+                    isNight ? tripFare['night_rate'] : tripFare['day_rate'],
+                  ),
+                );
+              });
+            }),
           ] else if (rideController.isRentalRide) ...[
             Align(
               alignment: Alignment.centerLeft,
@@ -251,15 +253,6 @@ class _InitialWidgetState extends State<InitialWidget> {
         onPressed: () {
           if (rideController.isLocalRide) {
             rideController.localVehicle = selectedLocalVehicle!;
-
-            rideController.localFare =
-                selectedLocalVehicle == "Hatchback / Sedan"
-                    ? ((DateTime.now().hour >= 22 || DateTime.now().hour < 6)
-                        ? 120
-                        : 100)
-                    : ((DateTime.now().hour >= 22 || DateTime.now().hour < 6)
-                        ? 170
-                        : 140);
           } else if (rideController.isOutstationRide) {
             rideController.outstationVehicle = selectedOutstationVehicle!;
 
@@ -336,6 +329,15 @@ class _InitialWidgetState extends State<InitialWidget> {
         setState(() {
           selectedLocalVehicle = title;
         });
+        final rideController = Get.find<RideController>();
+        rideController.localFare = fare.toDouble();
+        if (rideController.localTariffs.isNotEmpty) {
+          rideController.selectedIdleFee = double.tryParse(
+                rideController.localTariffs.first['idle_fee_per_min']
+                    .toString(),
+              ) ??
+              0;
+        }
       },
       child: Container(
         padding: const EdgeInsets.all(8),

@@ -18,6 +18,7 @@ class FareInputWidget extends StatefulWidget {
   final String fare;
   final double? discountAmount;
   final double? discountFare;
+
   const FareInputWidget(
       {super.key,
       required this.fromRide,

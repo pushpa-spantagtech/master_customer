@@ -15,6 +15,7 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 class ParcelItem extends StatelessWidget {
   final TripDetails rideRequest;
   final int index;
+
   const ParcelItem({super.key, required this.rideRequest, required this.index});
 
   @override

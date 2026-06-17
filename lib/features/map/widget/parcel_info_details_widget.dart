@@ -14,6 +14,7 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 
 class ParcelInfoDetailsWidget extends StatefulWidget {
   final GlobalKey<ExpandableBottomSheetState> expandableKey;
+
   const ParcelInfoDetailsWidget({super.key, required this.expandableKey});
 
   @override

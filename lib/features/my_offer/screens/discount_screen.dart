@@ -84,12 +84,11 @@ class DiscountScreen extends StatelessWidget {
                                     backgroundColor:
                                         Theme.of(context).cardColor,
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
+                                  child: const Padding(
+                                    padding: EdgeInsets.only(
                                         left: Dimensions.paddingSizeSmall),
                                     child: Icon(Icons.info,
-                                        color: const Color.fromRGBO(
-                                            250, 173, 2, 1)),
+                                        color: Color.fromRGBO(250, 173, 2, 1)),
                                   ),
                                 )
                               ]),

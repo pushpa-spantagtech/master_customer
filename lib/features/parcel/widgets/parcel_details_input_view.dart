@@ -14,6 +14,7 @@ import 'package:ride_sharing_user_app/common_widgets/custom_text_field.dart';
 
 class ParcelDetailInputView extends StatefulWidget {
   final GlobalKey<ExpandableBottomSheetState> expandableKey;
+
   const ParcelDetailInputView({super.key, required this.expandableKey});
 
   @override

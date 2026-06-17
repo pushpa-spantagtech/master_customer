@@ -7,6 +7,7 @@ class DottedBorderBox extends StatelessWidget {
   final double? height;
   final double? width;
   final Function() onTap;
+
   const DottedBorderBox(
       {super.key, required this.onTap, this.height = 100, this.width = 100});
 

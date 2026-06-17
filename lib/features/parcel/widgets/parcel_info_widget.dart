@@ -15,12 +15,12 @@ import 'package:ride_sharing_user_app/features/location/view/pick_map_screen.dar
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 import 'package:ride_sharing_user_app/common_widgets/custom_text_field.dart';
-import 'package:flutter/services.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
 
 class ParcelInfoWidget extends StatefulWidget {
   final bool isSender;
   final GlobalKey<ExpandableBottomSheetState> expandableKey;
+
   const ParcelInfoWidget(
       {super.key, required this.isSender, required this.expandableKey});
 

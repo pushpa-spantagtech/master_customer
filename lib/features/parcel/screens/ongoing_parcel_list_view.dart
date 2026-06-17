@@ -8,6 +8,7 @@ import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 class OngoingParcelListView extends StatefulWidget {
   final String title;
   final ParcelListModel parcelListModel;
+
   const OngoingParcelListView(
       {super.key, required this.title, required this.parcelListModel});
 

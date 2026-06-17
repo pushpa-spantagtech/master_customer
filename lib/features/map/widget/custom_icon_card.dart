@@ -6,6 +6,7 @@ class CustomIconCard extends StatelessWidget {
   final int index;
   final Function()? onTap;
   final Color? iconColor;
+
   const CustomIconCard(
       {super.key,
       required this.icon,

@@ -13,6 +13,7 @@ import 'package:ride_sharing_user_app/features/wallet/controllers/wallet_control
 
 class WalletMoneyAmountWidget extends StatelessWidget {
   final bool walletMoney;
+
   const WalletMoneyAmountWidget({super.key, this.walletMoney = false});
 
   @override

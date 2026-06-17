@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/features/my_offer/domain/services/offer_se
 
 class OfferController extends GetxController implements GetxService {
   final OfferServiceInterface offerServiceInterface;
+
   OfferController({required this.offerServiceInterface});
 
   bool isLoading = false;

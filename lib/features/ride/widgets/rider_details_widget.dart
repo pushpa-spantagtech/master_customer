@@ -14,6 +14,7 @@ class RiderDetailsWidget extends StatefulWidget {
   final bool fromNotification;
   final Bidding bidding;
   final String tripId;
+
   const RiderDetailsWidget(
       {super.key,
       this.fromNotification = true,

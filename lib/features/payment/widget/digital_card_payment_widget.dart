@@ -10,6 +10,7 @@ import 'package:ride_sharing_user_app/common_widgets/image_widget.dart';
 class DigitalCardPaymentWidget extends StatelessWidget {
   final PaymentGateways digitalPaymentModel;
   final int index;
+
   const DigitalCardPaymentWidget(
       {super.key, required this.digitalPaymentModel, required this.index});
 

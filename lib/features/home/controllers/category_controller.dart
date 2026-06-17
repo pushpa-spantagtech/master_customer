@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/features/home/domain/repositories/category
 
 class CategoryController extends GetxController implements GetxService {
   final CategoryRepo categoryRepo;
+
   CategoryController({required this.categoryRepo});
 
   List<Category>? categoryList;

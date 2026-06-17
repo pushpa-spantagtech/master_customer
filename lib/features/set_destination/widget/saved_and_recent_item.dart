@@ -9,6 +9,7 @@ class SavedAndRecentItem extends StatelessWidget {
   final String subTitle;
   final bool isSeeMore;
   final Function()? onTap;
+
   const SavedAndRecentItem(
       {super.key,
       required this.title,

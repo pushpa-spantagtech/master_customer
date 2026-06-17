@@ -119,6 +119,7 @@ class User {
 
 class LastChannelConversations {
   String? message;
+
   LastChannelConversations({
     this.message,
   });

@@ -6,6 +6,7 @@ import 'package:ride_sharing_user_app/features/address/domain/models/address_mod
 
 class AddressRepository implements AddressRepositoryInterface {
   final ApiClient apiClient;
+
   AddressRepository({required this.apiClient});
 
   @override

@@ -16,11 +16,11 @@ class OfferCouponCardWidget extends StatelessWidget {
   final bool fromCouponScree;
   final Coupon coupon;
   final int index;
-  const OfferCouponCardWidget(
-      {super.key,
-      required this.fromCouponScree,
-      required this.coupon,
-      required this.index});
+
+  const OfferCouponCardWidget({super.key,
+    required this.fromCouponScree,
+    required this.coupon,
+    required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -41,121 +41,142 @@ class OfferCouponCardWidget extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
               border: Border.all(
-                  color: Theme.of(context).hintColor.withValues(alpha: 0.25)),
+                  color: Theme
+                      .of(context)
+                      .hintColor
+                      .withValues(alpha: 0.25)),
             ),
             child: Row(children: [
               fromCouponScree
                   ? Stack(children: [
-                      Container(
-                        width: 65,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .cardColor
-                              .withValues(alpha: 0.50),
-                        ),
-                        child: Image.asset(Images.car),
-                      ),
-                      Image.asset(Images.discountCouponIcon,
-                          height: 20, width: 20)
-                    ])
+                Container(
+                  width: 65,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Theme
+                        .of(context)
+                        .cardColor
+                        .withValues(alpha: 0.50),
+                  ),
+                  child: Image.asset(Images.car),
+                ),
+                Image.asset(Images.discountCouponIcon,
+                    height: 20, width: 20)
+              ])
                   : const SizedBox(),
               const SizedBox(width: Dimensions.paddingSizeSmall),
               Expanded(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                    Row(children: [
-                      Text('Code: ',
+                        Row(children: [
+                          Text('Code: ',
+                              style: textMedium.copyWith(
+                                  color: Theme
+                                      .of(context)
+                                      .hintColor)),
+                          Text('${coupon.couponCode}', style: textBold),
+                        ]),
+                        const SizedBox(height: Dimensions
+                            .paddingSizeExtraSmall),
+                        Text(
+                          '${coupon.amountType == 'percentage' ? '${coupon
+                              .coupon} %' : PriceConverter.convertPrice(
+                              double.parse(coupon.coupon ?? '0'))} ${'off_for'
+                              .tr} '
+                              '${coupon.categoryCoupon!.contains('all')
+                              ? 'all_rides'.tr
+                              : coupon.categoryCoupon!.toString().substring(1,
+                              coupon.categoryCoupon!.toString().length - 1)}',
                           style: textMedium.copyWith(
-                              color: Theme.of(context).hintColor)),
-                      Text('${coupon.couponCode}', style: textBold),
-                    ]),
-                    const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-                    Text(
-                      '${coupon.amountType == 'percentage' ? '${coupon.coupon} %' : PriceConverter.convertPrice(double.parse(coupon.coupon ?? '0'))} ${'off_for'.tr} '
-                      '${coupon.categoryCoupon!.contains('all') ? 'all_rides'.tr : coupon.categoryCoupon!.toString().substring(1, coupon.categoryCoupon!.toString().length - 1)}',
-                      style: textMedium.copyWith(
-                        color: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .color!
-                            .withValues(alpha: 0.8),
-                        fontSize: Dimensions.fontSizeSmall,
-                      ),
-                    ),
-                    const SizedBox(height: Dimensions.paddingSizeSeven),
-                    Text(
-                      '${'minimum_trip_amount'.tr} ${PriceConverter.convertPrice(double.parse(coupon.minTripAmount ?? '0'))}',
-                      style: textMedium.copyWith(
-                          fontSize: Dimensions.fontSizeSmall,
-                          color: Theme.of(context).hintColor),
-                    ),
-                    const SizedBox(height: Dimensions.paddingSizeSeven),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(children: [
-                            Text(
-                              '${'valid'.tr}: ',
-                              style: textMedium.copyWith(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .color!
-                                    .withValues(alpha: 0.5),
-                                fontSize: Dimensions.fontSizeExtraSmall,
-                              ),
-                            ),
-                            Text(
-                              DateConverter.isoDateTimeStringToDateOnly(
-                                  coupon.endDate!),
-                              style: textMedium.copyWith(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .color!
-                                    .withValues(alpha: 0.5),
-                                fontSize: Dimensions.fontSizeExtraSmall,
-                              ),
-                            ),
-                          ]),
-                          InkWell(
-                            onTap: () {
-                              Get.find<CouponController>()
-                                  .customerAppliedCoupon(coupon.id!, index);
-                            },
-                            child: couponController
+                            color: Theme
+                                .of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .color!
+                                .withValues(alpha: 0.8),
+                            fontSize: Dimensions.fontSizeSmall,
+                          ),
+                        ),
+                        const SizedBox(height: Dimensions.paddingSizeSeven),
+                        Text(
+                          '${'minimum_trip_amount'.tr} ${PriceConverter
+                              .convertPrice(
+                              double.parse(coupon.minTripAmount ?? '0'))}',
+                          style: textMedium.copyWith(
+                              fontSize: Dimensions.fontSizeSmall,
+                              color: Theme
+                                  .of(context)
+                                  .hintColor),
+                        ),
+                        const SizedBox(height: Dimensions.paddingSizeSeven),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(children: [
+                                Text(
+                                  '${'valid'.tr}: ',
+                                  style: textMedium.copyWith(
+                                    color: Theme
+                                        .of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .color!
+                                        .withValues(alpha: 0.5),
+                                    fontSize: Dimensions.fontSizeExtraSmall,
+                                  ),
+                                ),
+                                Text(
+                                  DateConverter.isoDateTimeStringToDateOnly(
+                                      coupon.endDate!),
+                                  style: textMedium.copyWith(
+                                    color: Theme
+                                        .of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .color!
+                                        .withValues(alpha: 0.5),
+                                    fontSize: Dimensions.fontSizeExtraSmall,
+                                  ),
+                                ),
+                              ]),
+                              InkWell(
+                                onTap: () {
+                                  Get.find<CouponController>()
+                                      .customerAppliedCoupon(coupon.id!, index);
+                                },
+                                child: couponController
                                     .couponModel!.data![index].isLoading
-                                ? const SpinKitCircle(
+                                    ? const SpinKitCircle(
                                     color: Color.fromRGBO(250, 173, 2, 1),
                                     size: 30.0)
-                                : Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical:
-                                          Dimensions.paddingSizeExtraSmall,
-                                      horizontal: Dimensions.paddingSizeSmall,
-                                    ),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(50),
-                                        color: const Color.fromRGBO(
-                                            250, 173, 2, 1),
-                                        border: Border.all(
-                                            color: Color.fromRGBO(
-                                                255, 128, 128, 0.2))),
-                                    child: Text(
-                                      couponController.couponModel!.data![index]
-                                              .isApplied!
-                                          ? 'applied'.tr
-                                          : 'apply'.tr,
-                                      style: textRegular.copyWith(
-                                        color: Color.fromRGBO(255, 255, 255, 1),
-                                      ),
+                                    : Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical:
+                                    Dimensions.paddingSizeExtraSmall,
+                                    horizontal: Dimensions.paddingSizeSmall,
+                                  ),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                      color: const Color.fromRGBO(
+                                          250, 173, 2, 1),
+                                      border: Border.all(
+                                          color: const Color.fromRGBO(
+                                              255, 128, 128, 0.2))),
+                                  child: Text(
+                                    couponController.couponModel!.data![index]
+                                        .isApplied!
+                                        ? 'applied'.tr
+                                        : 'apply'.tr,
+                                    style: textRegular.copyWith(
+                                      color: const Color.fromRGBO(
+                                          255, 255, 255, 1),
                                     ),
                                   ),
-                          ),
-                        ]),
-                  ])),
+                                ),
+                              ),
+                            ]),
+                      ])),
             ]),
           ),
         ),
@@ -166,9 +187,14 @@ class OfferCouponCardWidget extends StatelessWidget {
             width: 30,
             height: 35,
             decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
+              color: Theme
+                  .of(context)
+                  .cardColor,
               border: Border.all(
-                  color: Theme.of(context).hintColor.withValues(alpha: 0.25)),
+                  color: Theme
+                      .of(context)
+                      .hintColor
+                      .withValues(alpha: 0.25)),
               borderRadius: BorderRadius.circular(100),
             ),
           ),
@@ -180,9 +206,14 @@ class OfferCouponCardWidget extends StatelessWidget {
             width: 30,
             height: 35,
             decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
+              color: Theme
+                  .of(context)
+                  .cardColor,
               border: Border.all(
-                  color: Theme.of(context).hintColor.withValues(alpha: 0.25)),
+                  color: Theme
+                      .of(context)
+                      .hintColor
+                      .withValues(alpha: 0.25)),
               borderRadius: BorderRadius.circular(100),
             ),
           ),
@@ -194,6 +225,7 @@ class OfferCouponCardWidget extends StatelessWidget {
 
 class CouponDetailsBottomSheet extends StatelessWidget {
   final Coupon coupon;
+
   const CouponDetailsBottomSheet({super.key, required this.coupon});
 
   @override
@@ -201,7 +233,9 @@ class CouponDetailsBottomSheet extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
       decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: Theme
+              .of(context)
+              .cardColor,
           borderRadius: const BorderRadius.only(
             topRight: Radius.circular(Dimensions.paddingSizeLarge),
             topLeft: Radius.circular(Dimensions.paddingSizeLarge),
@@ -213,7 +247,10 @@ class CouponDetailsBottomSheet extends StatelessWidget {
               onTap: () => Get.back(),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).hintColor.withValues(alpha: 0.2),
+                  color: Theme
+                      .of(context)
+                      .hintColor
+                      .withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(50),
                 ),
                 padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
@@ -221,7 +258,9 @@ class CouponDetailsBottomSheet extends StatelessWidget {
                   Images.crossIcon,
                   height: Dimensions.paddingSizeSmall,
                   width: Dimensions.paddingSizeSmall,
-                  color: Theme.of(context).cardColor,
+                  color: Theme
+                      .of(context)
+                      .cardColor,
                 ),
               )),
         ),
@@ -240,18 +279,25 @@ class CouponDetailsBottomSheet extends StatelessWidget {
             },
             child: Icon(
               Icons.copy,
-              color: Theme.of(context).primaryColor,
+              color: Theme
+                  .of(context)
+                  .primaryColor,
               size: 16,
             ),
           )
         ]),
         Text(
-          '${'valid_until'.tr} ${DateConverter.isoDateTimeStringToDateOnly(coupon.endDate ?? '')}',
-          style: textRegular.copyWith(color: Theme.of(context).hintColor),
+          '${'valid_until'.tr} ${DateConverter.isoDateTimeStringToDateOnly(
+              coupon.endDate ?? '')}',
+          style: textRegular.copyWith(color: Theme
+              .of(context)
+              .hintColor),
         ),
         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
         Text(
-          '${'get'.tr} ${coupon.amountType == 'percentage' ? '${coupon.coupon} %' : PriceConverter.convertPrice(double.parse(coupon.coupon ?? '0'))} ${'discount'.tr}',
+          '${'get'.tr} ${coupon.amountType == 'percentage' ? '${coupon
+              .coupon} %' : PriceConverter.convertPrice(
+              double.parse(coupon.coupon ?? '0'))} ${'discount'.tr}',
           style: textBold,
         ),
         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
@@ -259,7 +305,10 @@ class CouponDetailsBottomSheet extends StatelessWidget {
         Container(
           width: Get.width,
           decoration: BoxDecoration(
-            color: Theme.of(context).hintColor.withValues(alpha: 0.15),
+            color: Theme
+                .of(context)
+                .hintColor
+                .withValues(alpha: 0.15),
             borderRadius: const BorderRadius.all(
                 Radius.circular(Dimensions.paddingSizeSmall)),
           ),
@@ -268,86 +317,88 @@ class CouponDetailsBottomSheet extends StatelessWidget {
               vertical: Dimensions.paddingSizeDefault,
               horizontal: Dimensions.paddingSizeSmall),
           child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             coupon.zoneCoupon!.contains('all')
                 ? const SizedBox()
                 : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Container(
-                      margin: const EdgeInsets.all(
-                          Dimensions.paddingSizeExtraSmall),
-                      height: 7,
-                      width: 7,
-                      decoration: BoxDecoration(
-                        color: Get.isDarkMode
-                            ? Colors.white
-                            : Colors.black.withValues(alpha: 0.50),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(100)),
-                      ),
-                    ),
-                    Expanded(
-                      child: RichText(
-                          text: TextSpan(
-                              text: '${'this_offer_available_only_in'.tr} ',
-                              style: textRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeSmall,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .color),
-                              children: [
-                            TextSpan(
-                              text: coupon.zoneCoupon!.contains('all')
-                                  ? 'all_zone'.tr
-                                  : coupon.zoneCoupon!.toString().substring(1,
-                                      coupon.zoneCoupon!.toString().length - 1),
-                              style: textSemiBold.copyWith(
-                                  fontSize: Dimensions.fontSizeSmall),
-                            )
-                          ])),
-                    ),
-                  ]),
+              Container(
+                margin: const EdgeInsets.all(
+                    Dimensions.paddingSizeExtraSmall),
+                height: 7,
+                width: 7,
+                decoration: BoxDecoration(
+                  color: Get.isDarkMode
+                      ? Colors.white
+                      : Colors.black.withValues(alpha: 0.50),
+                  borderRadius:
+                  const BorderRadius.all(Radius.circular(100)),
+                ),
+              ),
+              Expanded(
+                child: RichText(
+                    text: TextSpan(
+                        text: '${'this_offer_available_only_in'.tr} ',
+                        style: textRegular.copyWith(
+                            fontSize: Dimensions.fontSizeSmall,
+                            color: Theme
+                                .of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .color),
+                        children: [
+                          TextSpan(
+                            text: coupon.zoneCoupon!.contains('all')
+                                ? 'all_zone'.tr
+                                : coupon.zoneCoupon!.toString().substring(1,
+                                coupon.zoneCoupon!.toString().length - 1),
+                            style: textSemiBold.copyWith(
+                                fontSize: Dimensions.fontSizeSmall),
+                          )
+                        ])),
+              ),
+            ]),
             const SizedBox(height: Dimensions.paddingSizeExtraSmall),
             coupon.categoryCoupon!.contains('all')
                 ? const SizedBox()
                 : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Container(
-                      margin: const EdgeInsets.all(
-                          Dimensions.paddingSizeExtraSmall),
-                      height: 7,
-                      width: 7,
-                      decoration: BoxDecoration(
-                        color: Get.isDarkMode
-                            ? Colors.white
-                            : Colors.black.withValues(alpha: 0.50),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(100)),
-                      ),
-                    ),
-                    Expanded(
-                      child: RichText(
-                          text: TextSpan(
-                              text: '${'discount_on'.tr} ',
-                              style: textRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeSmall,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .color),
-                              children: [
-                            TextSpan(
-                              text: coupon.categoryCoupon!.contains('all')
-                                  ? 'all'.tr
-                                  : coupon.categoryCoupon!.toString().substring(
-                                      1,
-                                      coupon.categoryCoupon!.toString().length -
-                                          1),
-                              style: textSemiBold.copyWith(
-                                  fontSize: Dimensions.fontSizeSmall),
-                            )
-                          ])),
-                    ),
-                  ]),
+              Container(
+                margin: const EdgeInsets.all(
+                    Dimensions.paddingSizeExtraSmall),
+                height: 7,
+                width: 7,
+                decoration: BoxDecoration(
+                  color: Get.isDarkMode
+                      ? Colors.white
+                      : Colors.black.withValues(alpha: 0.50),
+                  borderRadius:
+                  const BorderRadius.all(Radius.circular(100)),
+                ),
+              ),
+              Expanded(
+                child: RichText(
+                    text: TextSpan(
+                        text: '${'discount_on'.tr} ',
+                        style: textRegular.copyWith(
+                            fontSize: Dimensions.fontSizeSmall,
+                            color: Theme
+                                .of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .color),
+                        children: [
+                          TextSpan(
+                            text: coupon.categoryCoupon!.contains('all')
+                                ? 'all'.tr
+                                : coupon.categoryCoupon!.toString().substring(
+                                1,
+                                coupon.categoryCoupon!.toString().length -
+                                    1),
+                            style: textSemiBold.copyWith(
+                                fontSize: Dimensions.fontSizeSmall),
+                          )
+                        ])),
+              ),
+            ]),
             const SizedBox(height: Dimensions.paddingSizeExtraSmall),
             Row(children: [
               Container(
@@ -368,59 +419,64 @@ class CouponDetailsBottomSheet extends StatelessWidget {
                         style: textRegular.copyWith(
                             fontSize: Dimensions.fontSizeSmall,
                             color:
-                                Theme.of(context).textTheme.bodyMedium!.color),
+                            Theme
+                                .of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .color),
                         children: [
-                      TextSpan(
-                        text: '${coupon.limit} ${'times'.tr}',
-                        style: textSemiBold.copyWith(
-                            fontSize: Dimensions.fontSizeSmall),
-                      )
-                    ])),
+                          TextSpan(
+                            text: '${coupon.limit} ${'times'.tr}',
+                            style: textSemiBold.copyWith(
+                                fontSize: Dimensions.fontSizeSmall),
+                          )
+                        ])),
               ),
             ]),
             const SizedBox(height: Dimensions.paddingSizeExtraSmall),
             coupon.customerLevelCoupon!.contains('all')
                 ? const SizedBox()
                 : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Container(
-                      margin: const EdgeInsets.all(
-                          Dimensions.paddingSizeExtraSmall),
-                      height: 7,
-                      width: 7,
-                      decoration: BoxDecoration(
-                        color: Get.isDarkMode
-                            ? Colors.white
-                            : Colors.black.withValues(alpha: 0.5),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(100)),
-                      ),
-                    ),
-                    Expanded(
-                      child: RichText(
-                          text: TextSpan(
-                              text: '${'to_get_this_offer_user'.tr} ',
-                              style: textRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeSmall,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .color),
-                              children: [
-                            TextSpan(
-                              text: coupon.customerLevelCoupon!
-                                  .toString()
-                                  .substring(
-                                      1,
-                                      coupon.customerLevelCoupon!
-                                              .toString()
-                                              .length -
-                                          1),
-                              style: textSemiBold.copyWith(
-                                  fontSize: Dimensions.fontSizeSmall),
-                            )
-                          ])),
-                    ),
-                  ]),
+              Container(
+                margin: const EdgeInsets.all(
+                    Dimensions.paddingSizeExtraSmall),
+                height: 7,
+                width: 7,
+                decoration: BoxDecoration(
+                  color: Get.isDarkMode
+                      ? Colors.white
+                      : Colors.black.withValues(alpha: 0.5),
+                  borderRadius:
+                  const BorderRadius.all(Radius.circular(100)),
+                ),
+              ),
+              Expanded(
+                child: RichText(
+                    text: TextSpan(
+                        text: '${'to_get_this_offer_user'.tr} ',
+                        style: textRegular.copyWith(
+                            fontSize: Dimensions.fontSizeSmall,
+                            color: Theme
+                                .of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .color),
+                        children: [
+                          TextSpan(
+                            text: coupon.customerLevelCoupon!
+                                .toString()
+                                .substring(
+                                1,
+                                coupon.customerLevelCoupon!
+                                    .toString()
+                                    .length -
+                                    1),
+                            style: textSemiBold.copyWith(
+                                fontSize: Dimensions.fontSizeSmall),
+                          )
+                        ])),
+              ),
+            ]),
             const SizedBox(height: Dimensions.paddingSizeExtraSmall),
             Row(children: [
               Container(
@@ -441,15 +497,22 @@ class CouponDetailsBottomSheet extends StatelessWidget {
                         style: textRegular.copyWith(
                             fontSize: Dimensions.fontSizeSmall,
                             color:
-                                Theme.of(context).textTheme.bodyMedium!.color),
+                            Theme
+                                .of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .color),
                         children: [
-                      TextSpan(
-                        text:
-                            '${Get.find<ConfigController>().config!.currencySymbol}${coupon.minTripAmount}',
-                        style: textSemiBold.copyWith(
-                            fontSize: Dimensions.fontSizeSmall),
-                      )
-                    ])),
+                          TextSpan(
+                            text:
+                            '${Get
+                                .find<ConfigController>()
+                                .config!
+                                .currencySymbol}${coupon.minTripAmount}',
+                            style: textSemiBold.copyWith(
+                                fontSize: Dimensions.fontSizeSmall),
+                          )
+                        ])),
               ),
             ]),
             const SizedBox(height: Dimensions.paddingSizeExtraSmall),
@@ -457,7 +520,7 @@ class CouponDetailsBottomSheet extends StatelessWidget {
               Row(children: [
                 Container(
                   margin:
-                      const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
+                  const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
                   height: 7,
                   width: 7,
                   decoration: BoxDecoration(
@@ -473,18 +536,22 @@ class CouponDetailsBottomSheet extends StatelessWidget {
                           text: '${'maximum_discount'.tr} ',
                           style: textRegular.copyWith(
                               fontSize: Dimensions.fontSizeSmall,
-                              color: Theme.of(context)
+                              color: Theme
+                                  .of(context)
                                   .textTheme
                                   .bodyMedium!
                                   .color),
                           children: [
-                        TextSpan(
-                          text:
-                              '${Get.find<ConfigController>().config!.currencySymbol}${coupon.maxCouponAmount}',
-                          style: textSemiBold.copyWith(
-                              fontSize: Dimensions.fontSizeSmall),
-                        )
-                      ])),
+                            TextSpan(
+                              text:
+                              '${Get
+                                  .find<ConfigController>()
+                                  .config!
+                                  .currencySymbol}${coupon.maxCouponAmount}',
+                              style: textSemiBold.copyWith(
+                                  fontSize: Dimensions.fontSizeSmall),
+                            )
+                          ])),
                 ),
               ]),
           ]),

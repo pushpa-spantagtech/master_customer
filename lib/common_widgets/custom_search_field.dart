@@ -10,6 +10,7 @@ class CustomSearchField extends StatefulWidget {
   final FocusNode? focusNode;
   final bool isReadOnly;
   final VoidCallback onTap;
+
   const CustomSearchField({
     super.key,
     required this.controller,

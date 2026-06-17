@@ -9,6 +9,7 @@ import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
 class BiddingListScreen extends StatelessWidget {
   final String tripId;
   final bool fromList;
+
   const BiddingListScreen(
       {super.key, required this.tripId, this.fromList = false});
 

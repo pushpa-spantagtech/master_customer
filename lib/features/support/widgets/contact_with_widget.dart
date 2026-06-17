@@ -7,6 +7,7 @@ class ContactWithWidget extends StatelessWidget {
   final String subTitle;
   final String message;
   final String data;
+
   const ContactWithWidget(
       {super.key,
       required this.title,

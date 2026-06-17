@@ -298,4 +298,9 @@ class RideRepository implements RideRepositoryInterface {
       },
     );
   }
+
+  @override
+  Future getLocalTariffs() async {
+    return await apiClient.getData(AppConstants.localTariffsUri);
+  }
 }

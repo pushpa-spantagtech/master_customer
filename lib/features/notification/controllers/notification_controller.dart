@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/features/notification/domain/services/noti
 
 class NotificationController extends GetxController implements GetxService {
   final NotificationServiceInterface notificationServiceInterface;
+
   NotificationController({required this.notificationServiceInterface});
 
   bool isLoading = false;

@@ -10,6 +10,7 @@ import 'package:shimmer/shimmer.dart';
 
 class ParcelCategoryView extends StatelessWidget {
   final bool isDetails;
+
   const ParcelCategoryView({super.key, this.isDetails = false});
 
   @override

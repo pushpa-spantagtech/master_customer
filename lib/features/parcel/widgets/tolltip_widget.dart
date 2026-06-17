@@ -7,6 +7,7 @@ import 'package:ride_sharing_user_app/features/settings/screens/policy_screen.da
 class TollTipWidget extends StatefulWidget {
   final String title;
   final bool showInsight;
+
   const TollTipWidget(
       {super.key, required this.title, this.showInsight = true});
 

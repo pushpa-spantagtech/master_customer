@@ -37,6 +37,7 @@ class CodePickerWidget extends StatefulWidget {
   final bool? showDropDownButton;
   final Decoration? flagDecoration;
   final List<Map<String, String>>? countryList;
+
   const CodePickerWidget({
     this.onChanged,
     this.onInit,
@@ -73,6 +74,7 @@ class CodePickerWidget extends StatefulWidget {
     this.countryList = codes,
     super.key,
   });
+
   @override
   State<CodePickerWidget> createState() => _CodePickerWidgetState();
 }

@@ -57,26 +57,41 @@ abstract class RideRepositoryInterface implements RepositoryInterface {
       String? tripRequestId});
 
   Future<dynamic> getRideDetails(String tripId);
+
   Future<dynamic> tripStatusUpdate(
       String id, String status, String cancellationCause);
+
   Future<dynamic> remainDistance(String requestID);
+
   Future<dynamic> biddingList(String tripId, int offset);
+
   Future<dynamic> nearestDriverList(String lat, String lng);
+
   Future<dynamic> tripAcceptOrReject(
       String tripId, String type, String driverId);
+
   Future<dynamic> ignoreBidding(String biddingId);
+
   Future<dynamic> currentRideStatus();
+
   Future<dynamic> getFinalFare(String id);
+
   Future<dynamic> arrivalPickupPoint(String tripId);
+
   Future<dynamic> getDriverLocation(String tripId);
+
   Future<dynamic> getDirection(
       {required LatLng pickupLatLng,
       required LatLng destinationLatLng,
       required LatLng extraOneLatLng,
       required LatLng extraTwoLatLng});
+
   Future<dynamic> getOutstationTariffs();
+
   Future<dynamic> calculateOutstationFare(
     String vehicleType,
     double distanceKm,
   );
+
+  Future<dynamic> getLocalTariffs();
 }

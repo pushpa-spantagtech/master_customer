@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ConfigRepository implements ConfigRepositoryInterface {
   final ApiClient apiClient;
   final SharedPreferences sharedPreferences;
+
   const ConfigRepository(
       {required this.apiClient, required this.sharedPreferences});
 

@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 class FareWidget extends StatelessWidget {
   final String title;
   final String value;
+
   const FareWidget({super.key, required this.title, required this.value});
 
   @override

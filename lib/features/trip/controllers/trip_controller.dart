@@ -6,6 +6,7 @@ import 'package:ride_sharing_user_app/features/trip/domain/services/service_inte
 
 class TripController extends GetxController implements GetxService {
   final TripServiceInterface tripServiceInterface;
+
   TripController({required this.tripServiceInterface});
 
   final List<String> _filterList = [
@@ -21,8 +22,11 @@ class TripController extends GetxController implements GetxService {
   TripModel? tripModel;
 
   List<String> get filterList => _filterList;
+
   bool get showCustomDate => _showCustomDate;
+
   String get filterStartDate => _filterStartDate;
+
   String get filterEndDate => _filterEndDate;
 
   void initData() {
@@ -91,7 +95,6 @@ class TripController extends GetxController implements GetxService {
   Future<void> getOngoingAndAcceptedCancellationCauseList() async {
     Response response = await tripServiceInterface
         .getTripOngoingandAceptedCancelationCauseList();
-    print('res ${response.body}');
 
     if (response.statusCode == 200) {
       tripCancellationCauseList =

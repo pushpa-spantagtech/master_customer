@@ -10,6 +10,7 @@ class LevelCompleteDialogWidget extends StatelessWidget {
   final String levelName;
   final String rewardType;
   final String reward;
+
   const LevelCompleteDialogWidget(
       {super.key,
       required this.levelName,

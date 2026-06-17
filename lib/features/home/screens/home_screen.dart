@@ -33,6 +33,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   GoogleMapController? _mapController;
+
   String greetingMessage() {
     var timeNow = DateTime.now().hour;
     if (timeNow <= 12) {

@@ -160,9 +160,8 @@ class MessageController extends GetxController implements GetxService {
       Get.to(() => MessageScreen(
             channelId: channelId,
             tripId: tripId,
-            userName: map['data']['user']['first_name'] +
-                ' ' +
-                map['data']['user']['last_name'],
+            userName:
+                "${map['data']['user']['first_name']} ${map['data']['user']['last_name']}",
           ));
     } else {
       isLoading = false;

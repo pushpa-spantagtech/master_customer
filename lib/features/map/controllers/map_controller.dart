@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -122,7 +120,7 @@ class MapController extends GetxController implements GetxService {
         markerId: markerId,
         visible: true,
         draggable: false,
-        zIndex: 2,
+        zIndexInt: 2,
         flat: true,
         anchor: const Offset(0.5, 0.5),
         position: LatLng(
@@ -130,7 +128,7 @@ class MapController extends GetxController implements GetxService {
                 Get.find<RideController>().nearestDriverList[i].latitude!),
             double.parse(
                 Get.find<RideController>().nearestDriverList[i].longitude!)),
-        icon: BitmapDescriptor.fromBytes(
+        icon: BitmapDescriptor.bytes(
             Get.find<RideController>().nearestDriverList[i].category ==
                     'motor_bike'
                 ? bikeMarkerIcon
@@ -165,7 +163,7 @@ class MapController extends GetxController implements GetxService {
         title: Get.find<RideController>().tripDetails?.pickupAddress ?? '',
         snippet: 'pick_up_location'.tr,
       ),
-      icon: BitmapDescriptor.fromBytes(fromMarker),
+      icon: BitmapDescriptor.bytes(fromMarker),
     ));
 
     markers.add(Marker(
@@ -176,7 +174,7 @@ class MapController extends GetxController implements GetxService {
         title: Get.find<RideController>().tripDetails?.destinationAddress ?? '',
         snippet: 'destination'.tr,
       ),
-      icon: BitmapDescriptor.fromBytes(toMarker),
+      icon: BitmapDescriptor.bytes(toMarker),
     ));
 
     // if(Get.find<RideController>().tripDetails != null) {
@@ -231,10 +229,10 @@ class MapController extends GetxController implements GetxService {
               : _polylineCoordinateList.last,
         ),
         draggable: false,
-        zIndex: 2,
+        zIndexInt: 2,
         flat: true,
         anchor: const Offset(0.5, 0.5),
-        icon: BitmapDescriptor.fromBytes(car),
+        icon: BitmapDescriptor.bytes(car),
       ));
       update();
     }
@@ -328,10 +326,10 @@ class MapController extends GetxController implements GetxService {
           markerId: const MarkerId("my_location"),
           position: latlng,
           draggable: false,
-          zIndex: 2,
+          zIndexInt: 2,
           flat: true,
           anchor: const Offset(0.5, 0.5),
-          icon: BitmapDescriptor.fromBytes(myIcon)));
+          icon: BitmapDescriptor.bytes(myIcon)));
 
       if (mapController != null) {
         mapController!.animateCamera(CameraUpdate.newCameraPosition(
@@ -393,10 +391,10 @@ class MapController extends GetxController implements GetxService {
           latLngList.length > 1 ? latLngList[1] : latLngList.last,
         ),
         draggable: false,
-        zIndex: 2,
+        zIndexInt: 2,
         flat: true,
         anchor: const Offset(0.5, 0.5),
-        icon: BitmapDescriptor.fromBytes(car),
+        icon: BitmapDescriptor.bytes(car),
       ));
       update();
     }

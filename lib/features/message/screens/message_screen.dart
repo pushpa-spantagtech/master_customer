@@ -297,7 +297,8 @@ class _MessageScreenState extends State<MessageScreen> {
                                       Images.sendMessage,
                                       width: Dimensions.iconSizeMedium,
                                       height: Dimensions.iconSizeMedium,
-                                      color: Color.fromRGBO(250, 173, 2, 1),
+                                      color:
+                                          const Color.fromRGBO(250, 173, 2, 1),
                                     ),
                                   ),
                                 ),

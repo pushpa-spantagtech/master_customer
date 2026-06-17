@@ -3,6 +3,7 @@ import 'package:ride_sharing_user_app/features/my_level/domain/services/level_se
 
 class LevelService implements LevelServiceInterface {
   final LevelRepositoryInterface levelRepositoryInterface;
+
   LevelService({required this.levelRepositoryInterface});
 
   @override

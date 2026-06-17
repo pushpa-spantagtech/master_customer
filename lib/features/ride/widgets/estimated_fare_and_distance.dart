@@ -8,6 +8,7 @@ import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.
 class EstimatedFareAndDistance extends StatelessWidget {
   final bool fromPickLocation;
   final bool isParcel;
+
   const EstimatedFareAndDistance(
       {super.key, this.fromPickLocation = false, this.isParcel = false});
 

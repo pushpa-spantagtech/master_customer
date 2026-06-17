@@ -8,6 +8,7 @@ import 'package:ride_sharing_user_app/features/profile/domain/services/profile_s
 
 class ProfileController extends GetxController implements GetxService {
   final ProfileServiceInterface profileServiceInterface;
+
   ProfileController({required this.profileServiceInterface});
 
   final List<String> _identityTypeList = ['passport', 'driving_license', 'nid'];
@@ -22,10 +23,14 @@ class ProfileController extends GetxController implements GetxService {
   bool isUpdating = false;
 
   XFile? get pickedProfileFile => _pickedProfileFile;
+
   XFile? get pickedIdentityImageFront => _pickedIdentityImageFront;
+
   XFile? get pickedIdentityImageBack => _pickedIdentityImageBack;
   List<XFile> identityImages = [];
+
   List<String> get identityTypeList => _identityTypeList;
+
   String get identityType => _identityType;
 
   void setIdentityType(String setValue, {bool notify = true}) {

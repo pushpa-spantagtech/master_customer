@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 class TextFieldTitle extends StatelessWidget {
   final String title;
   final double textOpacity;
+
   const TextFieldTitle(
       {super.key, required this.title, this.textOpacity = 0.5});
 

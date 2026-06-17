@@ -7,6 +7,7 @@ import 'package:ride_sharing_user_app/features/splash/domain/services/config_ser
 
 class ConfigController extends GetxController implements GetxService {
   final ConfigServiceInterface configServiceInterface;
+
   ConfigController({required this.configServiceInterface});
 
   ConfigModel? _config;
@@ -14,6 +15,7 @@ class ConfigController extends GetxController implements GetxService {
   ConfigModel? get config => _config;
 
   bool loading = false;
+
   Future<bool> getConfigData({bool reload = false}) async {
     bool isSuccess = false;
     loading = true;
@@ -50,6 +52,7 @@ class ConfigController extends GetxController implements GetxService {
   }
 
   String? _pusherConnectionStatus;
+
   String? get pusherConnectionStatus => _pusherConnectionStatus;
 
   void setPusherStatus(String? connection) {

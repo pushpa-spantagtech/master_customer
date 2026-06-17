@@ -23,8 +23,10 @@ enum MapScreenType { ride, splash, parcel, location }
 class MapScreen extends StatefulWidget {
   final MapScreenType fromScreen;
   final bool isShowCurrentPosition;
+
   const MapScreen(
       {super.key, required this.fromScreen, this.isShowCurrentPosition = true});
+
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
@@ -38,7 +40,7 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     Get.find<MapController>().setContainerHeight(
-        (widget.fromScreen == MapScreenType.parcel) ? 200 : 260, false);
+        (widget.fromScreen == MapScreenType.parcel) ? 200 : 140, false);
   }
 
   @override

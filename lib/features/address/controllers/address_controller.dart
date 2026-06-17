@@ -7,12 +7,14 @@ import 'package:ride_sharing_user_app/features/address/domain/models/address_mod
 
 class AddressController extends GetxController implements GetxService {
   final AddressServiceInterface addressServiceInterface;
+
   AddressController({required this.addressServiceInterface});
 
   List<Address>? addressList;
 
   bool isLoading = false;
   int? _currentIndex = 0;
+
   int? get currentIndex => _currentIndex;
 
   List<AddressTypeModel> addressTypeList = [

@@ -918,6 +918,7 @@ class _MyLevelScreenState extends State<MyLevelScreen> {
 class TargetNotificationTitle extends StatelessWidget {
   final double completedValue;
   final double targetValue;
+
   const TargetNotificationTitle(
       {super.key, required this.completedValue, required this.targetValue});
 

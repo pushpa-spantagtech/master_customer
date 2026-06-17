@@ -7,6 +7,7 @@ class ProfileMenuItem extends StatelessWidget {
   final String icon;
   final Function()? onTap;
   final bool divider;
+
   const ProfileMenuItem(
       {super.key,
       required this.title,

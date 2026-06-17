@@ -9,6 +9,7 @@ class LevelController extends GetxController implements GetxService {
   LevelController({required this.levelServiceInterface});
 
   LevelModel? _levelModel;
+
   LevelModel? get levelModel => _levelModel;
 
   Future<void> getProfileLevelInfo() async {

@@ -10,6 +10,7 @@ class DigitalPaymentDialog extends StatelessWidget {
   final IconData icon;
   final String? title;
   final String? description;
+
   const DigitalPaymentDialog(
       {super.key,
       this.isFailed = false,

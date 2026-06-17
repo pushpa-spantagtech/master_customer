@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.
 
 class OutstationTab extends StatefulWidget {
   const OutstationTab({super.key});
+
   @override
   State<OutstationTab> createState() => _OutstationTabState();
 }

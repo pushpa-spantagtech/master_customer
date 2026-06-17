@@ -3,6 +3,7 @@ import 'package:ride_sharing_user_app/features/trip/domain/services/service_inte
 
 class TripService implements TripServiceInterface {
   TripRepositoryInterface tripRepositoryInterface;
+
   TripService({required this.tripRepositoryInterface});
 
   @override

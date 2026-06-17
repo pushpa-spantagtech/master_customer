@@ -109,10 +109,9 @@ class AddressCard extends StatelessWidget {
           Dimensions.paddingSizeSmall, Dimensions.paddingSizeDefault, 0),
       child: Container(
         decoration: BoxDecoration(
-            // color: Theme.of(context).cardColor,
             borderRadius:
                 BorderRadius.circular(Dimensions.paddingSizeExtraLarge),
-            border: Border.all(color: Color.fromRGBO(20, 20, 20, 0.2))),
+            border: Border.all(color: const Color.fromRGBO(20, 20, 20, 0.2))),
         child: Padding(
           padding: const EdgeInsets.symmetric(
               vertical: Dimensions.paddingSizeDefault,

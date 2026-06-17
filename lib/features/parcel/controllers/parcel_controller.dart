@@ -25,6 +25,7 @@ class ParcelController extends GetxController
     with GetSingleTickerProviderStateMixin
     implements GetxService {
   final ParcelServiceInterface parcelServiceInterface;
+
   ParcelController({required this.parcelServiceInterface});
 
   ParcelDeliveryState currentParcelState = ParcelDeliveryState.initial;
@@ -161,6 +162,7 @@ class ParcelController extends GetxController
   }
 
   ParcelListModel? parcelListModel;
+
   Future<Response> getOngoingParcelList() async {
     isLoading = true;
     Response response = await parcelServiceInterface.getOnGoingParcelList(1);
@@ -183,6 +185,7 @@ class ParcelController extends GetxController
   }
 
   ParcelListModel? unpaidParcelListModel;
+
   Future<Response> getUnpaidParcelList() async {
     isLoading = true;
     Response response = await parcelServiceInterface.getUnpaidParcelList(1);

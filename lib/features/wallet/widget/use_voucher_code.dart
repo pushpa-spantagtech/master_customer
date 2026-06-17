@@ -112,6 +112,7 @@ class ReviewItem extends StatelessWidget {
   final int index;
   final int selectedIndex;
   final ReviewModel reviewModel;
+
   const ReviewItem(
       {super.key,
       required this.index,

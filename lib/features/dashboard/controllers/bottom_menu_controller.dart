@@ -8,6 +8,7 @@ import 'package:ride_sharing_user_app/common_widgets/confirmation_dialog_widget.
 
 class BottomMenuController extends GetxController implements GetxService {
   int _currentTab = 0;
+
   int get currentTab => _currentTab;
 
   void resetNavBar() {

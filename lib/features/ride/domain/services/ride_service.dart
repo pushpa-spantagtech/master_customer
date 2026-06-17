@@ -183,4 +183,9 @@ class RideService implements RideServiceInterface {
       distanceKm,
     );
   }
+
+  @override
+  Future getLocalTariffs() async {
+    return await rideRepositoryInterface.getLocalTariffs();
+  }
 }

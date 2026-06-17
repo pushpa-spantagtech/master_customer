@@ -19,6 +19,7 @@ class DialogItem extends StatelessWidget {
   final Widget? customCloseButton;
   final Duration slideChangeDuration;
   final int initIndex;
+
   const DialogItem(
       {super.key,
       required this.context,

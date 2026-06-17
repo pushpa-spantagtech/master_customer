@@ -7,6 +7,7 @@ import 'package:ride_sharing_user_app/util/styles.dart';
 class NoCouponWidget extends StatelessWidget {
   final String title;
   final String description;
+
   const NoCouponWidget(
       {super.key, required this.title, required this.description});
 

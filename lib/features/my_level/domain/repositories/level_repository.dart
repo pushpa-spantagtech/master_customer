@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/util/app_constants.dart';
 
 class LevelRepository implements LevelRepositoryInterface {
   ApiClient apiClient;
+
   LevelRepository({required this.apiClient});
 
   @override

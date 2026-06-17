@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get_connect/http/src/request/request.dart';
 import 'package:ride_sharing_user_app/data/error_response.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';

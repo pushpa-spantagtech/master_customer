@@ -7,6 +7,7 @@ import 'package:ride_sharing_user_app/util/app_constants.dart';
 
 class ProfileRepository implements ProfileRepositoryInterface {
   final ApiClient apiClient;
+
   ProfileRepository({required this.apiClient});
 
   @override

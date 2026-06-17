@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/util/app_constants.dart';
 
 class ParcelRepository implements ParcelRepositoryInterface {
   final ApiClient apiClient;
+
   ParcelRepository({required this.apiClient});
 
   @override

@@ -23,8 +23,11 @@ class LocalizationController extends GetxController implements GetxService {
   List<LanguageModel> _languages = [];
 
   Locale get locale => _locale;
+
   bool get isLtr => _isLtr;
+
   int get selectIndex => _selectIndex;
+
   List<LanguageModel> get languages => _languages;
 
   void setLanguage(Locale locale) {

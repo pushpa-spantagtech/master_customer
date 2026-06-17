@@ -5,17 +5,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeController extends GetxController {
   final SharedPreferences sharedPreferences;
+
   ThemeController({required this.sharedPreferences}) {
     _loadCurrentTheme();
   }
 
   bool _darkTheme = false;
+
   bool get darkTheme => _darkTheme;
 
   String _lightMap = '[]';
   String _darkMap = '[]';
 
   String get lightMap => _lightMap;
+
   String get darkMap => _darkMap;
 
 /*  void toggleTheme() {

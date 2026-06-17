@@ -6,6 +6,7 @@ import 'package:get/get_connect/http/src/response/response.dart';
 
 class MessageRepository implements MessageRepositoryInterface {
   final ApiClient apiClient;
+
   MessageRepository({required this.apiClient});
 
   @override

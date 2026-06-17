@@ -7,6 +7,7 @@ import 'package:ride_sharing_user_app/helper/display_helper.dart';
 
 class CouponController extends GetxController implements GetxService {
   final CouponServiceInterface couponServiceInterface;
+
   CouponController({required this.couponServiceInterface});
 
   bool isLoading = false;
@@ -41,6 +42,7 @@ class CouponController extends GetxController implements GetxService {
   }
 
   bool isApplying = false;
+
   Future<Response> applyCoupon(String couponCode, String tripId) async {
     isApplying = true;
     update();

@@ -9,6 +9,7 @@ class CouponUserResultDialog extends StatelessWidget {
   final String? description;
   final String icon;
   final Function()? onTap;
+
   const CouponUserResultDialog(
       {super.key,
       this.title,

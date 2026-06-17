@@ -15,6 +15,7 @@ import 'package:ride_sharing_user_app/util/app_constants.dart';
 
 class PusherHelper {
   static PusherChannelsClient? pusherClient;
+
   static initilizePusher() async {
     PusherChannelsOptions testOptions = PusherChannelsOptions.fromHost(
       host: Get.find<ConfigController>().config!.webSocketUrl ?? '',

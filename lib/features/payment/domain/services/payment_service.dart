@@ -3,6 +3,7 @@ import 'package:ride_sharing_user_app/features/payment/domain/services/payment_s
 
 class PaymentService implements PaymentServiceInterface {
   PaymentRepositoryInterface paymentRepositoryInterface;
+
   PaymentService({required this.paymentRepositoryInterface});
 
   @override
