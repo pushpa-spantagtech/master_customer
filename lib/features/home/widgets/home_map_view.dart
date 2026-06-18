@@ -49,7 +49,27 @@ class HomeMapViewState extends State<HomeMapView> {
         }
 
         if (mapController.nearestDeliveryManMarkers == null) {
-          return const BannerShimmer();
+          return SizedBox(
+            height: (Get.find<BannerController>().bannerList != null &&
+                        Get.find<BannerController>().bannerList!.isNotEmpty) ||
+                    (Get.find<OfferController>().bestOfferModel != null &&
+                        Get.find<OfferController>().bestOfferModel!.data !=
+                            null &&
+                        Get.find<OfferController>()
+                            .bestOfferModel!
+                            .data!
+                            .isNotEmpty) ||
+                    (Get.find<CouponController>().couponModel != null &&
+                        Get.find<CouponController>().couponModel!.data !=
+                            null &&
+                        Get.find<CouponController>()
+                            .couponModel!
+                            .data!
+                            .isNotEmpty)
+                ? Get.height * 0.75
+                : Get.height * 0.55,
+            child: const BannerShimmer(),
+          );
         }
         return Stack(
           children: [

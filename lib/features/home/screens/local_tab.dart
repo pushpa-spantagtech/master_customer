@@ -7,6 +7,7 @@ class LocalTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       children: [
         const HomeSearchWidget(

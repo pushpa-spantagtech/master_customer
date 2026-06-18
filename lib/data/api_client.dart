@@ -62,7 +62,11 @@ class ApiClient extends GetxService {
       {Map<String, dynamic>? query, Map<String, String>? headers}) async {
     try {
       if (kDebugMode) {
-        print('====> API Call: $uri\nHeader: $_mainHeaders');
+        print('==============================');
+        print('API Call: $uri');
+        print('Zone Id Header = ${_mainHeaders['zoneId']}');
+        print('Headers = $_mainHeaders');
+        print('==============================');
       }
       http.Response response = await http
           .get(

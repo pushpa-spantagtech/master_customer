@@ -469,6 +469,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     fontSize: 18.0,
                     buttonText: 'pay_now'.tr,
                     onPressed: () {
+                      print('==============================');
+                      print('Pay Now Clicked');
+                      print(
+                          'Final Fare = ${Get.find<RideController>().finalFare}');
+                      print('Payment Type = ${paymentController.paymentType}');
+                      print(
+                          'Payment Index = ${paymentController.paymentTypeIndex}');
+                      print('==============================');
                       if (paymentController.paymentTypeIndex == 1 &&
                           paymentController.paymentGatewayIndex != -1) {
                         Get.to(() => DigitalPaymentScreen(

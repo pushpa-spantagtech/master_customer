@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/data/api_checker.dart';
 import 'package:ride_sharing_user_app/features/home/domain/models/categoty_model.dart';
@@ -18,6 +19,10 @@ class CategoryController extends GetxController implements GetxService {
       categoryList!.addAll(CategoryModel.fromJson(response.body).data!);
     } else {
       ApiChecker.checkApi(response);
+    }
+    for (var i = 0; i < categoryList!.length; i++) {
+      debugPrint(
+          "CATEGORY LIST [$i] => ${categoryList![i].name} | ${categoryList![i].id}");
     }
     update();
   }

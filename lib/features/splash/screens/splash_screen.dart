@@ -211,12 +211,12 @@ class _SevenTaxiSplashAnimationState extends State<SevenTaxiSplashAnimation>
         .animate(CurvedAnimation(parent: _redPinCtrl, curve: Curves.easeInOut));
 
     _taxiCtrl =
-        AnimationController(vsync: this, duration: const Duration(seconds: 5));
+        AnimationController(vsync: this, duration: const Duration(seconds: 3));
     _taxiProgress = CurvedAnimation(parent: _taxiCtrl, curve: Curves.linear);
 
     _redRevealCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 500),
     );
 
     _redReveal = CurvedAnimation(
@@ -259,7 +259,7 @@ class _SevenTaxiSplashAnimationState extends State<SevenTaxiSplashAnimation>
 
     bool navigated = false;
     void maybeNavigate() {
-      if (!navigated && _redRevealCtrl.value >= 0.92) {
+      if (!navigated && _redRevealCtrl.value >= 0.3) {
         navigated = true;
         widget.onCompleted();
       }

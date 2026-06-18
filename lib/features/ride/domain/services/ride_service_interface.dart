@@ -42,6 +42,7 @@ abstract class RideServiceInterface {
     String extraLngOne = '',
     String extraLatTwo = '',
     String extraLngTwo = '',
+    String localVehicleCategoryId = '',
     bool extraOne = false,
     bool extraTwo = false,
     String? senderName,

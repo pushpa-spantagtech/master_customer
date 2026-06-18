@@ -80,6 +80,7 @@ class RideController extends GetxController implements GetxService {
   List<dynamic> localTariffs = [];
 
   String localVehicle = '';
+  String localVehicleCategoryId = '';
   double localFare = 0;
   bool isOutstationRide = false;
   String outstationVehicle = '';
@@ -118,6 +119,76 @@ class RideController extends GetxController implements GetxService {
   String categoryName = '';
   String selectedCategoryId = '';
   FareModel? selectedType;
+
+  String _resolveVehicleCategoryIdForBooking({
+    required bool parcel,
+    required String parcelCategoryId,
+  }) {
+    if (parcel) {
+      return parcelCategoryId.trim();
+    }
+
+    String finalVehicleCategoryId = '';
+
+    if (isLocalRide) {
+      // 1) Prefer ID already saved by local vehicle selection, if available.
+      if (localVehicleCategoryId.trim().isNotEmpty) {
+        finalVehicleCategoryId = localVehicleCategoryId.trim();
+      }
+
+      // 2) If only local vehicle name is saved (EECO / OMNI / Sedan),
+      // map it dynamically from CategoryController categoryList.
+      // This avoids hardcoding category IDs, so future new cars will work
+      // as long as their name exists in vehicle category API response.
+      if (finalVehicleCategoryId.isEmpty && localVehicle.trim().isNotEmpty) {
+        final localVehicleName = localVehicle.trim().toLowerCase();
+        final categories = Get.find<CategoryController>().categoryList;
+
+        if (categories != null && categories.isNotEmpty) {
+          for (final category in categories) {
+            final categoryName = (category.name ?? '').trim().toLowerCase();
+            final categoryId = (category.id ?? '').trim();
+
+            if (categoryName == localVehicleName && categoryId.isNotEmpty) {
+              finalVehicleCategoryId = categoryId;
+              break;
+            }
+          }
+        }
+      }
+
+      // 3) Fallback for normal category selected earlier.
+      if (finalVehicleCategoryId.isEmpty &&
+          selectedCategoryId.trim().isNotEmpty) {
+        finalVehicleCategoryId = selectedCategoryId.trim();
+      }
+    } else {
+      finalVehicleCategoryId = selectedCategoryId.trim();
+    }
+
+    debugPrint('===== FINAL VEHICLE CATEGORY RESOLVE =====');
+    debugPrint('isLocalRide => $isLocalRide');
+    debugPrint('localVehicle => $localVehicle');
+    debugPrint('localVehicleCategoryId => $localVehicleCategoryId');
+    debugPrint('selectedCategoryId => $selectedCategoryId');
+    debugPrint('finalVehicleCategoryId => $finalVehicleCategoryId');
+
+    return finalVehicleCategoryId;
+  }
+
+  FareModel? _getFareByCategoryId(String vehicleCategoryId) {
+    if (vehicleCategoryId.trim().isEmpty || fareList.isEmpty) {
+      return selectedType;
+    }
+
+    for (final fare in fareList) {
+      if ((fare.vehicleCategoryId ?? '').trim() == vehicleCategoryId.trim()) {
+        return fare;
+      }
+    }
+
+    return selectedType;
+  }
 
   void setRideCategoryIndex(int newIndex) {
     rideCategoryIndex = newIndex;
@@ -257,6 +328,11 @@ class RideController extends GetxController implements GetxService {
 
   Future<Response> submitRideRequest(String note, bool parcel,
       {String categoryId = ''}) async {
+    print('==============================');
+    print('INSIDE submitRideRequest()');
+    print('RideController localVehicle = $localVehicle');
+    print('RideController localFare = $localFare');
+    print('==============================');
     initCountingTimeStates();
     isSubmit = true;
     update();
@@ -272,7 +348,26 @@ class RideController extends GetxController implements GetxService {
         : tripDetails == null
             ? locController.toAddress!
             : Address();
+    final String finalVehicleCategoryId = _resolveVehicleCategoryIdForBooking(
+      parcel: parcel,
+      parcelCategoryId: categoryId,
+    );
+
+    if (!parcel && finalVehicleCategoryId.isEmpty) {
+      showCustomSnackBar('Please select a vehicle category', isError: true);
+      isSubmit = false;
+      update();
+      return const Response(
+          statusCode: 400, statusText: 'Vehicle category is required');
+    }
+
+    final FareModel? finalSelectedType =
+        _getFareByCategoryId(finalVehicleCategoryId);
+
+    debugPrint('CREATE RIDE vehicle_category_id => $finalVehicleCategoryId');
+
     Response response = await rideServiceInterface.submitRideRequest(
+        vehicleCategoryId: parcel ? categoryId : finalVehicleCategoryId,
         pickupLat: pickUpPosition.latitude.toString(),
         pickupLng: pickUpPosition.longitude.toString(),
         destinationLat: destinationPosition.latitude.toString(),
@@ -289,7 +384,7 @@ class RideController extends GetxController implements GetxService {
             ? Get.find<ParcelController>().receiverAddressController.text
             : locController.toAddress?.address ??
                 tripDetails!.destinationAddress!,
-        vehicleCategoryId: parcel ? categoryId : selectedCategoryId,
+        // vehicleCategoryId: parcel ? categoryId : selectedCategoryId,
         estimatedDistance: parcel
             ? parcelEstimatedFare!.data!.estimatedDistance!.toString()
             : estimatedDistance,
@@ -323,9 +418,10 @@ class RideController extends GetxController implements GetxService {
             .paymentTypeList[Get.find<PaymentController>().paymentTypeIndex],
         encodedPolyline: parcel
             ? encodedPolyLine
-            : fareList.isNotEmpty
-                ? fareList[rideCategoryIndex].polyline!
-                : '',
+            : finalSelectedType?.polyline ??
+                (fareList.isNotEmpty
+                    ? fareList[rideCategoryIndex].polyline!
+                    : ''),
         middleAddress: [
           locController.extraRouteAddress?.address ?? '',
           locController.extraRouteTwoAddress?.address ?? ''
@@ -347,9 +443,10 @@ class RideController extends GetxController implements GetxService {
             : '',
         areaId: parcel
             ? ''
-            : fareList.isNotEmpty
-                ? fareList[rideCategoryIndex].areaId ?? ''
-                : '',
+            : finalSelectedType?.areaId ??
+                (fareList.isNotEmpty
+                    ? fareList[rideCategoryIndex].areaId ?? ''
+                    : ''),
         senderName: Get.find<ParcelController>().senderNameController.text,
         senderPhone: Get.find<ParcelController>().senderContactController.text,
         senderAddress:
@@ -694,7 +791,18 @@ class RideController extends GetxController implements GetxService {
   Future<Response> getFinalFare(String tripId) async {
     isLoading = true;
     update();
+
+    print('==============================');
+    print('GET FINAL FARE');
+    print('Trip Id = $tripId');
+    print('==============================');
+
     Response response = await rideServiceInterface.getFinalFare(tripId);
+
+    print('Final Fare Status = ${response.statusCode}');
+    print('Final Fare Response = ${response.body}');
+    print('==============================');
+
     if (response.statusCode == 200) {
       if (response.body['data'] != null) {
         finalFare = FinalFareModel.fromJson(response.body).data!;

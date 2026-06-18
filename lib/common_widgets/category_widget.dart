@@ -27,6 +27,10 @@ class CategoryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+        debugPrint("===== CATEGORY CARD TAP =====");
+        debugPrint("TAPPED index => $index");
+        debugPrint("TAPPED name => ${category.name}");
+        debugPrint("TAPPED id => ${category.id}");
         Get.find<RideController>().setRideCategoryIndex(index);
         if (!fromSelect) {
           Get.to(() => const SetDestinationScreen());

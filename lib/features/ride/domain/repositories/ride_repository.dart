@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/data/api_client.dart';
@@ -161,7 +162,19 @@ class RideRepository implements RideRepositoryInterface {
           Get.find<LocationController>().zoneID ??
           '',
       "outstation_ride": Get.find<RideController>().isOutstationRide,
+
+      // Hourly rental marker
+      // This is required so backend does not save hourly rides as "local"
+      // and does not recalculate hourly fare as local fare after completion.
+      "zone_trip_type":
+          Get.find<RideController>().isRentalRide ? "hourly" : null,
+      "rental_type": Get.find<RideController>().isRentalRide ? "hourly" : null,
+      "is_hourly": Get.find<RideController>().isRentalRide ? 1 : 0,
     };
+
+    debugPrint("CREATE RIDE vehicle_category_id => $vehicleCategoryId");
+    debugPrint("CREATE RIDE BODY => $body");
+
     Response response =
         await apiClient.postData(AppConstants.rideRequest, body);
     return response;

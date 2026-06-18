@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
 import 'package:ride_sharing_user_app/features/auth/controllers/auth_controller.dart';
 import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
+import 'package:ride_sharing_user_app/features/home/controllers/category_controller.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/fare_input_widget.dart';
@@ -67,11 +68,15 @@ class _InitialWidgetState extends State<InitialWidget> {
           if (rideController.isLocalRide) ...[
             ...rideController.localTariffs.expand((zone) {
               return (zone['trip_fares'] as List).map((tripFare) {
+                if (tripFare['vehicle_category'] == null) {
+                  return const SizedBox();
+                }
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: localCarCard(
                     tripFare['vehicle_category']['name'],
-                    isNight ? tripFare['night_rate'] : tripFare['day_rate'],
+                    (isNight ? tripFare['night_rate'] : tripFare['day_rate']) ??
+                        0,
                   ),
                 );
               });
@@ -110,12 +115,22 @@ class _InitialWidgetState extends State<InitialWidget> {
                     (a['package_rate'] ?? 0).compareTo(b['package_rate'] ?? 0),
               );
 
+              for (var tariff in tariffs) {
+                print('Rental Tariff => $tariff');
+              }
+
               return tariffs.map((tariff) {
+                if (tariff['vehicle_category'] == null) {
+                  print('RENTAL TARIFF ERROR => $tariff');
+                  return const SizedBox();
+                }
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: rentalCarCard(
-                    tariff['vehicle_category']['name'],
-                    tariff['package_rate'],
+                    tariff['vehicle_category']['name'] ?? 'Unknown',
+                    tariff['package_rate'] ?? 0,
+                    tariff['vehicle_category']['id'],
                   ),
                 );
               }).toList();
@@ -235,8 +250,27 @@ class _InitialWidgetState extends State<InitialWidget> {
                     : "find_rider".tr,
         radius: 12,
         onPressed: () {
+          print('selectedVehicle = $selectedVehicle');
+          print('rentalVehicle = ${rideController.rentalVehicle}');
+          print('selectedCategoryId = ${rideController.selectedCategoryId}');
+
+          print('==============================');
+          print('RENTAL BOOK BUTTON CLICKED');
+          print('Vehicle = ${rideController.rentalVehicle}');
+          print('Category Id = ${rideController.selectedCategoryId}');
+          print('Hour Package = ${rideController.rentalHour}');
+          print('Package Fare = ${rideController.rentalPackageFare}');
+          print('==============================');
+
           if (rideController.isLocalRide) {
             rideController.localVehicle = selectedLocalVehicle!;
+            print('==============================');
+            print('RENTAL BOOK BUTTON CLICKED');
+            print('Vehicle = ${rideController.rentalVehicle}');
+            print('Category Id = ${rideController.selectedCategoryId}');
+            print('Hour Package = ${rideController.rentalHour}');
+            print('Package Fare = ${rideController.rentalPackageFare}');
+            print('==============================');
           } else if (rideController.isOutstationRide) {
             rideController.outstationVehicle = selectedOutstationVehicle!;
 
@@ -258,10 +292,21 @@ class _InitialWidgetState extends State<InitialWidget> {
             rideController.rentalVehicle = selectedVehicle!;
             rideController.rentalHour = selectedHour;
             rideController.rentalPackageFare = selectedFare.toDouble();
+
+            print('==============================');
+            print('RENTAL BOOK BUTTON CLICKED');
+            print('Vehicle = ${rideController.rentalVehicle}');
+            print('Category Id = ${rideController.selectedCategoryId}');
+            print('Hour Package = ${rideController.rentalHour}');
+            print('Package Fare = ${rideController.rentalPackageFare}');
+            print('==============================');
           }
-          print('selectedVehicle=$selectedVehicle');
-          print('selectedFare=$selectedFare');
-          print('rentalPackageFare=${rideController.rentalPackageFare}');
+          print('==============================');
+          print('SUBMIT RIDE REQUEST');
+          print('Rental Vehicle = ${rideController.rentalVehicle}');
+          print('Selected Category Id = ${rideController.selectedCategoryId}');
+          print('Rental Fare = ${rideController.rentalPackageFare}');
+          print('==============================');
           rideController
               .submitRideRequest(rideController.noteController.text, false)
               .then((value) {
@@ -314,15 +359,26 @@ class _InitialWidgetState extends State<InitialWidget> {
         setState(() {
           selectedLocalVehicle = title;
         });
+
         final rideController = Get.find<RideController>();
+        rideController.localVehicle = title;
         rideController.localFare = fare.toDouble();
-        if (rideController.localTariffs.isNotEmpty) {
-          rideController.selectedIdleFee = double.tryParse(
-                rideController.localTariffs.first['idle_fee_per_min']
-                    .toString(),
-              ) ??
-              0;
+
+        final categoryController = Get.find<CategoryController>();
+
+        for (var category in categoryController.categoryList ?? []) {
+          if ((category.name ?? '').toUpperCase() == title.toUpperCase()) {
+            rideController.selectedCategoryId = category.id ?? '';
+
+            print('LOCAL CATEGORY FOUND');
+            print('Vehicle Name = ${category.name}');
+            print('Vehicle Id = ${category.id}');
+            break;
+          }
         }
+
+        print('Selected Vehicle: $title');
+        print('Selected Category Id: ${rideController.selectedCategoryId}');
       },
       child: Container(
         padding: const EdgeInsets.all(8),
@@ -403,7 +459,11 @@ class _InitialWidgetState extends State<InitialWidget> {
     );
   }
 
-  Widget rentalCarCard(String title, int fare) {
+  Widget rentalCarCard(
+    String title,
+    int fare,
+    String categoryId,
+  ) {
     bool isSelected = selectedVehicle == title;
     return GestureDetector(
       onTap: () {
@@ -412,8 +472,17 @@ class _InitialWidgetState extends State<InitialWidget> {
           selectedFare = fare;
         });
 
-        print('Vehicle=$title');
-        print('Fare=$fare');
+        final rideController = Get.find<RideController>();
+
+        rideController.selectedCategoryId = categoryId;
+        rideController.rentalVehicle = title;
+
+        print('==============================');
+        print('RENTAL VEHICLE SELECTED');
+        print('Vehicle Name = $title');
+        print('Vehicle Id = $categoryId');
+        print('Fare = $fare');
+        print('==============================');
       },
       child: Container(
         padding: const EdgeInsets.all(8),

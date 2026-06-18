@@ -237,6 +237,7 @@ class LocationController extends GetxController implements GetxService {
               speed: 1,
               altitudeAccuracy: 1,
               headingAccuracy: 1);
+          //pushpa
           ZoneResponseModel responseModel = await getZone(
               _position.latitude.toString(),
               _position.longitude.toString(),
@@ -315,16 +316,35 @@ class LocationController extends GetxController implements GetxService {
     _isLoading = true;
     update();
     ZoneResponseModel responseModel;
+    print("ZONE REQUEST LAT: $lat");
+    print("ZONE REQUEST LNG: $long");
     Response response = await locationServiceInterface.getZone(lat, long);
-    if (response.statusCode == 200 &&
-        response.body['data'] != null &&
-        response.body['data']['id'] != null) {
-      _zoneID = response.body['data']['id'].toString();
+    print("ZONE STATUS CODE: ${response.statusCode}");
+    print("ZONE RESPONSE: ${response.body}");
+    String? zoneId;
+    if (response.statusCode == 200 && response.body != null) {
+      final body = response.body;
+      if (body['data'] is Map && body['data']['id'] != null) {
+        zoneId = body['data']['id'].toString();
+      } else if (body['data'] is String) {
+        zoneId = body['data'].toString();
+      } else if (body['zone_id'] != null) {
+        zoneId = body['zone_id'].toString();
+      }
+    }
+    if (zoneId != null && zoneId.isNotEmpty) {
+      _zoneID = zoneId;
       _inZone = true;
       responseModel = ZoneResponseModel(true, '', _zoneID);
     } else {
       _inZone = false;
-      responseModel = ZoneResponseModel(false, response.statusText, null);
+      responseModel = ZoneResponseModel(
+        false,
+        response.body?['message']?.toString() ??
+            response.statusText ??
+            'Zone not found',
+        null,
+      );
     }
     _isLoading = false;
     update();
@@ -583,7 +603,7 @@ class LocationController extends GetxController implements GetxService {
           PlaceDetailsModel.fromJson(response.body);
       latLng = LatLng(placeDetails.data!.result!.geometry!.location!.lat!,
           placeDetails.data!.result!.geometry!.location!.lng!);
-
+// pushpa
       ZoneResponseModel zoneResponse = await getZone(
           latLng.latitude.toString(), latLng.longitude.toString(), false);
       if (zoneResponse.zoneId != null) {
