@@ -337,7 +337,7 @@ class _SevenTaxiSplashAnimationState extends State<SevenTaxiSplashAnimation>
           ),
           Positioned(
             top: iconGrpTop,
-            left: 0,
+            left: -2,
             child: SlideTransition(
               position: _contentSlide,
               child: Image.asset(Images.splashScreenIconGrp,

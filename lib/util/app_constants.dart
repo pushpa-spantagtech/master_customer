@@ -103,10 +103,12 @@ class AppConstants {
   static const String changeLanguage = '/api/customer/change-language';
   static const String getProfileLevel = '/api/customer/level';
   static const String outstationTariffs = '/api/v1/customer/outstation-tariffs';
-  static const String calculateOutstationFare =
-      '/api/v1/customer/calculate-outstation-fare';
   static const String localTariffsUri = '/api/v1/customer/local-tariffs';
   static const String hourlyTariffsUri = '/api/v1/customer/hourly-tariffs';
+  static const String calculateHourlyFareUri =
+      '/api/v1/customer/calculate-hourly-fare';
+  static const String calculateOutstationFareUri =
+      '/api/v1/customer/calculate-outstation-fare';
 
   ///Pusher web socket
   static const String appKey = 'drivemond';

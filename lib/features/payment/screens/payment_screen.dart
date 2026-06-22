@@ -152,33 +152,27 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    PriceConverter.convertPrice(rideController
-                                            .isLocalRide
-                                        ? (rideController.localFare +
-                                            (rideController.finalFare?.vatTax ??
-                                                0) +
-                                            double.parse(
-                                                paymentController.tipAmount))
-                                        : rideController.isOutstationRide
-                                            ? (rideController.outstationFare +
-                                                (rideController
-                                                        .finalFare?.vatTax ??
-                                                    0) +
-                                                double.parse(paymentController
-                                                    .tipAmount))
-                                            : rideController.isRentalRide
-                                                ? (rideController.rentalPackageFare +
-                                                    (rideController.finalFare
-                                                            ?.vatTax ??
-                                                        0) +
-                                                    double.parse(
-                                                        paymentController
-                                                            .tipAmount))
-                                                : (rideController
-                                                        .finalFare!.paidFare! +
-                                                    double.parse(
-                                                        paymentController
-                                                            .tipAmount))),
+                                    // NOTE: This total must always be derived
+                                    // from the backend's final-fare response
+                                    // (rideController.finalFare), never from
+                                    // the pre-trip booking-time estimates
+                                    // (outstationFare / localFare /
+                                    // rentalPackageFare). Those estimate
+                                    // variables are set once when the ride is
+                                    // requested and are never refreshed after
+                                    // the trip completes, so using them here
+                                    // showed the wrong fare (especially for
+                                    // outstation trips with idle/delay fees).
+                                    // This mirrors the formula used on the
+                                    // driver app's payment_received_screen.
+                                    PriceConverter.convertPrice(
+                                      (rideController.finalFare?.paidFare ??
+                                              rideController
+                                                  .finalFare?.actualFare ??
+                                              0) +
+                                          double.parse(
+                                              paymentController.tipAmount),
+                                    ),
                                     style: textSemiBold.copyWith(
                                       fontSize: Dimensions.fontSizeOverLarge,
                                       color: Theme.of(context)

@@ -88,12 +88,25 @@ abstract class RideRepositoryInterface implements RepositoryInterface {
 
   Future<dynamic> getOutstationTariffs();
 
-  Future<dynamic> calculateOutstationFare(
-    String vehicleType,
-    double distanceKm,
-  );
+  Future<dynamic> calculateOutstationFare({
+    required String vehicleType,
+    required double distanceKm,
+  });
 
   Future<dynamic> getLocalTariffs();
 
   Future<dynamic> getHourlyTariffs();
+
+  Future<dynamic> calculateLocalFare({
+    required String vehicleCategoryId,
+    required double distanceKm,
+    required double waitingMinutes,
+    required String tripTime,
+  });
+
+  Future<dynamic> calculateHourlyFare({
+    required String vehicleCategoryId,
+    required int freeHours,
+    required int freeKm,
+  });
 }

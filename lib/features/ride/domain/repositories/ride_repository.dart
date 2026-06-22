@@ -299,12 +299,12 @@ class RideRepository implements RideRepositoryInterface {
   }
 
   @override
-  Future<Response> calculateOutstationFare(
-    String vehicleType,
-    double distanceKm,
-  ) async {
+  Future<Response> calculateOutstationFare({
+    required String vehicleType,
+    required double distanceKm,
+  }) async {
     return await apiClient.postData(
-      AppConstants.calculateOutstationFare,
+      AppConstants.calculateOutstationFareUri,
       {
         "vehicle_type": vehicleType,
         "distance_km": distanceKm,
@@ -321,6 +321,40 @@ class RideRepository implements RideRepositoryInterface {
   Future getHourlyTariffs() async {
     return await apiClient.getData(
       AppConstants.hourlyTariffsUri,
+    );
+  }
+
+  @override
+  Future<Response> calculateLocalFare({
+    required String vehicleCategoryId,
+    required double distanceKm,
+    required double waitingMinutes,
+    required String tripTime,
+  }) async {
+    return await apiClient.postData(
+      '/api/v1/customer/calculate-local-fare',
+      {
+        "vehicle_category_id": vehicleCategoryId,
+        "distance_km": distanceKm,
+        "waiting_minutes": waitingMinutes,
+        "trip_time": tripTime,
+      },
+    );
+  }
+
+  @override
+  Future<Response> calculateHourlyFare({
+    required String vehicleCategoryId,
+    required int freeHours,
+    required int freeKm,
+  }) async {
+    return await apiClient.postData(
+      AppConstants.calculateHourlyFareUri,
+      {
+        "vehicle_category_id": vehicleCategoryId,
+        "free_hours": freeHours,
+        "free_km": freeKm,
+      },
     );
   }
 }

@@ -662,5 +662,8 @@
   "enter_destination" : "Enter Destination",
   "do_you_want_to_cancel" : "Do you want to cancel?",
   "ride" : "Ride",
-  "i_agree": "I agree"
+  "i_agree": "I agree",
+  "driver_has_arrived_at_pickup_location" : "Driver has arrived at Your pickup location.",
+  "you_are_on_the_way_to_destination": "You are on the way to destination"
+
 }

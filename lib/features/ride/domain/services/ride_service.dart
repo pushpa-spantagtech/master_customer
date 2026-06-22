@@ -1,3 +1,4 @@
+import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/features/ride/domain/repositories/ride_repository_interface.dart';
 import 'package:ride_sharing_user_app/features/ride/domain/services/ride_service_interface.dart';
@@ -175,13 +176,13 @@ class RideService implements RideServiceInterface {
   }
 
   @override
-  Future calculateOutstationFare(
-    String vehicleType,
-    double distanceKm,
-  ) async {
+  Future<Response> calculateOutstationFare({
+    required String vehicleType,
+    required double distanceKm,
+  }) async {
     return await rideRepositoryInterface.calculateOutstationFare(
-      vehicleType,
-      distanceKm,
+      vehicleType: vehicleType,
+      distanceKm: distanceKm,
     );
   }
 
@@ -193,5 +194,33 @@ class RideService implements RideServiceInterface {
   @override
   Future getHourlyTariffs() async {
     return await rideRepositoryInterface.getHourlyTariffs();
+  }
+
+  @override
+  Future<Response> calculateLocalFare({
+    required String vehicleCategoryId,
+    required double distanceKm,
+    required double waitingMinutes,
+    required String tripTime,
+  }) async {
+    return await rideRepositoryInterface.calculateLocalFare(
+      vehicleCategoryId: vehicleCategoryId,
+      distanceKm: distanceKm,
+      waitingMinutes: waitingMinutes,
+      tripTime: tripTime,
+    );
+  }
+
+  @override
+  Future<Response> calculateHourlyFare({
+    required String vehicleCategoryId,
+    required int freeHours,
+    required int freeKm,
+  }) async {
+    return await rideRepositoryInterface.calculateHourlyFare(
+      vehicleCategoryId: vehicleCategoryId,
+      freeHours: freeHours,
+      freeKm: freeKm,
+    );
   }
 }

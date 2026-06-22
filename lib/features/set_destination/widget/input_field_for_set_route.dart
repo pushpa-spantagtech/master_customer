@@ -28,7 +28,9 @@ class InputField extends StatelessWidget {
       textInputAction: TextInputAction.next,
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
-        fillColor: Get.isDarkMode ? Theme.of(context).cardColor : null,
+        fillColor: Get.isDarkMode ? Theme
+            .of(context)
+            .cardColor : null,
         filled: Get.isDarkMode,
         contentPadding: const EdgeInsets.symmetric(
             horizontal: Dimensions.paddingSizeSmall,
@@ -36,7 +38,7 @@ class InputField extends StatelessWidget {
         hintText: hint ?? 'Enter Route',
         suffixIcon: showSuffix
             ? const Icon(Icons.place_outlined,
-                color: Color.fromRGBO(20, 20, 20, 0.7))
+            color: Color.fromRGBO(20, 20, 20, 0.7))
             : null,
         hintStyle: textMedium.copyWith(
             color: const Color.fromRGBO(20, 20, 20, 0.36),

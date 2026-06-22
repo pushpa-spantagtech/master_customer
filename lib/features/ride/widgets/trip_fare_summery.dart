@@ -32,35 +32,10 @@ class TripFareSummery extends StatelessWidget {
     return GetBuilder<RideController>(builder: (rideController) {
       return GetBuilder<CouponController>(builder: (couponController) {
         return GetBuilder<PaymentController>(builder: (paymentController) {
-          double localFare = rideController.localFare;
-          double localWaitingCharge = 0;
-
-          if (rideController.isLocalRide) {
-            double waitingMinutes = rideController.finalFare?.idleTime ?? 0;
-            final idleRate = rideController.selectedIdleFee ?? 0;
-            if (waitingMinutes > 20) {
-              localWaitingCharge = (waitingMinutes - 20) * idleRate;
-            }
-          }
           double total = 0;
           if (fromPayment) {
-            if (rideController.isLocalRide) {
-              total = localFare +
-                  localWaitingCharge +
-                  (rideController.finalFare?.vatTax ?? 0) +
-                  double.parse(paymentController.tipAmount);
-            } else if (rideController.isRentalRide) {
-              total = rideController.rentalPackageFare +
-                  (rideController.finalFare?.vatTax ?? 0) +
-                  double.parse(paymentController.tipAmount);
-            } else if (rideController.isOutstationRide) {
-              total = rideController.outstationFare +
-                  (rideController.finalFare?.vatTax ?? 0) +
-                  double.parse(paymentController.tipAmount);
-            } else {
-              total = rideController.finalFare!.paidFare! +
-                  double.parse(paymentController.tipAmount);
-            }
+            total = (rideController.finalFare?.paidFare ?? 0) +
+                double.parse(paymentController.tipAmount);
           } else {
             total = rideController.tripDetails?.paidFare ?? 0;
           }
@@ -108,7 +83,7 @@ class TripFareSummery extends StatelessWidget {
                       ])
                     ]),
               if (fromPayment) ...[
-                rideController.finalFare!.discountAmount!.toDouble() > 0
+                (rideController.finalFare?.discountAmount ?? 0).toDouble() > 0
                     ? Padding(
                         padding: const EdgeInsets.only(
                             bottom: Dimensions.paddingSizeSmall),
@@ -172,20 +147,13 @@ class TripFareSummery extends StatelessWidget {
                     : PaymentItemInfoWidget(
                         icon: Images.farePrice,
                         title: 'fare_price'.tr,
-                        amount: rideController.isLocalRide
-                            ? localFare
-                            : rideController.isOutstationRide
-                                ? rideController.outstationFare
-                                : rideController.isRentalRide
-                                    ? rideController.rentalPackageFare
-                                    : rideController
-                                            .finalFare?.distanceWiseFare ??
-                                        0,
+                        amount: rideController.finalFare?.actualFare ?? 0,
                       ),
               ],
               if (fromPayment &&
                   !fromParcel &&
-                  rideController.finalFare!.cancellationFee!.toDouble() > 0)
+                  (rideController.finalFare?.cancellationFee ?? 0).toDouble() >
+                      0)
                 PaymentItemInfoWidget(
                   icon: Images.idleHourIcon,
                   title: 'cancellation_price'.tr,
@@ -194,25 +162,22 @@ class TripFareSummery extends StatelessWidget {
               if (fromPayment &&
                   !fromParcel &&
                   (rideController.isLocalRide ||
-                      rideController.finalFare!.idleFee!.toDouble() > 0))
+                      (rideController.finalFare?.idleFee ?? 0).toDouble() > 0))
                 PaymentItemInfoWidget(
                   icon: Images.idleHourIcon,
                   title: 'idle_price'.tr,
-                  // amount: rideController.finalFare?.idleFee ?? 0,
-                  amount: rideController.isLocalRide
-                      ? localWaitingCharge
-                      : rideController.finalFare?.idleFee ?? 0,
+                  amount: rideController.finalFare?.idleFee ?? 0,
                 ),
               if (fromPayment &&
                   !fromParcel &&
-                  rideController.finalFare!.delayFee!.toDouble() > 0)
+                  (rideController.finalFare?.delayFee ?? 0).toDouble() > 0)
                 PaymentItemInfoWidget(
                   icon: Images.waitingPrice,
                   title: 'delay_price'.tr,
                   amount: rideController.finalFare?.delayFee ?? 0,
                 ),
               if (fromPayment &&
-                  rideController.finalFare!.couponAmount!.toDouble() > 0)
+                  (rideController.finalFare?.couponAmount ?? 0).toDouble() > 0)
                 PaymentItemInfoWidget(
                   icon: Images.profileMyWallet,
                   title: 'coupon_discount'.tr,
@@ -220,7 +185,16 @@ class TripFareSummery extends StatelessWidget {
                   discount: true,
                 ),
               if (fromPayment &&
-                  rideController.finalFare!.vatTax!.toDouble() > 0)
+                  !fromParcel &&
+                  rideController.finalFare?.waitingFee != null &&
+                  rideController.finalFare!.waitingFee!.toDouble() > 0)
+                PaymentItemInfoWidget(
+                  icon: Images.waitingPrice,
+                  title: 'waiting_charge'.tr,
+                  amount: rideController.finalFare?.waitingFee ?? 0,
+                ),
+              if (fromPayment &&
+                  (rideController.finalFare?.vatTax ?? 0).toDouble() > 0)
                 PaymentItemInfoWidget(
                   icon: Images.farePrice,
                   title: 'vat_tax'.tr,

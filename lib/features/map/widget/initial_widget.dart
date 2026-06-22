@@ -250,27 +250,8 @@ class _InitialWidgetState extends State<InitialWidget> {
                     : "find_rider".tr,
         radius: 12,
         onPressed: () {
-          print('selectedVehicle = $selectedVehicle');
-          print('rentalVehicle = ${rideController.rentalVehicle}');
-          print('selectedCategoryId = ${rideController.selectedCategoryId}');
-
-          print('==============================');
-          print('RENTAL BOOK BUTTON CLICKED');
-          print('Vehicle = ${rideController.rentalVehicle}');
-          print('Category Id = ${rideController.selectedCategoryId}');
-          print('Hour Package = ${rideController.rentalHour}');
-          print('Package Fare = ${rideController.rentalPackageFare}');
-          print('==============================');
-
           if (rideController.isLocalRide) {
             rideController.localVehicle = selectedLocalVehicle!;
-            print('==============================');
-            print('RENTAL BOOK BUTTON CLICKED');
-            print('Vehicle = ${rideController.rentalVehicle}');
-            print('Category Id = ${rideController.selectedCategoryId}');
-            print('Hour Package = ${rideController.rentalHour}');
-            print('Package Fare = ${rideController.rentalPackageFare}');
-            print('==============================');
           } else if (rideController.isOutstationRide) {
             rideController.outstationVehicle = selectedOutstationVehicle!;
 
@@ -292,21 +273,7 @@ class _InitialWidgetState extends State<InitialWidget> {
             rideController.rentalVehicle = selectedVehicle!;
             rideController.rentalHour = selectedHour;
             rideController.rentalPackageFare = selectedFare.toDouble();
-
-            print('==============================');
-            print('RENTAL BOOK BUTTON CLICKED');
-            print('Vehicle = ${rideController.rentalVehicle}');
-            print('Category Id = ${rideController.selectedCategoryId}');
-            print('Hour Package = ${rideController.rentalHour}');
-            print('Package Fare = ${rideController.rentalPackageFare}');
-            print('==============================');
           }
-          print('==============================');
-          print('SUBMIT RIDE REQUEST');
-          print('Rental Vehicle = ${rideController.rentalVehicle}');
-          print('Selected Category Id = ${rideController.selectedCategoryId}');
-          print('Rental Fare = ${rideController.rentalPackageFare}');
-          print('==============================');
           rideController
               .submitRideRequest(rideController.noteController.text, false)
               .then((value) {
@@ -326,7 +293,6 @@ class _InitialWidgetState extends State<InitialWidget> {
                           rideController.rideDetails = null;
                           rideController
                               .updateRideCurrentState(RideState.initial);
-
                           Get.back();
                           Get.offAll(() => const DashboardScreen());
                         },
@@ -353,32 +319,36 @@ class _InitialWidgetState extends State<InitialWidget> {
     int fare,
   ) {
     bool selected = selectedLocalVehicle == title;
-
     return GestureDetector(
       onTap: () {
         setState(() {
           selectedLocalVehicle = title;
         });
-
         final rideController = Get.find<RideController>();
         rideController.localVehicle = title;
         rideController.localFare = fare.toDouble();
-
         final categoryController = Get.find<CategoryController>();
-
         for (var category in categoryController.categoryList ?? []) {
           if ((category.name ?? '').toUpperCase() == title.toUpperCase()) {
             rideController.selectedCategoryId = category.id ?? '';
+            rideController.localVehicleCategoryId = category.id ?? '';
 
-            print('LOCAL CATEGORY FOUND');
-            print('Vehicle Name = ${category.name}');
-            print('Vehicle Id = ${category.id}');
+            for (var zone in rideController.localTariffs) {
+              for (var tripFare in (zone['trip_fares'] as List)) {
+                if ((tripFare['vehicle_category']?['name'] ?? '')
+                        .toString()
+                        .toUpperCase() ==
+                    title.toUpperCase()) {
+                  rideController.selectedIdleFee = double.tryParse(
+                          tripFare['idle_fee_per_min'].toString()) ??
+                      0;
+                  break;
+                }
+              }
+            }
             break;
           }
         }
-
-        print('Selected Vehicle: $title');
-        print('Selected Category Id: ${rideController.selectedCategoryId}');
       },
       child: Container(
         padding: const EdgeInsets.all(8),
@@ -473,16 +443,8 @@ class _InitialWidgetState extends State<InitialWidget> {
         });
 
         final rideController = Get.find<RideController>();
-
         rideController.selectedCategoryId = categoryId;
         rideController.rentalVehicle = title;
-
-        print('==============================');
-        print('RENTAL VEHICLE SELECTED');
-        print('Vehicle Name = $title');
-        print('Vehicle Id = $categoryId');
-        print('Fare = $fare');
-        print('==============================');
       },
       child: Container(
         padding: const EdgeInsets.all(8),

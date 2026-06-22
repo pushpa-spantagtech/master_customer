@@ -49,24 +49,29 @@ class FareModel {
   String? requestType;
   String? polyline;
   String? areaId;
+  double? idleFeePerMin;
+  double? tripDelayFeePerMin;
 
-  FareModel(
-      {this.id,
-      this.zoneId,
-      this.vehicleCategoryId,
-      this.vehicleCategoryType,
-      this.baseFare,
-      this.baseFarePerKm,
-      this.fare,
-      this.estimatedDistance,
-      this.estimatedDuration,
-      this.estimatedFare,
-      this.requestType,
-      this.polyline,
-      this.areaId,
-      this.discountAmount,
-      this.couponApplicable,
-      this.discountFare});
+  FareModel({
+    this.id,
+    this.zoneId,
+    this.vehicleCategoryId,
+    this.vehicleCategoryType,
+    this.baseFare,
+    this.baseFarePerKm,
+    this.fare,
+    this.estimatedDistance,
+    this.estimatedDuration,
+    this.estimatedFare,
+    this.requestType,
+    this.polyline,
+    this.areaId,
+    this.discountAmount,
+    this.couponApplicable,
+    this.discountFare,
+    this.idleFeePerMin,
+    this.tripDelayFeePerMin,
+  });
 
   FareModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -85,6 +90,9 @@ class FareModel {
     discountAmount = json['discount_amount'].toDouble();
     couponApplicable = json['coupon_applicable'];
     discountFare = json['discount_fare'].toDouble();
+    idleFeePerMin = double.tryParse(json['idle_fee_per_min'].toString()) ?? 0;
+    tripDelayFeePerMin =
+        double.tryParse(json['trip_delay_fee_per_min'].toString()) ?? 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -101,6 +109,8 @@ class FareModel {
     data['request type'] = requestType;
     data['encoded_polyline'] = polyline;
     data['area_id'] = areaId;
+    data['idle_fee_per_min'] = idleFeePerMin;
+    data['trip_delay_fee_per_min'] = tripDelayFeePerMin;
     return data;
   }
 }

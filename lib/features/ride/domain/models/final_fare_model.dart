@@ -54,6 +54,7 @@ class FinalFare {
   double? cancellationFee;
   String? cancelledBy;
   double? vatTax;
+  double? waitingFee;
   double? tips;
   double? waitingTime;
   double? delayTime;
@@ -99,6 +100,7 @@ class FinalFare {
       this.cancellationFee,
       this.cancelledBy,
       this.vatTax,
+      this.waitingFee,
       this.tips,
       this.waitingTime,
       this.delayTime,
@@ -188,6 +190,10 @@ class FinalFare {
     cancelledBy = json['cancelled_by'];
     if (json['vat_tax'] != null) {
       vatTax = json['vat_tax'].toDouble();
+    }
+
+    if (json['waiting_fee'] != null) {
+      waitingFee = json['waiting_fee'].toDouble();
     }
 
     if (json['tips'] != null) {

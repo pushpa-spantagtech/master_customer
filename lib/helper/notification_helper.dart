@@ -579,15 +579,21 @@ void notificationToRouteNavigate(String tripId) {
                     ))
               }
           }
-        else if ((Get.find<RideController>().tripDetails!.currentStatus ==
+        else if (Get.find<RideController>().tripDetails!.currentStatus ==
                 'completed' &&
-            Get.find<RideController>().tripDetails!.paymentStatus == 'unpaid'))
+            Get.find<RideController>().tripDetails!.paymentStatus == 'unpaid')
           {
             if (Get.currentRoute != '/PaymentScreen')
               {
-                Get.to(() => const PaymentScreen(
-                      fromParcel: false,
-                    ))
+                Get.find<RideController>()
+                    .getFinalFare(tripId)
+                    .then((finalFareResponse) {
+                  if (finalFareResponse.statusCode == 200) {
+                    Get.to(() => const PaymentScreen(
+                          fromParcel: false,
+                        ));
+                  }
+                })
               }
           }
       });

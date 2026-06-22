@@ -39,8 +39,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    Get.find<MapController>().setContainerHeight(
-        (widget.fromScreen == MapScreenType.parcel) ? 200 : 140, false);
+    Get.find<MapController>().setContainerHeight(250, false);
   }
 
   @override
@@ -117,7 +116,7 @@ class _MapScreenState extends State<MapScreen> {
                   return Stack(children: [
                     Padding(
                       padding: EdgeInsets.only(
-                          bottom: mapController.sheetHeight - 20),
+                          bottom: mapController.sheetHeight - 150),
                       child: GoogleMap(
                           style: Get.isDarkMode
                               ? Get.find<ThemeController>().darkMap

@@ -113,9 +113,7 @@ class _RideExpendableBottomSheetState extends State<RideExpendableBottomSheet> {
                                       expandableKey: widget.expandableKey,
                                       fromPage: FindingRide.ride)
                                   : (rideController.currentRideState ==
-                                              RideState.acceptingRider ||
-                                          rideController.currentRideState ==
-                                              RideState.ongoingRide)
+                                          RideState.acceptingRider)
                                       ? AcceptingAndOngoingBottomSheet(
                                           firstRoute: firstRoute,
                                           secondRoute: secondRoute,
@@ -158,6 +156,18 @@ class _RideExpendableBottomSheetState extends State<RideExpendableBottomSheet> {
                                                               Get.find<
                                                                       RideController>()
                                                                   .stopLocationRecord();
+
+                                                              await Get.find<
+                                                                      RideController>()
+                                                                  .tripStatusUpdate(
+                                                                rideController
+                                                                    .tripDetails!
+                                                                    .id!,
+                                                                'completed',
+                                                                'trip_completed',
+                                                                '',
+                                                              );
+
                                                               rideController
                                                                   .updateRideCurrentState(
                                                                       RideState
@@ -165,6 +175,14 @@ class _RideExpendableBottomSheetState extends State<RideExpendableBottomSheet> {
                                                               Get.find<
                                                                       MapController>()
                                                                   .notifyMapController();
+
+                                                              await Get.find<
+                                                                      RideController>()
+                                                                  .getFinalFare(
+                                                                rideController
+                                                                    .tripDetails!
+                                                                    .id!,
+                                                              );
                                                               Get.off(() =>
                                                                   const PaymentScreen());
                                                             },
@@ -176,9 +194,6 @@ class _RideExpendableBottomSheetState extends State<RideExpendableBottomSheet> {
                                                         showInsight: false,
                                                         title: 'trip_is_ongoing'
                                                             .tr),
-                                                    const SizedBox(
-                                                        height: Dimensions
-                                                            .paddingSizeDefault),
                                                     Padding(
                                                       padding: const EdgeInsets
                                                           .symmetric(
@@ -198,30 +213,9 @@ class _RideExpendableBottomSheetState extends State<RideExpendableBottomSheet> {
                                                                         0.8)),
                                                         children: [
                                                           TextSpan(
-                                                            text:
-                                                                "the_car_just_arrived_at"
-                                                                    .tr,
-                                                            style: textRegular
-                                                                .copyWith(
-                                                                    fontSize:
-                                                                        Dimensions
-                                                                            .fontSizeDefault),
-                                                          ),
-                                                          TextSpan(
-                                                              text: " ".tr),
-                                                          TextSpan(
-                                                            text:
-                                                                "your_destination"
-                                                                    .tr,
-                                                            style: textMedium
-                                                                .copyWith(
-                                                              fontSize: Dimensions
-                                                                  .fontSizeDefault,
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .primaryColor,
-                                                            ),
-                                                          ),
+                                                              text:
+                                                                  'you_are_on_the_way_to_destination'
+                                                                      .tr)
                                                         ],
                                                       )),
                                                     ),
