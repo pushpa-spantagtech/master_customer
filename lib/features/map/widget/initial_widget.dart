@@ -248,7 +248,6 @@ class _InitialWidgetState extends State<InitialWidget> {
                         ? "Select Vehicle"
                         : "Book $selectedVehicle")
                     : "find_rider".tr,
-        radius: 12,
         onPressed: () {
           if (rideController.isLocalRide) {
             rideController.localVehicle = selectedLocalVehicle!;

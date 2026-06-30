@@ -37,4 +37,12 @@ class LocationService implements LocationServiceInterface {
   Future searchLocation(String text) async {
     return await locationRepositoryInterface.searchLocation(text);
   }
+
+  @override
+  Future storeLiveLocation(String latitude, String longitude) async {
+    return await locationRepositoryInterface.storeLiveLocation(
+      latitude,
+      longitude,
+    );
+  }
 }

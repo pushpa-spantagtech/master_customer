@@ -77,213 +77,203 @@ class _SignInScreenState extends State<SignInScreen> {
                   children: [
                     Image.asset(Images.logoWithName, height: 75),
                     const SizedBox(
-                      height: Dimensions.paddingSizeSmall,
+                      height: Dimensions.paddingSizeEight,
                     ),
                     Text(
                       'get_started'.tr,
                       style: textBold.copyWith(
-                          color: const Color.fromRGBO(255, 0, 0, 0.7),
-                          fontSize: 30),
+                        color: const Color.fromRGBO(255, 0, 0, 0.7),
+                        fontSize: Dimensions.paddingSizeThirty,
+                      ),
                     ),
-                    const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                    const SizedBox(height: Dimensions.paddingSizeFour),
                     Text(
                       'log_in_message'.tr,
-                      style: textRegular.copyWith(
+                      style: textMedium.copyWith(
                         color: const Color.fromRGBO(20, 20, 20, 0.6),
                       ),
                     ),
-                    const SizedBox(height: Dimensions.paddingSizeLarge),
-                    CustomTextField(
-                      label: 'mobile_number'.tr,
-                      hintText: 'phone'.tr,
-                      inputType: TextInputType.phone,
-                      countryDialCode: authController.countryDialCode,
-                      controller: phoneController,
-                      focusNode: phoneNode,
-                      nextFocus: passwordNode,
-                      inputAction: TextInputAction.next,
-                      onCountryChanged: (CountryCode countryCode) {
-                        authController.countryDialCode = countryCode.dialCode!;
-                        authController.setCountryCode(countryCode.dialCode!);
-                      },
-                    ),
-                    const SizedBox(height: Dimensions.paddingSizeThree),
-                    CustomTextField(
-                      label: 'password'.tr,
-                      hintText: 'enter_password'.tr,
-                      inputType: TextInputType.text,
-                      prefixIcon: Images.lock,
-                      inputAction: TextInputAction.done,
-                      isPassword: true,
-                      controller: passwordController,
-                      focusNode: passwordNode,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: Dimensions.paddingSizeMedium + 1,
-                          vertical: Dimensions.paddingSize),
-                      child: Row(children: [
-                        InkWell(
-                          onTap: () => authController.toggleRememberMe(),
-                          child: Row(children: [
-                            SizedBox(
-                                width: 10.0,
-                                height: 10.0,
-                                child: Transform.scale(
-                                  scale: 0.8,
-                                  child: Checkbox(
-                                    checkColor:
-                                        const Color.fromRGBO(255, 255, 255, 1),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    activeColor:
-                                        const Color.fromRGBO(250, 173, 2, 1),
-                                    value: authController.isActiveRememberMe,
-                                    onChanged: (bool? isChecked) =>
-                                        authController.toggleRememberMe(),
-                                  ),
-                                )),
-                            const SizedBox(width: Dimensions.paddingSizeSix),
-                            Text(
-                              'remember_me'.tr,
-                              style: textMedium.copyWith(
-                                  fontSize: Dimensions.fontSizeSmall,
-                                  color: const Color.fromRGBO(20, 20, 20, 0.5)),
-                            ),
-                          ]),
-                        ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            Get.to(() => const ForgotPasswordScreen());
-                          },
-                          child: Text(
-                            'forgot_password_?'.tr,
-                            style: textMedium.copyWith(
-                                fontSize: Dimensions.fontSizeSmall,
-                                color: const Color.fromRGBO(20, 20, 20, 0.5)),
+                    const SizedBox(height: Dimensions.paddingSizeMedium),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 18,
+                            offset: Offset(0, 5),
                           ),
-                        ),
-                      ]),
-                    ),
-                    authController.isLoading
-                        ? const Center(
-                            child: SpinKitCircle(
-                            color: Color.fromRGBO(250, 173, 2, 1),
-                            size: 40.0,
-                          ))
-                        : ButtonWidget(
-                            textColor: const Color.fromRGBO(255, 255, 255, 1),
-                            borderColor:
-                                const Color.fromRGBO(255, 128, 128, 0.2),
-                            backgroundColor:
-                                const Color.fromRGBO(250, 173, 2, 1),
-                            fontSize: 18.0,
-                            buttonText: 'log_in'.tr,
-                            onPressed: () {
-                              String phone = phoneController.text.trim();
-                              String password = passwordController.text.trim();
-                              if (phone.isEmpty) {
-                                showCustomSnackBar(
-                                    'phone_number_is_required'.tr);
-                                FocusScope.of(context).requestFocus(phoneNode);
-                              } else if (!GetUtils.isPhoneNumber(
-                                  authController.countryDialCode + phone)) {
-                                showCustomSnackBar(
-                                    'phone_number_is_not_valid'.tr);
-                                FocusScope.of(context).requestFocus(phoneNode);
-                              } else if (password.isEmpty) {
-                                showCustomSnackBar('password_is_required'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(passwordNode);
-                              } else if (password.length < 8) {
-                                showCustomSnackBar(
-                                    'minimum_password_length_is_8'.tr);
-                              } else {
-                                authController.login(
-                                    authController.countryDialCode,
-                                    phone,
-                                    password);
-                              }
-                            },
-                            radius: 50,
-                          ),
-                    Row(children: [
-                      const Expanded(
-                          child: Divider(
-                        thickness: 1,
-                        color: Color.fromRGBO(20, 20, 20, 0.1),
-                      )),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: Dimensions.paddingSizeSmall,
-                            vertical: 8),
-                        child: Text('or'.tr,
-                            style: textBold.copyWith(
-                              fontSize: Dimensions.fontSizeExtraLarge,
-                              color: const Color.fromRGBO(255, 0, 0, 0.7),
-                            )),
+                        ],
                       ),
-                      const Expanded(
-                          child: Divider(
-                        thickness: 1,
-                        color: Color.fromRGBO(20, 20, 20, 0.1),
-                      )),
-                    ]),
-                    ButtonWidget(
-                      imageIcon: Images.tablerMessage,
-                      boldText: false,
-                      textColor: const Color.fromRGBO(88, 89, 89, 1),
-                      borderColor: const Color.fromRGBO(20, 20, 20, 0.2),
-                      showBorder: true,
-                      borderWidth: 1,
-                      transparent: true,
-                      buttonText: 'otp_login'.tr,
-                      onPressed: () =>
-                          Get.to(() => const OtpLoginScreen(fromSignIn: true)),
-                      radius: 50,
+                      child: Column(
+                        children: [
+                          CustomTextField(
+                            label: 'mobile_number'.tr,
+                            hintText: 'phone'.tr,
+                            inputType: TextInputType.phone,
+                            countryDialCode: authController.countryDialCode,
+                            controller: phoneController,
+                            focusNode: phoneNode,
+                            nextFocus: passwordNode,
+                            inputAction: TextInputAction.next,
+                            onCountryChanged: (CountryCode countryCode) {
+                              authController.countryDialCode =
+                                  countryCode.dialCode!;
+                              authController
+                                  .setCountryCode(countryCode.dialCode!);
+                            },
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeThree),
+                          CustomTextField(
+                            label: 'password'.tr,
+                            hintText: 'enter_password'.tr,
+                            inputType: TextInputType.text,
+                            prefixIcon: Images.lock,
+                            inputAction: TextInputAction.done,
+                            isPassword: true,
+                            controller: passwordController,
+                            focusNode: passwordNode,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: Dimensions.paddingSizeMedium + 1,
+                                vertical: Dimensions.paddingSize),
+                            child: Row(children: [
+                              InkWell(
+                                onTap: () => authController.toggleRememberMe(),
+                                child: Row(children: [
+                                  SizedBox(
+                                      width: 10.0,
+                                      height: 10.0,
+                                      child: Transform.scale(
+                                        scale: 0.8,
+                                        child: Checkbox(
+                                          checkColor: const Color.fromRGBO(
+                                              255, 255, 255, 1),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5)),
+                                          activeColor: const Color.fromRGBO(
+                                              250, 173, 2, 1),
+                                          value:
+                                              authController.isActiveRememberMe,
+                                          onChanged: (bool? isChecked) =>
+                                              authController.toggleRememberMe(),
+                                        ),
+                                      )),
+                                  const SizedBox(
+                                      width: Dimensions.paddingSizeSix),
+                                  Text(
+                                    'remember_me'.tr,
+                                    style: textMedium.copyWith(
+                                        fontSize: Dimensions.fontSizeSmall,
+                                        color: const Color.fromRGBO(
+                                            20, 20, 20, 0.5)),
+                                  ),
+                                ]),
+                              ),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  Get.to(() => const ForgotPasswordScreen());
+                                },
+                                child: Text(
+                                  'forgot_password_?'.tr,
+                                  style: textMedium.copyWith(
+                                      fontSize: Dimensions.fontSizeSmall,
+                                      color: const Color.fromRGBO(
+                                          20, 20, 20, 0.5)),
+                                ),
+                              ),
+                            ]),
+                          ),
+                          authController.isLoading
+                              ? const Center(
+                                  child: SpinKitCircle(
+                                  color: Color.fromRGBO(250, 173, 2, 1),
+                                  size: 40.0,
+                                ))
+                              : ButtonWidget(
+                                  textColor:
+                                      const Color.fromRGBO(255, 255, 255, 1),
+                                  borderColor:
+                                      const Color.fromRGBO(255, 128, 128, 0.2),
+                                  backgroundColor:
+                                      const Color.fromRGBO(250, 173, 2, 1),
+                                  fontSize: 18.0,
+                                  buttonText: 'log_in'.tr,
+                                  onPressed: () {
+                                    String phone = phoneController.text.trim();
+                                    String password =
+                                        passwordController.text.trim();
+                                    if (phone.isEmpty) {
+                                      showCustomSnackBar(
+                                          'phone_number_is_required'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(phoneNode);
+                                    } else if (!GetUtils.isPhoneNumber(
+                                        authController.countryDialCode +
+                                            phone)) {
+                                      showCustomSnackBar(
+                                          'phone_number_is_not_valid'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(phoneNode);
+                                    } else if (password.isEmpty) {
+                                      showCustomSnackBar(
+                                          'password_is_required'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(passwordNode);
+                                    } else if (password.length < 8) {
+                                      showCustomSnackBar(
+                                          'minimum_password_length_is_8'.tr);
+                                    } else {
+                                      authController.login(
+                                          authController.countryDialCode,
+                                          phone,
+                                          password);
+                                    }
+                                  },
+                                ),
+                          Row(children: [
+                            const Expanded(
+                                child: Divider(
+                              thickness: 1,
+                              color: Color.fromRGBO(20, 20, 20, 0.1),
+                            )),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: Dimensions.paddingSizeSmall,
+                                  vertical: 8),
+                              child: Text('or'.tr,
+                                  style: textBold.copyWith(
+                                    fontSize: Dimensions.fontSizeExtraLarge,
+                                    color: const Color.fromRGBO(255, 0, 0, 0.7),
+                                  )),
+                            ),
+                            const Expanded(
+                                child: Divider(
+                              thickness: 1,
+                              color: Color.fromRGBO(20, 20, 20, 0.1),
+                            )),
+                          ]),
+                          ButtonWidget(
+                            imageIcon: Images.tablerMessage,
+                            boldText: false,
+                            textColor: const Color.fromRGBO(88, 89, 89, 1),
+                            borderColor: const Color.fromRGBO(20, 20, 20, 0.2),
+                            showBorder: true,
+                            borderWidth: 1,
+                            transparent: true,
+                            buttonText: 'otp_login'.tr,
+                            onPressed: () => Get.to(
+                                () => const OtpLoginScreen(fromSignIn: true)),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: Dimensions.paddingSizeSmall),
-                    // ButtonWidget(
-                    //   imageIcon: Images.tablerMessage,
-                    //   boldText: false,
-                    //   textColor: const Color.fromRGBO(88, 89, 89, 1),
-                    //   borderColor: const Color.fromRGBO(20, 20, 20, 0.2),
-                    //   showBorder: true,
-                    //   borderWidth: 1,
-                    //   transparent: true,
-                    //   buttonText: 'Continue With Google',
-                    //   onPressed: () async {
-                    //     // UserCredential? result =
-                    //     //     await GoogleAuthService().signInWithGoogle();
-                    //     //
-                    //     // if (result != null) {
-                    //     //   User? user = result.user;
-                    //     //
-                    //     //   String email = user?.email ?? '';
-                    //     //   String name = user?.displayName ?? '';
-                    //     //   String phone = user?.phoneNumber ?? '';
-                    //     //   String uid = user?.uid ?? '';
-                    //     //
-                    //     //   print('EMAIL ==> $email');
-                    //     //   print('NAME ==> $name');
-                    //     //   print('PHONE ==> $phone');
-                    //     //
-                    //     //   /// CALL EXISTING BACKEND LOGIN API HERE
-                    //     //
-                    //     //   /// EXISTING USER
-                    //     //   if (phone.isNotEmpty) {
-                    //     //     Get.offAll(() => const DashboardScreen());
-                    //     //   }
-                    //     //
-                    //     //   /// NEW USER
-                    //     //   else {
-                    //     //     Get.to(() => const OtpLoginScreen());
-                    //     //   }
-                    //     // }
-                    //   },
-                    //   radius: 50,
-                    // ),
                     const SizedBox(height: Dimensions.paddingSizeSmall),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

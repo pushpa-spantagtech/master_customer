@@ -136,7 +136,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             });
                           }
                         },
-                        radius: 50,
                       ),
               ],
             );

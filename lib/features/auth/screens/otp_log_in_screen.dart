@@ -136,7 +136,6 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
                                 });
                               }
                             },
-                            radius: 50,
                           ),
                     const SizedBox(height: Dimensions.paddingSizeSmall),
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [

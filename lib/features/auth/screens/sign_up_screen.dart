@@ -230,7 +230,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             backgroundColor:
                                 const Color.fromRGBO(250, 173, 2, 1),
                             fontSize: 18.0,
-                            radius: 28,
                             onPressed: () {
                               String fName = fNameController.text.trim();
                               String lName = lNameController.text.trim();

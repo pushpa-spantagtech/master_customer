@@ -48,9 +48,9 @@ class _ConversationBubbleState extends State<ConversationBubble> {
   @override
   Widget build(BuildContext context) {
     images = [];
-    bool isMe = widget.message.user!.id! ==
-        Get.find<ProfileController>().profileModel!.data!.id!;
-    for (var element in widget.message.conversationFiles!) {
+    bool isMe = widget.message.user?.id ==
+        Get.find<ProfileController>().profileModel?.data?.id;
+    for (var element in (widget.message.conversationFiles ?? [])) {
       images.add(
           '${Get.find<ConfigController>().config!.imageBaseUrl!.conversation}/${element.fileName ?? ''}');
     }
@@ -124,7 +124,7 @@ class _ConversationBubbleState extends State<ConversationBubble> {
                             ),
                           ),
                         )),
-                      widget.message.conversationFiles!.isNotEmpty
+                      (widget.message.conversationFiles?.isNotEmpty ?? false)
                           ? SizedBox(
                               width:
                                   widget.message.conversationFiles!.length < 4
@@ -308,8 +308,8 @@ class _ConversationBubbleState extends State<ConversationBubble> {
             ),
           ),
         ),
-        if ((widget.message.tripId != widget.previousMessage?.tripId! &&
-            widget.previousMessage != null))
+        if (widget.previousMessage != null &&
+            widget.message.tripId != widget.previousMessage?.tripId)
           Center(
               child: Text(
             "${DateConverter.stringToLocalDateOnly(widget.previousMessage?.createdAt ?? DateTime.now().toString())}, "

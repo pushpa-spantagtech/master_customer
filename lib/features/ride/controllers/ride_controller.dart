@@ -562,14 +562,7 @@ class RideController extends GetxController implements GetxService {
     if (response.statusCode == 200 && response.body['data'] != null) {
       runningTrip = false;
       tripDetails = TripDetailsModel.fromJson(response.body).data!;
-      // if ('${tripDetails?.waitingTime}' != '0' &&
-      //     '${tripDetails?.waitingTime}' != 'null') {
-      //   Get.snackbar(
-      //     "Driver Arrived",
-      //     "Your driver has reached the pickup location",
-      //     snackPosition: SnackPosition.TOP,
-      //   );
-      // }
+
       estimatedDistance = tripDetails!.estimatedDistance!.toString();
       String currentRideStatus = tripDetails!.currentStatus!;
       encodedPolyLine = tripDetails!.encodedPolyline ?? '';

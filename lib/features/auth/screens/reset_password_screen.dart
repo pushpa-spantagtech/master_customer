@@ -147,7 +147,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 }
                               }
                             },
-                            radius: 50,
                           ),
                   ]),
             );

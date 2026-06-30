@@ -189,7 +189,6 @@ class VerificationScreenState extends State<VerificationScreen> {
                                 backgroundColor:
                                     const Color.fromRGBO(250, 173, 2, 1),
                                 fontSize: 18.0,
-                                radius: 50,
                                 onPressed: () {
                                   if (widget.fromForgotPassword) {
                                     authController.otpVerification(

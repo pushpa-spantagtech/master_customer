@@ -51,7 +51,7 @@ class CustomTextField extends StatefulWidget {
     this.capitalization = TextCapitalization.none,
     this.isPassword = false,
     this.isAmount = false,
-    this.borderRadius = 50,
+    this.borderRadius = 12,
     this.showBorder = true,
     this.prefixHeight = 32,
     this.countryDialCode,
@@ -116,12 +116,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
               color: const Color.fromRGBO(20, 20, 20, 0.8)),
           textInputAction: widget.inputAction,
           keyboardType:
-              (widget.isAmount || widget.inputType == TextInputType.phone)
-                  ? const TextInputType.numberWithOptions(
-                      signed: false,
-                      decimal: true,
-                    )
-                  : widget.inputType,
+          (widget.isAmount || widget.inputType == TextInputType.phone)
+              ? const TextInputType.numberWithOptions(
+            signed: false,
+            decimal: true,
+          )
+              : widget.inputType,
           cursorColor: borderColor,
           textCapitalization: widget.capitalization,
           enabled: widget.isEnabled,
@@ -130,26 +130,26 @@ class _CustomTextFieldState extends State<CustomTextField> {
           autofillHints: widget.inputType == TextInputType.name
               ? [AutofillHints.name]
               : widget.inputType == TextInputType.emailAddress
-                  ? [AutofillHints.email]
-                  : widget.inputType == TextInputType.phone
-                      ? [AutofillHints.telephoneNumber]
-                      : widget.inputType == TextInputType.streetAddress
-                          ? [AutofillHints.fullStreetAddress]
-                          : widget.inputType == TextInputType.url
-                              ? [AutofillHints.url]
-                              : widget.inputType ==
-                                      TextInputType.visiblePassword
-                                  ? [AutofillHints.password]
-                                  : null,
+              ? [AutofillHints.email]
+              : widget.inputType == TextInputType.phone
+              ? [AutofillHints.telephoneNumber]
+              : widget.inputType == TextInputType.streetAddress
+              ? [AutofillHints.fullStreetAddress]
+              : widget.inputType == TextInputType.url
+              ? [AutofillHints.url]
+              : widget.inputType ==
+              TextInputType.visiblePassword
+              ? [AutofillHints.password]
+              : null,
           obscureText: widget.isPassword ? _obscureText : false,
           inputFormatters: widget.inputType == TextInputType.phone
               ? <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(10),
-                ]
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(10),
+          ]
               : widget.isAmount
-                  ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))]
-                  : null,
+              ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))]
+              : null,
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(widget.borderRadius),
@@ -181,100 +181,100 @@ class _CustomTextFieldState extends State<CustomTextField> {
             prefixIcon: widget.prefix == false
                 ? null
                 : widget.prefixIcon != null
-                    ? Container(
-                        width: widget.prefixHeight,
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Center(
-                          child: Image.asset(
-                            widget.prefixIcon!,
-                            height: 20,
-                            width: 20,
-                            color: const Color.fromRGBO(250, 173, 2, 1),
-                          ),
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.only(left: 14),
-                        child: IntrinsicWidth(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: 24,
-                                child: Center(
-                                  child: CodePickerWidget(
-                                    flagWidth: 24,
-                                    padding: EdgeInsets.zero,
-                                    onChanged: widget.onCountryChanged,
-                                    initialSelection: widget.countryDialCode,
-                                    favorite: [widget.countryDialCode!],
-                                    showDropDownButton: true,
-                                    showCountryOnly: true,
-                                    showOnlyCountryWhenClosed: true,
-                                    showFlagDialog: true,
-                                    hideMainText: true,
-                                    showFlagMain: true,
-                                    dialogBackgroundColor:
-                                        Theme.of(context).cardColor,
-                                    barrierColor: Get.isDarkMode
-                                        ? Colors.black.withValues(alpha: 0.4)
-                                        : null,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                widget.countryDialCode ?? '',
-                                style: textRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeDefault,
-                                  color: const Color.fromRGBO(20, 20, 20, 0.8),
-                                  height: 1.0,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                            ],
-                          ),
+                ? Container(
+              width: widget.prefixHeight,
+              padding: const EdgeInsets.only(left: 8),
+              child: Center(
+                child: Image.asset(
+                  widget.prefixIcon!,
+                  height: 20,
+                  width: 20,
+                  color: const Color.fromRGBO(250, 173, 2, 1),
+                ),
+              ),
+            )
+                : Padding(
+              padding: const EdgeInsets.only(left: 14),
+              child: IntrinsicWidth(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 24,
+                      child: Center(
+                        child: CodePickerWidget(
+                          flagWidth: 24,
+                          padding: EdgeInsets.zero,
+                          onChanged: widget.onCountryChanged,
+                          initialSelection: widget.countryDialCode,
+                          favorite: [widget.countryDialCode!],
+                          showDropDownButton: true,
+                          showCountryOnly: true,
+                          showOnlyCountryWhenClosed: true,
+                          showFlagDialog: true,
+                          hideMainText: true,
+                          showFlagMain: true,
+                          dialogBackgroundColor:
+                          Theme.of(context).cardColor,
+                          barrierColor: Get.isDarkMode
+                              ? Colors.black.withValues(alpha: 0.4)
+                              : null,
                         ),
                       ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      widget.countryDialCode ?? '',
+                      style: textRegular.copyWith(
+                        fontSize: Dimensions.fontSizeDefault,
+                        color: const Color.fromRGBO(20, 20, 20, 0.8),
+                        height: 1.0,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                ),
+              ),
+            ),
             suffixIcon: widget.suffixIcon != null
                 ? InkWell(
-                    onTap: widget.onPressedSuffix,
-                    child: Container(
-                      margin: EdgeInsets.only(
-                          right: widget.fillColor != null ? 0 : 10),
-                      width: 40,
-                      padding: const EdgeInsets.all(1),
-                      decoration: BoxDecoration(
-                        color: widget.fillColor != null
-                            ? Colors.transparent
-                            : Theme.of(context)
-                                .primaryColor
-                                .withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(widget.borderRadius),
-                          bottomLeft: Radius.circular(widget.borderRadius),
-                        ),
-                      ),
-                      child: Center(
-                          child: Image.asset(widget.suffixIcon!,
-                              height: 20, width: 20)),
-                    ),
-                  )
+              onTap: widget.onPressedSuffix,
+              child: Container(
+                margin: EdgeInsets.only(
+                    right: widget.fillColor != null ? 0 : 10),
+                width: 40,
+                padding: const EdgeInsets.all(1),
+                decoration: BoxDecoration(
+                  color: widget.fillColor != null
+                      ? Colors.transparent
+                      : Theme.of(context)
+                      .primaryColor
+                      .withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(widget.borderRadius),
+                    bottomLeft: Radius.circular(widget.borderRadius),
+                  ),
+                ),
+                child: Center(
+                    child: Image.asset(widget.suffixIcon!,
+                        height: 20, width: 20)),
+              ),
+            )
                 : widget.isPassword
-                    ? IconButton(
-                        icon: Icon(
-                            _obscureText
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: _obscureText
-                                ? Theme.of(context)
-                                    .hintColor
-                                    .withValues(alpha: 0.5)
-                                : borderColor),
-                        onPressed: _toggle,
-                      )
-                    : null,
+                ? IconButton(
+              icon: Icon(
+                  _obscureText
+                      ? Icons.visibility_off
+                      : Icons.visibility,
+                  color: _obscureText
+                      ? Theme.of(context)
+                      .hintColor
+                      .withValues(alpha: 0.5)
+                      : borderColor),
+              onPressed: _toggle,
+            )
+                : null,
             errorText: _validate ? widget.errorText : '',
             errorStyle: textRegular.copyWith(
                 fontSize: Dimensions.fontSizeSmall, height: 0.1),

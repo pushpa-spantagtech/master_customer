@@ -118,6 +118,13 @@ class _MapScreenState extends State<MapScreen> {
                       padding: EdgeInsets.only(
                           bottom: mapController.sheetHeight - 150),
                       child: GoogleMap(
+                          zoomGesturesEnabled: true,
+                          scrollGesturesEnabled: true,
+                          rotateGesturesEnabled: false,
+                          tiltGesturesEnabled: false,
+                          compassEnabled: false,
+                          myLocationEnabled: true,
+                          myLocationButtonEnabled: false,
                           style: Get.isDarkMode
                               ? Get.find<ThemeController>().darkMap
                               : Get.find<ThemeController>().lightMap,
@@ -171,7 +178,6 @@ class _MapScreenState extends State<MapScreen> {
                           polylines:
                               Set<Polyline>.of(mapController.polylines.values),
                           zoomControlsEnabled: false,
-                          compassEnabled: false,
                           trafficEnabled: mapController.isTrafficEnable,
                           indoorViewEnabled: true,
                           mapToolbarEnabled: true),

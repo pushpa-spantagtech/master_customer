@@ -57,6 +57,12 @@ class _PickMapScreenState extends State<PickMapScreen> {
         child: GetBuilder<LocationController>(builder: (locationController) {
           return Stack(children: [
             GoogleMap(
+              zoomGesturesEnabled: true,
+              scrollGesturesEnabled: true,
+              rotateGesturesEnabled: false,
+              tiltGesturesEnabled: false,
+              compassEnabled: false,
+
               initialCameraPosition: CameraPosition(
                 target: widget.oldLocationExist
                     ? LatLng(locationController.pickPosition.latitude,
@@ -65,9 +71,9 @@ class _PickMapScreenState extends State<PickMapScreen> {
                         ? LatLng(locationController.position.latitude,
                             locationController.position.longitude)
                         : locationController.initialPosition,
-                zoom: 16,
+                zoom: 18,
               ),
-              minMaxZoomPreference: const MinMaxZoomPreference(0, 16),
+              minMaxZoomPreference: const MinMaxZoomPreference(0, 21),
               onMapCreated: (GoogleMapController mapController) {
                 Future.delayed(const Duration(milliseconds: 1000))
                     .then((value) {
@@ -106,7 +112,7 @@ class _PickMapScreenState extends State<PickMapScreen> {
             ),
             Center(
               child: !locationController.loading
-                  ? Image.asset(Images.mapLocationIcon, height: 120, width: 120)
+                  ? Image.asset(Images.mapLocationIcon, height: 30, width: 30)
                   : const SpinKitCircle(
                       color: Color.fromRGBO(250, 173, 2, 1), size: 40.0),
             ),

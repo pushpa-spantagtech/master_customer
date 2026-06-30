@@ -29,7 +29,7 @@ class ButtonWidget extends StatelessWidget {
     this.width = Dimensions.webMaxWidth,
     this.height = 45,
     this.fontSize,
-    this.radius = 5,
+    this.radius = 16,
     this.icon,
     this.imageIcon,
     this.showBorder = false,

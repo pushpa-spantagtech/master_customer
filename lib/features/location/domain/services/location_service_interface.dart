@@ -13,4 +13,6 @@ abstract class LocationServiceInterface {
   Future<bool> saveUserAddress(Address? address);
 
   String? getUserAddress();
+
+  Future<dynamic> storeLiveLocation(String latitude, String longitude);
 }
