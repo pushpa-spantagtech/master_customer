@@ -155,14 +155,32 @@ class MessageController extends GetxController implements GetxService {
     if (response.statusCode == 200) {
       isLoading = false;
       Map map = response.body;
+      print("===== CREATE CHANNEL RESPONSE =====");
+      print(response.body);
+      print("===================================");
+
       String channelId = map['data']['channel']['id'];
       String tripId = map['data']['channel']['trip_id'];
+
+// Safe null check
+      Map<String, dynamic>? user = map['data']['user'] as Map<String, dynamic>?;
+
+      String userName = "";
+
+      if (user != null) {
+        userName =
+            "${user['first_name'] ?? ''} ${user['last_name'] ?? ''}".trim();
+      }
+
       Get.to(() => MessageScreen(
             channelId: channelId,
             tripId: tripId,
-            userName:
-                "${map['data']['user']['first_name']} ${map['data']['user']['last_name']}",
+            userName: userName,
           ));
+
+      print("DATA : ${map['data']}");
+      print("USER : ${map['data']['user']}");
+      print("CHANNEL : ${map['data']['channel']}");
     } else {
       isLoading = false;
       ApiChecker.checkApi(response);

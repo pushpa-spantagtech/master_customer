@@ -152,7 +152,6 @@ class MapController extends GetxController implements GetxService {
     markers = HashSet();
     Uint8List fromMarker =
         await convertAssetToUnit8List(Images.mapIcon, width: 50);
-
     Uint8List toMarker =
         await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
 
@@ -196,10 +195,8 @@ class MapController extends GetxController implements GetxService {
           (bounds!.northeast.latitude + bounds.southwest.latitude) / 2,
           (bounds.northeast.longitude + bounds.southwest.longitude) / 2,
         );
-        // double bearing = Geolocator.bearingBetween(
-        //     from.latitude, from.longitude, to.latitude, to.longitude);
-
-        double bearing = 0;
+        double bearing = Geolocator.bearingBetween(
+            from.latitude, from.longitude, to.latitude, to.longitude);
         mapController!.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
           bearing: bearing,
           target: centerBounds,
@@ -215,60 +212,42 @@ class MapController extends GetxController implements GetxService {
   }
 
   void updateMarkerAndCircle({LatLng? latLng}) async {
-    if (latLng == null) return;
+    markers.removeWhere((marker) => marker.markerId.value == "my_location");
 
-    if (mapController != null) {
-      mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: latLng,
-            zoom: 16,
-            bearing: 0,
-            tilt: 0,
-          ),
+    Uint8List car =
+        await convertAssetToUnit8List(Images.mapLocationIcon, width: 250);
+
+    if (Get.find<RideController>().tripDetails != null &&
+        _polylineCoordinateList.isNotEmpty) {
+      markers.add(Marker(
+        markerId: const MarkerId('my_location'),
+        position: latLng ?? _polylineCoordinateList.first,
+        rotation: _calculateBearing(
+          _polylineCoordinateList.first,
+          _polylineCoordinateList.length > 1
+              ? _polylineCoordinateList[1]
+              : _polylineCoordinateList.last,
         ),
-      );
-    }
+        draggable: false,
+        zIndex: 2,
+        flat: true,
+        anchor: const Offset(0.5, 0.5),
+        icon: BitmapDescriptor.fromBytes(car),
+      ));
 
-    update();
+      // markers.add(Marker(
+      //   markerId: const MarkerId('my_location'),
+      //   position: latLng ?? _polylineCoordinateList.first,
+      //   rotation: 0,
+      //   draggable: false,
+      //   zIndex: 2,
+      //   flat: false,
+      //   anchor: const Offset(0.5, 1),
+      //   icon: BitmapDescriptor.fromBytes(car),
+      // ));
+      update();
+    }
   }
-  // void updateMarkerAndCircle({LatLng? latLng}) async {
-  //   if (latLng == null) return;
-  //
-  //   markers.removeWhere((marker) => marker.markerId.value == "my_location");
-  //
-  //   Uint8List myIcon = await convertAssetToUnit8List(
-  //     Images.mapLocationIcon,
-  //     width: 50,
-  //   );
-  //
-  //   markers.add(
-  //     Marker(
-  //       markerId: const MarkerId("my_location"),
-  //       position: latLng,
-  //       draggable: false,
-  //       zIndexInt: 2,
-  //       flat: false,
-  //       anchor: const Offset(0.5, 1.0),
-  //       icon: BitmapDescriptor.fromBytes(myIcon),
-  //     ),
-  //   );
-  //
-  //   if (mapController != null) {
-  //     mapController!.animateCamera(
-  //       CameraUpdate.newCameraPosition(
-  //         CameraPosition(
-  //           target: latLng,
-  //           zoom: 16,
-  //           bearing: 0,
-  //           tilt: 0,
-  //         ),
-  //       ),
-  //     );
-  //   }
-  //
-  //   update();
-  // }
 
   double _calculateBearing(LatLng startPoint, LatLng endPoint) {
     final double startLat = _toRadians(startPoint.latitude);
@@ -346,54 +325,40 @@ class MapController extends GetxController implements GetxService {
   }
 
   void setOwnCurrentLocation() async {
-    // Remove custom customer marker.
     markers.removeWhere(
-          (marker) => marker.markerId.value == "my_location",
+      (marker) => marker.markerId.value == "my_location",
     );
 
     update();
   }
 
   // void setOwnCurrentLocation() async {
-  //   // Remove previous customer marker
   //   markers.removeWhere((marker) => marker.markerId.value == "my_location");
   //
-  //   // Customer marker icon
-  //   Uint8List myIcon = await convertAssetToUnit8List(
-  //     Images.mapLocationIcon,
-  //     width: 50,
-  //   );
+  //   Uint8List myIcon =
+  //   await convertAssetToUnit8List(Images.mapLocationIcon, width: 70);
   //
-  //   // Get current location
-  //   LatLng? latLng = await Get.find<LocationController>().getCurrentPosition();
+  //   LatLng? latlng = await Get.find<LocationController>().getCurrentPosition();
   //
-  //   if (latLng != null) {
-  //     markers.add(
-  //       Marker(
+  //   if (latlng != null) {
+  //     markers.add(Marker(
   //         markerId: const MarkerId("my_location"),
-  //         position: latLng,
+  //         position: latlng,
   //         draggable: false,
   //         zIndexInt: 2,
-  //         flat: false,
-  //         anchor: const Offset(0.5, 1.0),
-  //         icon: BitmapDescriptor.fromBytes(myIcon),
-  //       ),
-  //     );
+  //         flat: true,
+  //         anchor: const Offset(0.5, 0.5),
+  //         icon: BitmapDescriptor.bytes(myIcon)));
   //
   //     if (mapController != null) {
-  //       mapController!.animateCamera(
-  //         CameraUpdate.newCameraPosition(
+  //       mapController!.animateCamera(CameraUpdate.newCameraPosition(
   //           CameraPosition(
-  //             target: latLng,
-  //             zoom: 16,
-  //             bearing: 0,
-  //             tilt: 0,
-  //           ),
-  //         ),
-  //       );
+  //               bearing: 192.8334901395799,
+  //               target: latlng,
+  //               tilt: 0,
+  //               zoom: 16)));
   //     }
   //   }
-  //
   //   update();
   // }
 
@@ -427,87 +392,53 @@ class MapController extends GetxController implements GetxService {
   }
 
   void updateDriverMarker(List<LatLng> latLngList) async {
-    // 1. Remove previous marker to update position
-    markers.removeWhere((marker) => marker.markerId.value == "driver_location");
+    markers.removeWhere((marker) => marker.markerId.value == "driverPosition");
 
-    // 2. Logic to pick the correct 'Top-Down' icon
-    String iconPath =
-        Get.find<RideController>().tripDetails?.vehicleCategory?.type ==
-                'motor_bike'
-            ? Images.bikeTop
-            : Images.carTop;
+    Uint8List car = await convertAssetToUnit8List(
+        Get.find<RideController>().tripDetails!.vehicleCategory!.type == 'car'
+            ? Images.carTop
+            : Images.bike,
+        width: 55);
 
-    // Width 80-100 is best for map markers
-    Uint8List driverIcon = await convertAssetToUnit8List(iconPath, width: 80);
+    if (Get.find<RideController>().tripDetails != null &&
+        latLngList.isNotEmpty) {
+      // ===== LIVE DRIVER LOCATION =====
+      LatLng driverPosition = latLngList.first;
 
-    if (latLngList.isNotEmpty) {
-      LatLng currentPos = latLngList.first;
-
-      // 3. Calculate Bearing (Direction the car points)
-      double rotation = 0;
-      if (latLngList.length > 1) {
-        rotation = _calculateBearing(currentPos, latLngList[1]);
-      }
-
-      // 4. Add the Driver Marker
-      markers.add(Marker(
-        markerId: const MarkerId('driver_location'),
-        position: currentPos,
-        rotation: rotation,
-        draggable: false,
-        zIndex: 5,
-        flat: true,
-        // IMPORTANT: Allows marker to rotate with the map
-        anchor: const Offset(0.5, 0.5),
-        // Centers the icon correctly
-        icon: BitmapDescriptor.fromBytes(driverIcon),
-      ));
-
-      // 5. Google Maps Navigation Style Camera
-      if (mapController != null) {
-        mapController!.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(
-              target: currentPos,
-              zoom: 17, // Zoomed in for a navigation feel
-              bearing: rotation, // Camera faces the direction the car is going
-              tilt: 45, // 3D perspective tilt
-            ),
-          ),
+      final liveLocation =
+          Get.find<RideController>().tripDetails?.driverLastLocation;
+      if (liveLocation != null &&
+          liveLocation.latitude != null &&
+          liveLocation.longitude != null) {
+        driverPosition = LatLng(
+          double.parse(liveLocation.latitude!),
+          double.parse(liveLocation.longitude!),
         );
       }
+
+      print(
+          "LIVE DRIVER = ${driverPosition.latitude}, ${driverPosition.longitude}");
+      print("MARKER UPDATED");
+
+      markers.add(
+        Marker(
+          markerId: const MarkerId('driverPosition'),
+          position: driverPosition,
+          rotation: _calculateBearing(
+            driverPosition,
+            latLngList.length > 1 ? latLngList[1] : driverPosition,
+          ),
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          icon: BitmapDescriptor.fromBytes(car),
+        ),
+      );
 
       update();
     }
   }
-
-  // void updateDriverMarker(List<LatLng> latLngList) async {
-  //   markers.removeWhere((marker) => marker.markerId.value == "driverPosition");
-  //
-  //   Uint8List car = await convertAssetToUnit8List(
-  //       Get.find<RideController>().tripDetails!.vehicleCategory!.type == 'car'
-  //           ? Images.carTop
-  //           : Images.bike,
-  //       width: 55);
-  //
-  //   if (Get.find<RideController>().tripDetails != null &&
-  //       latLngList.isNotEmpty) {
-  //     markers.add(Marker(
-  //       markerId: const MarkerId('driverPosition'),
-  //       position: latLngList.first,
-  //       rotation: _calculateBearing(
-  //         latLngList.first,
-  //         latLngList.length > 1 ? latLngList[1] : latLngList.last,
-  //       ),
-  //       draggable: false,
-  //       zIndex: 2,
-  //       flat: true,
-  //       anchor: const Offset(0.5, 0.5),
-  //       icon: BitmapDescriptor.fromBytes(car),
-  //     ));
-  //     update();
-  //   }
-  // }
 
   bool _isInside = false;
 
@@ -557,28 +488,14 @@ class MapController extends GetxController implements GetxService {
         (bounds!.northeast.latitude + bounds.southwest.latitude) / 2,
         (bounds.northeast.longitude + bounds.southwest.longitude) / 2,
       );
-
-      double bearing = 0;
-
-      mapController!.moveCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            bearing: 0,
-            target: centerBounds,
-            zoom: 16,
-          ),
-        ),
-      );
-
-      zoomToFit(mapController, bounds, centerBounds, 0, padding: 0.5);
-      // double bearing = Geolocator.bearingBetween(startingPoint.latitude,
-      //     startingPoint.longitude, endingPoint.latitude, endingPoint.longitude);
-      // mapController!.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
-      //   bearing: bearing,
-      //   target: centerBounds,
-      //   zoom: 16,
-      // )));
-      // zoomToFit(mapController, bounds, centerBounds, bearing, padding: 0.5);
+      double bearing = Geolocator.bearingBetween(startingPoint.latitude,
+          startingPoint.longitude, endingPoint.latitude, endingPoint.longitude);
+      mapController!.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        bearing: bearing,
+        target: centerBounds,
+        zoom: 16,
+      )));
+      zoomToFit(mapController, bounds, centerBounds, bearing, padding: 0.5);
     } catch (e) {
       // debugPrint('jhkygutyv' + e.toString());
     }

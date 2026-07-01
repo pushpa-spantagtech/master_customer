@@ -31,19 +31,30 @@ class InitialWidget extends StatefulWidget {
 
 class _InitialWidgetState extends State<InitialWidget> {
   bool showRentalInfo = false;
-  int selectedHour = 1;
-  int selectedKm = 10;
-  int selectedFare = 300;
+  int selectedHour = 0;
+  int selectedKm = 0;
+  int selectedFare = 0;
 
   String? selectedVehicle;
   String? selectedLocalVehicle;
   String? selectedOutstationVehicle;
 
+  final ScrollController _packageScrollController = ScrollController();
+
   @override
   void initState() {
-    var rideController = Get.find<RideController>();
+    super.initState();
+    final rideController = Get.find<RideController>();
     rideController.getLocalTariffs();
-    rideController.getHourlyTariffs();
+    if (rideController.rentalPackages.isEmpty) {
+      rideController.getHourlyTariffs();
+    }
+    selectedHour = rideController.rentalHour;
+
+    if (selectedHour == 0) {
+      selectedHour = 1;
+    }
+
     if (Get.find<PaymentController>().paymentType == 'wallet' &&
         (rideController.discountAmount.toDouble() > 0
                 ? rideController.discountFare
@@ -55,13 +66,44 @@ class _InitialWidgetState extends State<InitialWidget> {
                 .walletBalance!) {
       Get.find<PaymentController>().setPaymentType(0);
     }
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<RideController>(builder: (rideController) {
       return GetBuilder<LocationController>(builder: (locationController) {
+        if (rideController.isRentalRide &&
+            rideController.rentalPackages.isNotEmpty) {
+          final selectedPackage = rideController.rentalPackages.firstWhere(
+            (e) => e["free_hours"] == selectedHour,
+            orElse: () => rideController.rentalPackages.first,
+          );
+
+          selectedKm = selectedPackage["free_km"];
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!_packageScrollController.hasClients) return;
+
+            final index = rideController.rentalPackages.indexWhere(
+              (e) => e["free_hours"] == selectedHour,
+            );
+
+            if (index != -1) {
+              final maxScroll =
+                  _packageScrollController.position.maxScrollExtent;
+
+              final itemExtent = rideController.rentalPackages.length > 1
+                  ? maxScroll / (rideController.rentalPackages.length - 1)
+                  : 0.0;
+
+              _packageScrollController.animateTo(
+                itemExtent * index,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            }
+          });
+        }
         final hour = DateTime.now().hour;
         final bool isNight = hour >= 22 || hour < 6;
         return Column(mainAxisSize: MainAxisSize.min, children: [
@@ -93,6 +135,7 @@ class _InitialWidgetState extends State<InitialWidget> {
             SizedBox(
               height: 60,
               child: ListView.builder(
+                controller: _packageScrollController,
                 scrollDirection: Axis.horizontal,
                 itemCount: rideController.rentalPackages.length,
                 itemBuilder: (context, index) {
@@ -392,12 +435,17 @@ class _InitialWidgetState extends State<InitialWidget> {
     bool selected = selectedHour == hour;
     return GestureDetector(
       onTap: () {
+        final rideController = Get.find<RideController>();
+
         setState(() {
           selectedHour = hour;
           selectedKm = km;
           selectedVehicle = null;
           selectedFare = 0;
         });
+
+        rideController.rentalHour = hour;
+        rideController.update();
       },
       child: Container(
         width: 70,
@@ -533,5 +581,11 @@ class _InitialWidgetState extends State<InitialWidget> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _packageScrollController.dispose();
+    super.dispose();
   }
 }

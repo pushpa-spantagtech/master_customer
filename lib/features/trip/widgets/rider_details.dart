@@ -13,6 +13,15 @@ class ActivityScreenRiderDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<RideController>(builder: (rideController) {
+      print("========== DRIVER DETAILS ==========");
+      print("Driver Object : ${rideController.tripDetails?.driver}");
+      print("Driver ID     : ${rideController.tripDetails?.driver?.id}");
+      print("First Name    : ${rideController.tripDetails?.driver?.firstName}");
+      print("Last Name     : ${rideController.tripDetails?.driver?.lastName}");
+      print(
+          "Profile Image : ${rideController.tripDetails?.driver?.profileImage}");
+      print("Trip Status   : ${rideController.tripDetails?.currentStatus}");
+      print("====================================");
       String ratting = rideController.tripDetails?.driverAvgRating != null
           ? double.parse(rideController.tripDetails!.driverAvgRating!)
               .toStringAsFixed(1)

@@ -72,7 +72,7 @@ class RideController extends GetxController implements GetxService {
   double discountFare = 0;
   double discountAmount = 0;
   String rentalVehicle = '';
-  int rentalHour = 0;
+  int rentalHour = 1;
   double rentalPackageFare = 0;
 
   bool isLocalRide = false;
@@ -513,6 +513,7 @@ class RideController extends GetxController implements GetxService {
       Get.find<ParcelController>().receiverAddressController.clear();
       Get.find<ParcelController>().parcelWeightController.clear();
       PusherHelper().pusherDriverStatus(response.body['data']['id']);
+      startLocationRecord();
       isSubmit = false;
       noteController.clear();
     } else {
@@ -539,42 +540,150 @@ class RideController extends GetxController implements GetxService {
   Future<Response> getRideDetails(String tripId) async {
     isLoading = true;
     tripDetails = null;
-
     update();
     Response response = await rideServiceInterface.getRideDetails(tripId);
+
+    print("========== GET RIDE DETAILS API ==========");
+    print(response.body);
+    print("=========================================");
+
     if (response.statusCode == 200) {
+      print("========== DRIVER FROM RIDE DETAILS ==========");
+      print(response.body['data']['driver']);
+
+      if (response.body['data']['driver'] != null) {
+        print("Driver ID      : ${response.body['data']['driver']['id']}");
+        print(
+            "First Name     : ${response.body['data']['driver']['first_name']}");
+        print(
+            "Last Name      : ${response.body['data']['driver']['last_name']}");
+        print("Phone          : ${response.body['data']['driver']['phone']}");
+        print(
+            "Profile Image  : ${response.body['data']['driver']['profile_image']}");
+      } else {
+        print("❌ DRIVER OBJECT IS NULL");
+      }
+
       Get.find<MapController>().notifyMapController();
+
       tripDetails = TripDetailsModel.fromJson(response.body).data!;
+
+      print("========== DRIVER MODEL ==========");
+      print("Driver Model : ${tripDetails?.driver}");
+      print("First Name   : ${tripDetails?.driver?.firstName}");
+      print("Last Name    : ${tripDetails?.driver?.lastName}");
+      print("=================================");
+
       estimatedDistance = tripDetails!.estimatedDistance!.toString();
       isLoading = false;
       encodedPolyLine = tripDetails!.encodedPolyline!;
+    } else {
+      print("❌ GET RIDE DETAILS FAILED");
+      print(response.statusCode);
+      print(response.body);
+      isLoading = false;
     }
+
     update();
     return response;
   }
+
+  // Future<Response> getRideDetails(String tripId) async {
+  //   isLoading = true;
+  //   tripDetails = null;
+  //
+  //   update();
+  //   Response response = await rideServiceInterface.getRideDetails(tripId);
+  //   if (response.statusCode == 200) {
+  //     Get.find<MapController>().notifyMapController();
+  //     tripDetails = TripDetailsModel.fromJson(response.body).data!;
+  //     estimatedDistance = tripDetails!.estimatedDistance!.toString();
+  //     isLoading = false;
+  //     encodedPolyLine = tripDetails!.encodedPolyline!;
+  //   }
+  //   update();
+  //   return response;
+  // }
 
   bool runningTrip = false;
 
   Future<Response> getCurrentRideStatus(
       {bool fromRefresh = false, bool navigateToMap = true}) async {
     runningTrip = true;
+
     Response response = await rideServiceInterface.currentRideStatus();
+
     if (response.statusCode == 200 && response.body['data'] != null) {
       runningTrip = false;
+      print("========== DATA KEYS ==========");
+      print(response.body['data'].keys.toList());
+      print("===============================");
+
+      /// ===================== API RESPONSE =====================
+      print("========== FULL CURRENT RIDE API ==========");
+      print(response.body);
+      print("===========================================");
+
       tripDetails = TripDetailsModel.fromJson(response.body).data!;
+
+      /// ===================== DRIVER JSON =====================
+      print("========== DRIVER JSON FROM API ==========");
+      print(response.body['data']['driver']);
+
+      if (response.body['data']['driver'] != null) {
+        print("Driver ID      : ${response.body['data']['driver']['id']}");
+        print(
+            "First Name     : ${response.body['data']['driver']['first_name']}");
+        print(
+            "Last Name      : ${response.body['data']['driver']['last_name']}");
+        print("Phone          : ${response.body['data']['driver']['phone']}");
+        print(
+            "Profile Image  : ${response.body['data']['driver']['profile_image']}");
+      } else {
+        print("❌ DRIVER OBJECT IS NULL FROM API");
+      }
+
+      /// ===================== MODEL DATA =====================
+      print("========== DRIVER MODEL ==========");
+      print("Driver Model   : ${tripDetails?.driver}");
+      print("Driver ID      : ${tripDetails?.driver?.id}");
+      print("First Name     : ${tripDetails?.driver?.firstName}");
+      print("Last Name      : ${tripDetails?.driver?.lastName}");
+      print("Phone          : ${tripDetails?.driver?.phone}");
+      print("Profile Image  : ${tripDetails?.driver?.profileImage}");
+      print("==================================");
+
+      /// ===================== TRIP DATA =====================
+      print("========== CUSTOMER RIDE STATUS ==========");
+      print("Trip ID        : ${tripDetails?.id}");
+      print("Status         : ${tripDetails?.currentStatus}");
+      print("OTP            : ${tripDetails?.otp}");
+      print(
+          "Driver Live    : ${response.body['data']['driver_last_location']}");
+      print("Vehicle        : ${tripDetails?.vehicle?.model?.name}");
+      print("Vehicle No     : ${tripDetails?.vehicle?.licencePlateNumber}");
+      print("==========================================");
 
       estimatedDistance = tripDetails!.estimatedDistance!.toString();
       String currentRideStatus = tripDetails!.currentStatus!;
       encodedPolyLine = tripDetails!.encodedPolyline ?? '';
+
       if (encodedPolyLine.isNotEmpty) {
-        //  Get.find<MapController>().getPolyline();
+        // Get.find<MapController>().getPolyline();
       }
 
       if (currentRideStatus == AppConstants.accepted ||
           currentRideStatus == AppConstants.ongoing) {
-        updateRideCurrentState(currentRideStatus == AppConstants.accepted
-            ? RideState.acceptingRider
-            : RideState.ongoingRide);
+        updateRideCurrentState(
+          currentRideStatus == AppConstants.accepted
+              ? RideState.acceptingRider
+              : RideState.ongoingRide,
+        );
+
+        if (_timer == null || !_timer!.isActive) {
+          startLocationRecord();
+        }
+
         Get.find<MapController>().notifyMapController();
 
         if (navigateToMap) {
@@ -585,8 +694,11 @@ class RideController extends GetxController implements GetxService {
       } else if (currentRideStatus == AppConstants.pending) {
         Get.find<RideController>()
             .updateRideCurrentState(RideState.findingRider);
+
         Get.find<RideController>().getBiddingList(tripDetails!.id!, 1);
+
         Get.find<MapController>().notifyMapController();
+
         if (navigateToMap) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Get.to(() => const MapScreen(fromScreen: MapScreenType.splash));
@@ -607,9 +719,14 @@ class RideController extends GetxController implements GetxService {
         }
       }
     } else {
+      print("❌ CURRENT RIDE API FAILED");
+      print(response.statusCode);
+      print(response.body);
+
       runningTrip = false;
       tripDetails = null;
       rideDetails = null;
+
       if (Get.find<LocationController>().getUserAddress() != null) {
         if (!fromRefresh) {
           Get.offAll(() => const DashboardScreen());
@@ -618,6 +735,7 @@ class RideController extends GetxController implements GetxService {
         Get.to(() => const AccessLocationScreen());
       }
     }
+
     update();
     return response;
   }
@@ -641,6 +759,9 @@ class RideController extends GetxController implements GetxService {
       {bool mapBound = false}) async {
     isLoading = true;
     Response response = await rideServiceInterface.remainDistance(requestID);
+    print("========== CUSTOMER REMAIN DISTANCE ==========");
+    print(response.body);
+    print("=============================================");
     if (response.statusCode == 200) {
       Get.find<MapController>().getDriverToPickupOrDestinationPolyline(
           response.body[0]["encoded_polyline"],
@@ -730,27 +851,45 @@ class RideController extends GetxController implements GetxService {
   Timer? _timer;
 
   void startLocationRecord() {
-    ///For First time call next call every 10 seconds.......
-    if (Get.find<RideController>().tripDetails != null &&
-        Get.find<AuthController>().getUserToken() != '') {
-      Get.find<RideController>().remainingDistance(
-          Get.find<RideController>().tripDetails!.id!,
-          mapBound: true);
-    } else {
-      _timer?.cancel();
-    }
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      if (Get.find<RideController>().tripDetails != null &&
-          Get.find<AuthController>().getUserToken() != '' &&
-          (Get.find<RideController>().tripDetails?.currentStatus ==
-                  'accepted' ||
-              Get.find<RideController>().tripDetails?.currentStatus ==
-                  'ongoing')) {
-        Get.find<RideController>()
-            .remainingDistance(Get.find<RideController>().tripDetails!.id!);
-      } else {
-        _timer?.cancel();
+
+    // First refresh immediately, but do not navigate/rebuild the whole screen.
+    Future.microtask(() async {
+      if (Get.find<AuthController>().getUserToken() != '') {
+        await getCurrentRideStatus(
+          navigateToMap: false,
+          fromRefresh: true,
+        );
+
+        if (tripDetails != null &&
+            (tripDetails?.currentStatus == 'accepted' ||
+                tripDetails?.currentStatus == 'ongoing')) {
+          await remainingDistance(tripDetails!.id!, mapBound: true);
+        }
+      }
+    });
+
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      if (Get.find<AuthController>().getUserToken() == '') {
+        timer.cancel();
+        return;
+      }
+
+      // Refresh trip status without navigating. This helps customer app move
+      // from pending -> accepted -> ongoing without full page refresh.
+      await getCurrentRideStatus(
+        navigateToMap: false,
+        fromRefresh: true,
+      );
+
+      if (tripDetails != null &&
+          (tripDetails?.currentStatus == 'accepted' ||
+              tripDetails?.currentStatus == 'ongoing')) {
+        await remainingDistance(tripDetails!.id!);
+      } else if (tripDetails == null ||
+          tripDetails?.currentStatus == 'completed' ||
+          tripDetails?.currentStatus == 'cancelled') {
+        timer.cancel();
       }
     });
   }

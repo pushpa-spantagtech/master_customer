@@ -256,36 +256,22 @@ class LocationController extends GetxController implements GetxService {
           }
         }
 
-        _locationSubscription = Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            distanceFilter: 5,
-          ),
-        ).listen((Position newLocalData) async {
-          final LatLng currentLatLng = LatLng(
-            newLocalData.latitude,
-            newLocalData.longitude,
-          );
+        _locationSubscription =
+            Geolocator.getPositionStream().listen((newLocalData) async {
+          print("CUSTOMER MOVED");
+          print("LAT = ${newLocalData.latitude}");
+          print("LNG = ${newLocalData.longitude}");
 
-          _position = newLocalData;
-          _initialPosition = currentLatLng;
-
-          Get.find<MapController>().updateMarkerAndCircle(
-            latLng: LatLng(
-              newLocalData.latitude,
-              newLocalData.longitude,
-            ),
-          );
+          if (mapController != null) {
+            Get.find<MapController>().updateMarkerAndCircle(
+              latLng: LatLng(newLocalData.latitude, newLocalData.longitude),
+            );
+          }
 
           await locationServiceInterface.storeLiveLocation(
             newLocalData.latitude.toString(),
             newLocalData.longitude.toString(),
           );
-
-          print("Customer Lat : ${newLocalData.latitude}");
-          print("Customer Lng : ${newLocalData.longitude}");
-
-          update();
         });
       } catch (e) {
         if (kDebugMode) {

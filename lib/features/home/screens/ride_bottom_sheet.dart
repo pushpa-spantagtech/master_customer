@@ -12,17 +12,17 @@ class RideBottomSheet extends StatelessWidget {
     return DefaultTabController(
       length: 3,
       child: Container(
-        height: 320,
+        height: MediaQuery.of(context).size.height * 0.45,
         decoration: const BoxDecoration(
           color: Color.fromRGBO(255, 255, 255, 1),
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(30),
           ),
         ),
-        child: const Column(
+        child: Column(
           children: [
-            SizedBox(height: 15),
-            TabBar(
+            const SizedBox(height: 15),
+            const TabBar(
               indicatorColor: Colors.transparent,
               labelPadding: EdgeInsets.zero,
               dividerColor: Colors.transparent,
@@ -42,12 +42,19 @@ class RideBottomSheet extends StatelessWidget {
               ],
             ),
             Expanded(
-              child: TabBarView(
-                children: [
-                  LocalTab(),
-                  RentalTab(),
-                  OutstationTab(),
-                ],
+              child: NotificationListener<OverscrollIndicatorNotification>(
+                onNotification: (overscroll) {
+                  overscroll.disallowIndicator();
+                  return true;
+                },
+                child: const TabBarView(
+                  physics: NeverScrollableScrollPhysics(),
+                  children: [
+                    LocalTab(),
+                    RentalTab(),
+                    OutstationTab(),
+                  ],
+                ),
               ),
             ),
           ],

@@ -14,44 +14,59 @@ class OtpCarBikeAnimatedWidget extends StatefulWidget {
 
 class _OtpCarBikeAnimatedWidgetState extends State<OtpCarBikeAnimatedWidget>
     with SingleTickerProviderStateMixin {
-  late AnimationController animationController;
-  late Animation<Offset> leftSlideAnimation;
+  late final AnimationController animationController;
+  late final Animation<Offset> leftSlideAnimation;
 
   @override
   void initState() {
-    animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 3000))
-      ..repeat(reverse: true);
-
-    leftSlideAnimation =
-        Tween<Offset>(begin: const Offset(1.5, 0), end: Offset.zero).animate(
-      CurvedAnimation(parent: animationController, curve: Curves.ease),
-    );
-
-    animationController.forward();
     super.initState();
+
+    animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3000),
+    )..repeat(reverse: true);
+
+    leftSlideAnimation = Tween<Offset>(
+      begin: const Offset(1.5, 0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: animationController,
+        curve: Curves.ease,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    animationController.stop();
+    animationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder(
-      tween: Tween<double>(begin: 1.0, end: 0.6),
-      curve: Curves.ease,
+    final rideController = Get.find<RideController>();
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 1.0, end: 0.6),
       duration: const Duration(milliseconds: 1000),
-      builder: (context, value, widget) => Center(
-          child: Center(
-              child: SlideTransition(
-        position: leftSlideAnimation,
-        child: SvgPicture.asset(
-          (Get.find<RideController>().tripDetails?.vehicleCategory?.type ??
-                      'car') ==
-                  'car'
-              ? Images.animatedCar
-              : Images.animatedBike,
-          height: Get.height * 0.12,
-          width: Get.width * 0.1,
-        ),
-      ))),
+      curve: Curves.ease,
+      builder: (context, value, child) {
+        return Center(
+          child: SlideTransition(
+            position: leftSlideAnimation,
+            child: SvgPicture.asset(
+              (rideController.tripDetails?.vehicleCategory?.type ?? 'car') ==
+                      'car'
+                  ? Images.animatedCar
+                  : Images.animatedBike,
+              height: Get.height * 0.12,
+              width: Get.width * 0.10,
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -14,6 +14,7 @@ class TripDetails {
   String? id;
   String? refId;
   Driver? driver;
+  DriverLastLocation? driverLastLocation;
   Vehicle? vehicle;
   VehicleCategory? vehicleCategory;
   double? estimatedFare;
@@ -66,6 +67,7 @@ class TripDetails {
       {this.id,
       this.refId,
       this.driver,
+      this.driverLastLocation,
       this.vehicle,
       this.vehicleCategory,
       this.estimatedFare,
@@ -118,6 +120,9 @@ class TripDetails {
     id = json['id'];
     refId = json['ref_id'].toString();
     driver = json['driver'] != null ? Driver.fromJson(json['driver']) : null;
+    driverLastLocation = json['driver_last_location'] != null
+        ? DriverLastLocation.fromJson(json['driver_last_location'])
+        : null;
     vehicle =
         json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null;
     vehicleCategory = json['vehicle_category'] != null
@@ -243,6 +248,27 @@ class Driver {
     profileImage = json['profile_image'];
     vehicle =
         json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null;
+  }
+}
+
+class DriverLastLocation {
+  String? latitude;
+  String? longitude;
+  String? zoneId;
+  String? updatedAt;
+
+  DriverLastLocation({
+    this.latitude,
+    this.longitude,
+    this.zoneId,
+    this.updatedAt,
+  });
+
+  DriverLastLocation.fromJson(Map<String, dynamic> json) {
+    latitude = json['latitude']?.toString();
+    longitude = json['longitude']?.toString();
+    zoneId = json['zone_id']?.toString();
+    updatedAt = json['updated_at']?.toString();
   }
 }
 

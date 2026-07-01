@@ -62,7 +62,6 @@ class _PickMapScreenState extends State<PickMapScreen> {
               rotateGesturesEnabled: false,
               tiltGesturesEnabled: false,
               compassEnabled: false,
-
               initialCameraPosition: CameraPosition(
                 target: widget.oldLocationExist
                     ? LatLng(locationController.pickPosition.latitude,
