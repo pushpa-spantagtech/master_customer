@@ -400,6 +400,20 @@ class RideController extends GetxController implements GetxService {
         );
       }
     }
+
+    debugPrint(
+        "ENTRANCE => ${locController.entranceControllers.map((e) => e.text).toList()}");
+
+    debugPrint(
+        "ENTRANCE STRING => ${locController.entranceControllers.map((e) => e.text.trim()).where((e) => e.isNotEmpty).join(", ")}");
+
+    final entranceText = locController.entranceControllers
+        .map((e) => e.text.trim())
+        .where((e) => e.isNotEmpty)
+        .join(", ");
+
+    debugPrint("ENTRANCE STRING => $entranceText");
+
     Response response = await rideServiceInterface.submitRideRequest(
         vehicleCategoryId: parcel ? categoryId : finalVehicleCategoryId,
         pickupLat: pickUpPosition.latitude.toString(),
@@ -460,7 +474,8 @@ class RideController extends GetxController implements GetxService {
           locController.extraRouteAddress?.address ?? '',
           locController.extraRouteTwoAddress?.address ?? ''
         ],
-        entrance: locController.entranceController.text.toString(),
+        // entrance: entranceText,
+        entrance: locController.entranceController.text,
         extraOne: locController.extraOneRoute,
         extraTwo: locController.extraTwoRoute,
         extraLatOne: locController.extraRouteAddress != null
@@ -543,36 +558,11 @@ class RideController extends GetxController implements GetxService {
     update();
     Response response = await rideServiceInterface.getRideDetails(tripId);
 
-    print("========== GET RIDE DETAILS API ==========");
-    print(response.body);
-    print("=========================================");
-
     if (response.statusCode == 200) {
-      print("========== DRIVER FROM RIDE DETAILS ==========");
-      print(response.body['data']['driver']);
-
-      if (response.body['data']['driver'] != null) {
-        print("Driver ID      : ${response.body['data']['driver']['id']}");
-        print(
-            "First Name     : ${response.body['data']['driver']['first_name']}");
-        print(
-            "Last Name      : ${response.body['data']['driver']['last_name']}");
-        print("Phone          : ${response.body['data']['driver']['phone']}");
-        print(
-            "Profile Image  : ${response.body['data']['driver']['profile_image']}");
-      } else {
-        print("❌ DRIVER OBJECT IS NULL");
-      }
-
       Get.find<MapController>().notifyMapController();
 
       tripDetails = TripDetailsModel.fromJson(response.body).data!;
-
-      print("========== DRIVER MODEL ==========");
-      print("Driver Model : ${tripDetails?.driver}");
-      print("First Name   : ${tripDetails?.driver?.firstName}");
-      print("Last Name    : ${tripDetails?.driver?.lastName}");
-      print("=================================");
+      print("TRIP ENTRANCE => ${tripDetails?.entrance}");
 
       estimatedDistance = tripDetails!.estimatedDistance!.toString();
       isLoading = false;

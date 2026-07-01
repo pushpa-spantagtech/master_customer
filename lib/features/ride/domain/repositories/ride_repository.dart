@@ -177,6 +177,7 @@ class RideRepository implements RideRepositoryInterface {
 
     Response response =
         await apiClient.postData(AppConstants.rideRequest, body);
+
     return response;
   }
 

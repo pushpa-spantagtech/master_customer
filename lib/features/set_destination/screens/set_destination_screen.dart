@@ -582,53 +582,87 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                                   ),
                                                 ),
                                         ]),
-                                        const SizedBox(
-                                            height:
-                                                Dimensions.paddingSizeSixteen),
-                                        locationController.addEntrance
-                                            ? SizedBox(
-                                                width: 200,
-                                                child: InputField(
-                                                  showSuffix: false,
-                                                  controller: locationController
-                                                      .entranceController,
-                                                  node: locationController
-                                                      .entranceNode,
-                                                  hint: 'enter_entrance'.tr,
-                                                ))
-                                            : InkWell(
-                                                onTap: () => locationController
-                                                    .setAddEntrance(),
-                                                child: Row(children: [
-                                                  Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
+                                        if (rideController.isRentalRide) ...[
+                                          const SizedBox(
+                                              height: Dimensions
+                                                  .paddingSizeSixteen),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ListView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                itemCount: locationController
+                                                    .entranceControllers.length,
+                                                itemBuilder: (context, index) {
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            bottom: 10),
+                                                    child: Row(
                                                       children: [
-                                                        const Icon(Icons.add,
-                                                            color:
-                                                                Color.fromRGBO(
-                                                                    20,
-                                                                    20,
-                                                                    20,
-                                                                    0.7)),
-                                                        const SizedBox(
-                                                          width: 6,
-                                                        ),
-                                                        Text(
-                                                          'add_entrance'.tr,
-                                                          style: textMedium
-                                                              .copyWith(
-                                                            color: const Color
-                                                                .fromRGBO(20,
-                                                                20, 20, 0.8),
-                                                            fontSize: Dimensions
-                                                                .fontSizeLarge,
+                                                        Expanded(
+                                                          child: InputField(
+                                                            showSuffix: false,
+                                                            controller:
+                                                                locationController
+                                                                        .entranceControllers[
+                                                                    index],
+                                                            node: locationController
+                                                                    .entranceNodes[
+                                                                index],
+                                                            hint:
+                                                                "Stop ${index + 1}",
                                                           ),
                                                         ),
-                                                      ]),
-                                                ]),
+                                                        IconButton(
+                                                          onPressed: () {
+                                                            locationController
+                                                                .removeMoreEntrance(
+                                                                    index);
+                                                          },
+                                                          icon: const Icon(
+                                                              Icons.close),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
                                               ),
+                                              InkWell(
+                                                onTap: () {
+                                                  if (locationController
+                                                          .entranceControllers
+                                                          .isNotEmpty &&
+                                                      locationController
+                                                          .entranceControllers
+                                                          .last
+                                                          .text
+                                                          .trim()
+                                                          .isEmpty) {
+                                                    showCustomSnackBar(
+                                                      "Please complete Stop ${locationController.entranceControllers.length} or remove it before adding another stop.",
+                                                    );
+
+                                                    return;
+                                                  }
+
+                                                  locationController
+                                                      .addMoreEntrance();
+                                                },
+                                                child: const Row(
+                                                  children: [
+                                                    Icon(Icons.add),
+                                                    SizedBox(width: 6),
+                                                    Text("Add Stops"),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ]
                                       ])),
                                 ]),
                             Padding(
@@ -638,14 +672,17 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      'you_can_add_multiple_route_to'.tr,
-                                      style: textMedium.copyWith(
-                                        color: const Color.fromRGBO(
-                                            20, 20, 20, 0.8),
-                                        fontSize: Dimensions.fontSizeSmall,
-                                      ),
-                                    ),
+                                    rideController.isRentalRide
+                                        ? Text(
+                                            'you_can_add_multiple_route_to'.tr,
+                                            style: textMedium.copyWith(
+                                              color: const Color.fromRGBO(
+                                                  20, 20, 20, 0.8),
+                                              fontSize:
+                                                  Dimensions.fontSizeSmall,
+                                            ),
+                                          )
+                                        : const SizedBox.shrink(),
                                     InkWell(
                                       onTap: () {
                                         if (Get.find<ConfigController>()
@@ -712,18 +749,40 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                             FocusScope.of(context).requestFocus(
                                                 destinationLocationFocus);
                                           } else {
+                                            if (rideController.isRentalRide) {
+                                              for (int i = 0;
+                                                  i <
+                                                      locationController
+                                                          .entranceControllers
+                                                          .length;
+                                                  i++) {
+                                                if (locationController
+                                                    .entranceControllers[i].text
+                                                    .trim()
+                                                    .isEmpty) {
+                                                  showCustomSnackBar(
+                                                    "Please enter Stop ${i + 1} or remove it.",
+                                                    isError: true,
+                                                  );
+
+                                                  return;
+                                                }
+                                              }
+                                            }
                                             rideController
                                                 .getEstimatedFare(false)
                                                 .then((value) {
                                               if (value.statusCode == 200) {
-                                                Get.find<LocationController>()
-                                                    .initAddLocationData();
+                                                debugPrint(
+                                                    "Entrance => ${Get.find<LocationController>().entranceController.text}");
+
                                                 Get.to(() => const MapScreen(
                                                       fromScreen:
                                                           MapScreenType.ride,
                                                       isShowCurrentPosition:
                                                           false,
                                                     ));
+
                                                 Get.find<RideController>()
                                                     .updateRideCurrentState(
                                                         RideState.initial);

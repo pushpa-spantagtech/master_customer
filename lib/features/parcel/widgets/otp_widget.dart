@@ -38,7 +38,7 @@ class _OtpWidgetState extends State<OtpWidget> {
         padding: const EdgeInsets.symmetric(
             horizontal: Dimensions.paddingSizeExtraLarge),
         child: Column(children: [
-          // if (isAnimated && widget.fromPage) const OtpCarBikeAnimatedWidget(),
+          if (isAnimated && widget.fromPage) const OtpCarBikeAnimatedWidget(),
           if (!isAnimated) ...[
             Padding(
                 padding: const EdgeInsets.symmetric(

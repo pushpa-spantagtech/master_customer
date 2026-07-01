@@ -139,16 +139,36 @@ class LocationController extends GetxController implements GetxService {
         speedAccuracy: 1,
         altitudeAccuracy: 1,
         headingAccuracy: 1);
+
+    for (final controller in entranceControllers) {
+      controller.dispose();
+    }
+    for (final node in entranceNodes) {
+      node.dispose();
+    }
+
+    entranceControllers.clear();
+    entranceNodes.clear();
   }
 
   void initTextControllers() {
     locationController.clear();
     _pickAddress = '';
-    pickupLocationController.text = '';
-    destinationLocationController.text = '';
-    extraRouteOneController.text = '';
-    extraRouteTwoController.text = '';
-    entranceController.text = '';
+
+    pickupLocationController.clear();
+    destinationLocationController.clear();
+    extraRouteOneController.clear();
+    extraRouteTwoController.clear();
+
+    entranceController.clear();
+
+    for (final controller in entranceControllers) {
+      controller.clear();
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      update();
+    });
   }
 
   void initParcelData() {
@@ -258,10 +278,6 @@ class LocationController extends GetxController implements GetxService {
 
         _locationSubscription =
             Geolocator.getPositionStream().listen((newLocalData) async {
-          print("CUSTOMER MOVED");
-          print("LAT = ${newLocalData.latitude}");
-          print("LNG = ${newLocalData.longitude}");
-
           if (mapController != null) {
             Get.find<MapController>().updateMarkerAndCircle(
               latLng: LatLng(newLocalData.latitude, newLocalData.longitude),
@@ -326,11 +342,7 @@ class LocationController extends GetxController implements GetxService {
     _isLoading = true;
     update();
     ZoneResponseModel responseModel;
-    print("ZONE REQUEST LAT: $lat");
-    print("ZONE REQUEST LNG: $long");
     Response response = await locationServiceInterface.getZone(lat, long);
-    print("ZONE STATUS CODE: ${response.statusCode}");
-    print("ZONE RESPONSE: ${response.body}");
     String? zoneId;
     if (response.statusCode == 200 && response.body != null) {
       final body = response.body;
@@ -778,5 +790,36 @@ class LocationController extends GetxController implements GetxService {
       return true;
     }
     return false;
+  }
+
+  List<TextEditingController> entranceControllers = [];
+  List<FocusNode> entranceNodes = [];
+
+  void addMoreEntrance({bool notify = true}) {
+    final controller = TextEditingController();
+
+    controller.addListener(() {
+      entranceController.text = entranceControllers
+          .map((e) => e.text.trim())
+          .where((e) => e.isNotEmpty)
+          .join(", ");
+    });
+
+    entranceControllers.add(controller);
+    entranceNodes.add(FocusNode());
+
+    if (notify) {
+      update();
+    }
+  }
+
+  void removeMoreEntrance(int index) {
+    entranceControllers[index].dispose();
+    entranceNodes[index].dispose();
+
+    entranceControllers.removeAt(index);
+    entranceNodes.removeAt(index);
+
+    update();
   }
 }
