@@ -52,24 +52,12 @@ class _AcceptingAndOngoingBottomSheetState
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                        rideController.currentRideState ==
-                                RideState.acceptingRider
-                            ? Column(
-                                children: [
-                                  TollTipWidget(
-                                    title: 'rider_is_coming'.tr,
-                                    showInsight: false,
-                                  ),
-                                  const OtpWidget(fromPage: false),
-                                ],
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: TollTipWidget(
-                                    showInsight: false,
-                                    title:
-                                        '${'drop_off'.tr} ${DateConverter.dateToTimeOnly(DateTime.now().add(Duration(seconds: rideController.remainingDistanceModel![0].durationSec!)))}'),
-                              ),
+                        if (rideController.currentRideState ==
+                            RideState.acceptingRider)
+                          const OtpWidget(fromPage: false),
+                        if (rideController.currentRideState ==
+                            RideState.acceptingRider)
+                          const SizedBox(height: Dimensions.paddingSizeDefault),
                         const EstimatedFareAndDistance(),
                         const SizedBox(
                           height: Dimensions.paddingSizeDefault,

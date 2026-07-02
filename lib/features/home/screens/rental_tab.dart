@@ -21,6 +21,9 @@ class _RentalTabState extends State<RentalTab> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rideController = Get.find<RideController>();
 
+      rideController.rentalHour = 0;
+      rideController.update();
+
       if (rideController.rentalPackages.isEmpty) {
         rideController.getHourlyTariffs();
       }

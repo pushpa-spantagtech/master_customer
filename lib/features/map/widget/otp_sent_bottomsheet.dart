@@ -10,11 +10,12 @@ import 'package:ride_sharing_user_app/features/map/controllers/map_controller.da
 import 'package:ride_sharing_user_app/features/map/widget/cancelation_radio_button.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/otp_widget.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/route_widget.dart';
-import 'package:ride_sharing_user_app/features/parcel/widgets/tolltip_widget.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/features/ride/widgets/estimated_fare_and_distance.dart';
 import 'package:ride_sharing_user_app/features/trip/controllers/trip_controller.dart';
 import 'package:ride_sharing_user_app/features/trip/widgets/rider_details.dart';
+import 'package:ride_sharing_user_app/helper/price_converter.dart';
+import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/localization/localization_controller.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
@@ -26,9 +27,9 @@ class OtpSentBottomSheet extends StatefulWidget {
 
   const OtpSentBottomSheet(
       {super.key,
-      required this.firstRoute,
-      required this.secondRoute,
-      required this.expandableKey});
+        required this.firstRoute,
+        required this.secondRoute,
+        required this.expandableKey});
 
   @override
   State<OtpSentBottomSheet> createState() => _OtpSentBottomSheetState();
@@ -43,152 +44,251 @@ class _OtpSentBottomSheetState extends State<OtpSentBottomSheet> {
       return GetBuilder<LocationController>(builder: (locationController) {
         return currentState == 0
             ? Column(children: [
-                TollTipWidget(
-                    showInsight: false,
-                    title:
-                        '${(rideController.remainingDistanceModel != null && rideController.remainingDistanceModel!.isNotEmpty) ? (rideController.remainingDistanceModel![0].duration) ?? '0' : '0'} ${'away'.tr}'),
-                const SizedBox(
-                  height: Dimensions.paddingSizeDefault,
+          const OtpWidget(fromPage: true),
+          const SizedBox(height: Dimensions.paddingSizeDefault),
+
+          const EstimatedFareAndDistance(),
+          const SizedBox(height: Dimensions.paddingSizeDefault),
+
+          const ActivityScreenRiderDetails(),
+          const SizedBox(height: Dimensions.paddingSizeDefault),
+
+          Padding(
+            padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'trip_details'.tr,
+                style: textBold.copyWith(
+                  fontSize: Dimensions.fontSizeDefault,
+                  color: const Color.fromRGBO(20, 20, 20, 1),
                 ),
-                const OtpWidget(fromPage: true),
-                const ActivityScreenRiderDetails(),
-                const SizedBox(height: Dimensions.paddingSizeDefault),
-                const EstimatedFareAndDistance(),
-                const SizedBox(height: Dimensions.paddingSizeDefault),
-                RouteWidget(
-                    totalDistance: rideController.tripDetails?.estimatedDistance
-                            .toString() ??
-                        '',
-                    fromAddress:
-                        rideController.tripDetails?.pickupAddress ?? "",
-                    toAddress:
-                        rideController.tripDetails?.destinationAddress ?? '',
-                    extraOneAddress: widget.firstRoute,
-                    extraTwoAddress: widget.secondRoute,
-                    entrance: rideController.tripDetails?.entrance ?? ''),
-                const SizedBox(height: Dimensions.paddingSizeDefault),
-                Center(
-                  child: SliderButton(
-                    action: () {
-                      currentState = 1;
-                      widget.expandableKey.currentState?.expand();
-                      setState(() {});
-                    },
-                    label: Text(
-                      'cancel_ride'.tr,
-                      style: textMedium.copyWith(
-                          color: const Color.fromRGBO(250, 173, 2, 1)),
-                    ),
-                    dismissThresholds: 0.5,
-                    dismissible: false,
-                    shimmer: false,
-                    width: 1170,
-                    height: 40,
-                    buttonSize: 40,
-                    radius: 20,
-                    icon: Center(
-                        child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color.fromRGBO(255, 255, 255, 1)),
-                      child: Center(
-                        child: Icon(
-                          Get.find<LocalizationController>().isLtr
-                              ? Icons.arrow_forward_ios_rounded
-                              : Icons.keyboard_arrow_left,
-                          color: Colors.grey,
-                          size: 15.0,
+              ),
+            ),
+          ),
+
+          RouteWidget(
+            totalDistance: rideController.tripDetails?.estimatedDistance.toString() ?? '',
+            fromAddress: rideController.tripDetails?.pickupAddress ?? '',
+            toAddress: rideController.tripDetails?.destinationAddress ?? '',
+            extraOneAddress: widget.firstRoute,
+            extraTwoAddress: widget.secondRoute,
+            entrance: rideController.tripDetails?.entrance ?? '',
+          ),
+
+          const SizedBox(height: Dimensions.paddingSizeDefault),
+
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.1)),
+              borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
+              color: const Color.fromRGBO(255, 255, 255, 1),
+            ),
+            padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(children: [
+                      Image.asset(
+                        Images.farePrice,
+                        height: 15,
+                        width: 15,
+                        color: const Color.fromRGBO(250, 173, 2, 1),
+                      ),
+                      const SizedBox(width: Dimensions.paddingSizeSmall),
+                      Text(
+                        'fare_price'.tr,
+                        style: textRegular.copyWith(
+                          color: const Color.fromRGBO(20, 20, 20, 1),
+                          fontSize: Dimensions.fontSizeDefault,
                         ),
                       ),
-                    )),
-                    isLtr: Get.find<LocalizationController>().isLtr,
-                    boxShadow: const BoxShadow(blurRadius: 0),
-                    buttonColor: Colors.transparent,
-                    backgroundColor: const Color.fromRGBO(255, 239, 203, 1),
-                    baseColor: Theme.of(context).primaryColor,
-                  ),
+                    ]),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: const Color.fromRGBO(250, 173, 2, 1)),
+                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                        color: const Color.fromRGBO(255, 255, 255, 1),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dimensions.paddingSizeSmall,
+                        vertical: Dimensions.paddingSizeExtraSmall,
+                      ),
+                      child: Text(
+                        PriceConverter.convertPrice(
+                          rideController.tripDetails?.actualFare ??
+                              rideController.tripDetails?.estimatedFare ??
+                              0,
+                        ),
+                        style: textBold.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: const Color.fromRGBO(20, 20, 20, 1),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ])
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: Dimensions.paddingSizeSmall,
-                  ),
-                  Text(
-                    'rider_arrived'.tr,
-                    style: textSemiBold.copyWith(
-                        color: const Color.fromRGBO(20, 20, 20, 1),
-                        fontSize: Dimensions.fontSizeSmall),
-                  ),
-                  const SizedBox(
-                    height: Dimensions.paddingSizeSmall,
-                  ),
-                  const CancellationRadioButton(
-                    isOngoing: false,
-                  ),
-                  const SizedBox(height: Dimensions.paddingSizeLarge),
-                  rideController.isLoading
-                      ? const SpinKitCircle(
-                          color: Color.fromRGBO(250, 173, 2, 1), size: 40.0)
-                      : Row(children: [
-                          Expanded(
-                              child: ButtonWidget(
-                                  fontSize: Dimensions.fontSizeDefault + 1,
-                                  textColor:
-                                      const Color.fromRGBO(255, 255, 255, 1),
-                                  borderColor:
-                                      const Color.fromRGBO(255, 128, 128, 0.2),
-                                  backgroundColor:
-                                      const Color.fromRGBO(250, 173, 2, 1),
-                                  buttonText: 'no_continue_trip'.tr,
-                                  showBorder: true,
-                                  transparent: true,
-                                  radius: Dimensions.paddingSizeSmall,
-                                  onPressed: () {
-                                    currentState = 0;
-                                    setState(() {});
-                                  })),
-                          const SizedBox(
-                            width: Dimensions.paddingSizeSmall,
+                const SizedBox(height: Dimensions.paddingSizeSmall),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(children: [
+                        Image.asset(
+                          Images.paymentTypeIcon,
+                          height: 15,
+                          width: 15,
+                          color: const Color.fromRGBO(250, 173, 2, 1),
+                        ),
+                        const SizedBox(width: Dimensions.paddingSizeSmall),
+                        Text(
+                          'payment'.tr,
+                          style: textRegular.copyWith(
+                            color: const Color.fromRGBO(20, 20, 20, 1),
+                            fontSize: Dimensions.fontSizeDefault,
                           ),
-                          Expanded(
-                              child: ButtonWidget(
-                            buttonText: 'submit'.tr,
-                            showBorder: true,
-                            transparent: true,
-                            textColor:
-                                Get.isDarkMode ? Colors.white : Colors.black,
-                            borderColor: Theme.of(context).hintColor,
-                            radius: Dimensions.paddingSizeSmall,
-                            onPressed: () {
-                              Get.find<RideController>().stopLocationRecord();
-                              rideController
-                                  .tripStatusUpdate(
-                                      rideController.tripDetails!.id!,
-                                      'cancelled',
-                                      'ride_request_cancelled_successfully',
-                                      Get.find<TripController>()
-                                          .tripCancellationCauseList!
-                                          .data!
-                                          .acceptedRide![Get.find<
-                                              TripController>()
-                                          .tripCancellationCauseCurrentIndex])
-                                  .then((value) {
-                                if (value.statusCode == 200) {
-                                  Get.find<MapController>()
-                                      .notifyMapController();
-                                  Get.find<BottomMenuController>()
-                                      .navigateToDashboard();
-                                }
-                              });
-                            },
-                          )),
-                        ])
-                ],
-              );
+                        ),
+                      ]),
+                    ),
+                    Text(
+                      rideController.tripDetails?.paymentMethod
+                          ?.replaceAll(RegExp('[\\W_]+'), ' ')
+                          .capitalize ??
+                          'cash'.tr,
+                      style: const TextStyle(color: Color.fromRGBO(20, 20, 20, 1)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: Dimensions.paddingSizeDefault),
+
+          Center(
+            child: SliderButton(
+              action: () {
+                currentState = 1;
+                widget.expandableKey.currentState?.expand();
+                setState(() {});
+              },
+              label: Text(
+                'cancel_ride'.tr,
+                style: textMedium.copyWith(
+                    color: const Color.fromRGBO(250, 173, 2, 1)),
+              ),
+              dismissThresholds: 0.5,
+              dismissible: false,
+              shimmer: false,
+              width: 1170,
+              height: 40,
+              buttonSize: 40,
+              radius: 20,
+              icon: Center(
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color.fromRGBO(255, 255, 255, 1)),
+                    child: Center(
+                      child: Icon(
+                        Get.find<LocalizationController>().isLtr
+                            ? Icons.arrow_forward_ios_rounded
+                            : Icons.keyboard_arrow_left,
+                        color: Colors.grey,
+                        size: 15.0,
+                      ),
+                    ),
+                  )),
+              isLtr: Get.find<LocalizationController>().isLtr,
+              boxShadow: const BoxShadow(blurRadius: 0),
+              buttonColor: Colors.transparent,
+              backgroundColor: const Color.fromRGBO(255, 239, 203, 1),
+              baseColor: Theme.of(context).primaryColor,
+            ),
+          ),
+        ])
+            : Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: Dimensions.paddingSizeSmall,
+            ),
+            Text(
+              'rider_arrived'.tr,
+              style: textSemiBold.copyWith(
+                  color: const Color.fromRGBO(20, 20, 20, 1),
+                  fontSize: Dimensions.fontSizeSmall),
+            ),
+            const SizedBox(
+              height: Dimensions.paddingSizeSmall,
+            ),
+            const CancellationRadioButton(
+              isOngoing: false,
+            ),
+            const SizedBox(height: Dimensions.paddingSizeLarge),
+            rideController.isLoading
+                ? const SpinKitCircle(
+                color: Color.fromRGBO(250, 173, 2, 1), size: 40.0)
+                : Row(children: [
+              Expanded(
+                  child: ButtonWidget(
+                      fontSize: Dimensions.fontSizeDefault + 1,
+                      textColor:
+                      const Color.fromRGBO(255, 255, 255, 1),
+                      borderColor:
+                      const Color.fromRGBO(255, 128, 128, 0.2),
+                      backgroundColor:
+                      const Color.fromRGBO(250, 173, 2, 1),
+                      buttonText: 'no_continue_trip'.tr,
+                      showBorder: true,
+                      transparent: true,
+                      radius: Dimensions.paddingSizeSmall,
+                      onPressed: () {
+                        currentState = 0;
+                        setState(() {});
+                      })),
+              const SizedBox(
+                width: Dimensions.paddingSizeSmall,
+              ),
+              Expanded(
+                  child: ButtonWidget(
+                    buttonText: 'submit'.tr,
+                    showBorder: true,
+                    transparent: true,
+                    textColor:
+                    Get.isDarkMode ? Colors.white : Colors.black,
+                    borderColor: Theme.of(context).hintColor,
+                    radius: Dimensions.paddingSizeSmall,
+                    onPressed: () {
+                      Get.find<RideController>().stopLocationRecord();
+                      rideController
+                          .tripStatusUpdate(
+                          rideController.tripDetails!.id!,
+                          'cancelled',
+                          'ride_request_cancelled_successfully',
+                          Get.find<TripController>()
+                              .tripCancellationCauseList!
+                              .data!
+                              .acceptedRide![Get.find<
+                              TripController>()
+                              .tripCancellationCauseCurrentIndex])
+                          .then((value) {
+                        if (value.statusCode == 200) {
+                          Get.find<MapController>()
+                              .notifyMapController();
+                          Get.find<BottomMenuController>()
+                              .navigateToDashboard();
+                        }
+                      });
+                    },
+                  )),
+            ])
+          ],
+        );
       });
     });
   }

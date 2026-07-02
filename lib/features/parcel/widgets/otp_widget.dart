@@ -15,142 +15,126 @@ class OtpWidget extends StatefulWidget {
 }
 
 class _OtpWidgetState extends State<OtpWidget> {
-  bool isAnimated = true;
-
-  @override
-  void initState() {
-    if (widget.fromPage) {
-      Future.delayed(const Duration(seconds: 5)).then((_) {
-        isAnimated = false;
-        setState(() {});
-      });
-    } else {
-      isAnimated = false;
-      setState(() {});
-    }
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return GetBuilder<RideController>(builder: (rideController) {
+      print("OTP Widget Rebuild");
       return Padding(
         padding: const EdgeInsets.symmetric(
             horizontal: Dimensions.paddingSizeExtraLarge),
         child: Column(children: [
-          if (isAnimated && widget.fromPage) const OtpCarBikeAnimatedWidget(),
-          if (!isAnimated) ...[
-            Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: Dimensions.paddingSizeDefault),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Padding(
+              padding: const EdgeInsets.symmetric(
+                  vertical: Dimensions.paddingSizeDefault),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                    height: 45,
+                    width: 45,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            color: const Color.fromRGBO(250, 173, 2, 1)),
+                        color: const Color.fromRGBO(255, 255, 255, 1),
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.paddingSizeSix)),
+                    child: Center(
+                        child: Text('${rideController.tripDetails?.otp?[0]}',
+                            style: textBold.copyWith(
+                                fontSize: 28,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color))),
+                  ),
+                  Container(
+                    height: 45,
+                    width: 45,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            color: const Color.fromRGBO(250, 173, 2, 1)),
+                        color: const Color.fromRGBO(255, 255, 255, 1),
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.paddingSizeSix)),
+                    child: Center(
+                        child: Text('${rideController.tripDetails?.otp?[1]}',
+                            style: textBold.copyWith(
+                                fontSize: 28,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color))),
+                  ),
+                  Container(
+                    height: 45,
+                    width: 45,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            color: const Color.fromRGBO(250, 173, 2, 1)),
+                        color: const Color.fromRGBO(255, 255, 255, 1),
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.paddingSizeSix)),
+                    child: Center(
+                        child: Text('${rideController.tripDetails?.otp?[2]}',
+                            style: textBold.copyWith(
+                                fontSize: 28,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color))),
+                  ),
+                  Container(
+                    height: 45,
+                    width: 45,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            color: const Color.fromRGBO(250, 173, 2, 1)),
+                        color: const Color.fromRGBO(255, 255, 255, 1),
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.paddingSizeSix)),
+                    child: Center(
+                        child: Text('${rideController.tripDetails?.otp?[3]}',
+                            style: textBold.copyWith(
+                                fontSize: 28,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color))),
+                  )
+                ],
+              )),
+          Text.rich(
+              TextSpan(
+                  style: textRegular.copyWith(
+                      fontSize: Dimensions.fontSizeLarge,
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .color!
+                          .withValues(alpha: 0.8)),
                   children: [
-                    Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color: const Color.fromRGBO(250, 173, 2, 1)),
-                          color: const Color.fromRGBO(255, 255, 255, 1),
-                          borderRadius:
-                              BorderRadius.circular(Dimensions.paddingSizeSix)),
-                      child: Center(
-                          child: Text('${rideController.tripDetails?.otp?[0]}',
-                              style: textBold.copyWith(
-                                  fontSize: 28,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.color))),
-                    ),
-                    Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color: const Color.fromRGBO(250, 173, 2, 1)),
-                          color: const Color.fromRGBO(255, 255, 255, 1),
-                          borderRadius:
-                              BorderRadius.circular(Dimensions.paddingSizeSix)),
-                      child: Center(
-                          child: Text('${rideController.tripDetails?.otp?[1]}',
-                              style: textBold.copyWith(
-                                  fontSize: 28,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.color))),
-                    ),
-                    Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color: const Color.fromRGBO(250, 173, 2, 1)),
-                          color: const Color.fromRGBO(255, 255, 255, 1),
-                          borderRadius:
-                              BorderRadius.circular(Dimensions.paddingSizeSix)),
-                      child: Center(
-                          child: Text('${rideController.tripDetails?.otp?[2]}',
-                              style: textBold.copyWith(
-                                  fontSize: 28,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.color))),
-                    ),
-                    Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color: const Color.fromRGBO(250, 173, 2, 1)),
-                          color: const Color.fromRGBO(255, 255, 255, 1),
-                          borderRadius:
-                              BorderRadius.circular(Dimensions.paddingSizeSix)),
-                      child: Center(
-                          child: Text('${rideController.tripDetails?.otp?[3]}',
-                              style: textBold.copyWith(
-                                  fontSize: 28,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.color))),
-                    )
-                  ],
-                )),
-            Text.rich(
-                TextSpan(
-                    style: textRegular.copyWith(
-                        fontSize: Dimensions.fontSizeLarge,
-                        color: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .color!
-                            .withValues(alpha: 0.8)),
-                    children: [
-                      TextSpan(
-                          text: 'please'.tr,
-                          style: textMedium.copyWith(
-                              color: const Color.fromRGBO(20, 20, 20, 0.7),
-                              fontSize: Dimensions.fontSizeDefault)),
-                      TextSpan(
-                          text: 'share_the_pin'.tr,
-                          style: textSemiBold.copyWith(
-                              color: const Color.fromRGBO(250, 173, 2, 1),
-                              fontSize: Dimensions.fontSizeDefault)),
-                      TextSpan(
-                          text: 'with_the_driver'.tr,
-                          style: textMedium.copyWith(
-                              color: const Color.fromRGBO(20, 20, 20, 0.7),
-                              fontSize: Dimensions.fontSizeDefault)),
-                    ]),
-                textAlign: TextAlign.center),
-            const SizedBox(
-              height: Dimensions.paddingSizeSixteen,
-            ),
-          ]
+                    TextSpan(
+                        text: 'please'.tr,
+                        style: textMedium.copyWith(
+                            color: const Color.fromRGBO(20, 20, 20, 0.7),
+                            fontSize: Dimensions.fontSizeDefault)),
+                    TextSpan(
+                        text: ''
+                                'share_the_pin'
+                            .tr,
+                        style: textSemiBold.copyWith(
+                            color: const Color.fromRGBO(250, 173, 2, 1),
+                            fontSize: Dimensions.fontSizeDefault)),
+                    TextSpan(
+                        text: 'with_the_driver'.tr,
+                        style: textMedium.copyWith(
+                            color: const Color.fromRGBO(20, 20, 20, 0.7),
+                            fontSize: Dimensions.fontSizeDefault)),
+                  ]),
+              textAlign: TextAlign.center),
+          const SizedBox(
+            height: Dimensions.paddingSizeSixteen,
+          ),
         ]),
       );
     });

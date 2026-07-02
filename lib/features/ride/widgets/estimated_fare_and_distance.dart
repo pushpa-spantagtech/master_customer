@@ -15,58 +15,36 @@ class EstimatedFareAndDistance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<RideController>(builder: (rideController) {
-      return rideController.remainingDistanceModel != null &&
-              rideController.remainingDistanceModel!.isNotEmpty
-          ? Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
-                  color: const Color.fromRGBO(255, 255, 255, 1),
-                  border:
-                      Border.all(color: const Color.fromRGBO(0, 0, 0, 0.1))),
-              padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-              child: Row(
-                  mainAxisAlignment: rideController.currentRideState ==
-                          RideState.acceptingRider
-                      ? MainAxisAlignment.spaceEvenly
-                      : MainAxisAlignment.spaceBetween,
-                  children: [
-                    FareWidget(
-                        title: 'distance_away'.tr,
-                        value: (rideController.remainingDistanceModel != null &&
-                                rideController
-                                    .remainingDistanceModel!.isNotEmpty)
-                            ? rideController
-                                    .remainingDistanceModel![0].distanceText ??
-                                '0'
-                            : '0'),
-                    FareWidget(
-                        title: 'fare_price'.tr,
-                        value: PriceConverter.convertPrice(fromPickLocation
-                                ? rideController.estimatedFare
-                                : rideController.tripDetails?.paymentStatus ==
-                                        'paid'
-                                    ? rideController.tripDetails?.paidFare ?? 0
-                                    : rideController.tripDetails?.actualFare ??
-                                        0
-                            // fromPickLocation
-                            //     ? rideController.estimatedFare
-                            //     : rideController.tripDetails?.paymentStatus ==
-                            //             'paid'
-                            //         ? rideController.tripDetails?.paidFare ?? 0
-                            //         : ((rideController.tripDetails
-                            //                         ?.discountAmount ??
-                            //                     0) >
-                            //                 0)
-                            //             ? rideController.tripDetails
-                            //                     ?.discountActualFare ??
-                            //                 0
-                            //             : rideController
-                            //                     .tripDetails?.actualFare ??
-                            //                 0,
-                            )),
-                  ]),
-            )
-          : const SizedBox();
+      final String distanceText = (rideController.remainingDistanceModel !=
+                  null &&
+              rideController.remainingDistanceModel!.isNotEmpty)
+          ? (rideController.remainingDistanceModel![0].distanceText ?? '0')
+          : '${double.tryParse(rideController.estimatedDistance.toString())?.toStringAsFixed(2) ?? '0.00'} km';
+
+      final double fare = fromPickLocation
+          ? rideController.estimatedFare
+          : rideController.tripDetails?.paymentStatus == 'paid'
+              ? rideController.tripDetails?.paidFare ?? 0
+              : rideController.tripDetails?.actualFare ?? 0;
+
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
+          color: const Color.fromRGBO(255, 255, 255, 1),
+          border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.1)),
+        ),
+        padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            FareWidget(title: 'distance_away'.tr, value: distanceText),
+            FareWidget(
+              title: 'fare_price'.tr,
+              value: PriceConverter.convertPrice(fare),
+            ),
+          ],
+        ),
+      );
     });
   }
 }

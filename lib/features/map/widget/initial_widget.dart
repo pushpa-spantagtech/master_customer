@@ -51,10 +51,6 @@ class _InitialWidgetState extends State<InitialWidget> {
     }
     selectedHour = rideController.rentalHour;
 
-    if (selectedHour == 0) {
-      selectedHour = 1;
-    }
-
     if (Get.find<PaymentController>().paymentType == 'wallet' &&
         (rideController.discountAmount.toDouble() > 0
                 ? rideController.discountFare
@@ -180,13 +176,24 @@ class _InitialWidgetState extends State<InitialWidget> {
             })(),
             const SizedBox(height: 16),
           ] else if (rideController.isOutstationRide) ...[
-            ...rideController.outstationTariffs.map((tariff) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: outstationCarCard(
-                    tariff.vehicleType ?? '',
-                    double.parse(tariff.baseFare ?? '0'),
-                  ),
-                )),
+            ...rideController.outstationTariffs.map((tariff) {
+              final distance =
+                  double.tryParse(rideController.estimatedDistance) ?? 0;
+
+              final totalFare = rideController.calculateOutstationFare(
+                tariff,
+                distance,
+              );
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: outstationCarCard(
+                  tariff.vehicleType ?? '',
+                  totalFare,
+                  distance,
+                ),
+              );
+            }),
             const SizedBox(height: 16),
           ] else ...[
             RideCategoryWidget(onTap: (value) async {
@@ -534,7 +541,8 @@ class _InitialWidgetState extends State<InitialWidget> {
 
   Widget outstationCarCard(
     String title,
-    double fare,
+    double totalFare,
+    double distanceKm,
   ) {
     bool selected = selectedOutstationVehicle == title;
 
@@ -572,11 +580,26 @@ class _InitialWidgetState extends State<InitialWidget> {
                     fontSize: Dimensions.fontSizeDefault,
                   )),
             ),
-            Text('₹$fare',
-                style: textBold.copyWith(
-                  color: const Color.fromRGBO(20, 20, 20, 0.8),
-                  fontSize: Dimensions.fontSizeDefault,
-                )),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '₹${totalFare.toStringAsFixed(2)}',
+                  style: textMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: Dimensions.fontSizeLarge,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${distanceKm.toStringAsFixed(2)} km',
+                  style: textRegular.copyWith(
+                    color: Theme.of(context).hintColor,
+                    fontSize: Dimensions.fontSizeSmall,
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),

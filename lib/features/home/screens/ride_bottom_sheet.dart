@@ -3,6 +3,8 @@ import 'package:ride_sharing_user_app/features/home/screens/local_tab.dart';
 import 'package:ride_sharing_user_app/features/home/screens/outstation_tab.dart';
 import 'package:ride_sharing_user_app/features/home/screens/rental_tab.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
+import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 
 class RideBottomSheet extends StatelessWidget {
   const RideBottomSheet({super.key});
@@ -11,55 +13,72 @@ class RideBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
-      child: Container(
-        height: MediaQuery.of(context).size.height * 0.45,
-        decoration: const BoxDecoration(
-          color: Color.fromRGBO(255, 255, 255, 1),
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(30),
-          ),
-        ),
-        child: Column(
-          children: [
-            const SizedBox(height: 15),
-            const TabBar(
-              indicatorColor: Colors.transparent,
-              labelPadding: EdgeInsets.zero,
-              dividerColor: Colors.transparent,
-              tabs: [
-                _VehicleTab(
-                  title: 'Local',
-                  image: Images.car,
-                ),
-                _VehicleTab(
-                  title: 'Rental',
-                  image: Images.car,
-                ),
-                _VehicleTab(
-                  title: 'Outstation',
-                  image: Images.car,
-                ),
-              ],
+      child: Builder(builder: (context) {
+        final tabController = DefaultTabController.of(context);
+
+        tabController.addListener(() {
+          if (tabController.indexIsChanging) {
+            final rideController = Get.find<RideController>();
+
+            if (tabController.index == 0) {
+              rideController.setLocalRide(true);
+            } else if (tabController.index == 1) {
+              rideController.setRentalRide(true);
+            } else if (tabController.index == 2) {
+              rideController.setOutstationRide(true);
+            }
+          }
+        });
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.45,
+          decoration: const BoxDecoration(
+            color: Color.fromRGBO(255, 255, 255, 1),
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(30),
             ),
-            Expanded(
-              child: NotificationListener<OverscrollIndicatorNotification>(
-                onNotification: (overscroll) {
-                  overscroll.disallowIndicator();
-                  return true;
-                },
-                child: const TabBarView(
-                  physics: NeverScrollableScrollPhysics(),
-                  children: [
-                    LocalTab(),
-                    RentalTab(),
-                    OutstationTab(),
-                  ],
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 15),
+              const TabBar(
+                indicatorColor: Colors.transparent,
+                labelPadding: EdgeInsets.zero,
+                dividerColor: Colors.transparent,
+                tabs: [
+                  _VehicleTab(
+                    title: 'Local',
+                    image: Images.car,
+                  ),
+                  _VehicleTab(
+                    title: 'Rental',
+                    image: Images.car,
+                  ),
+                  _VehicleTab(
+                    title: 'Outstation',
+                    image: Images.car,
+                  ),
+                ],
+              ),
+              Expanded(
+                child: NotificationListener<OverscrollIndicatorNotification>(
+                  onNotification: (overscroll) {
+                    overscroll.disallowIndicator();
+                    return true;
+                  },
+                  child: const TabBarView(
+                    physics: NeverScrollableScrollPhysics(),
+                    children: [
+                      LocalTab(),
+                      RentalTab(),
+                      OutstationTab(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

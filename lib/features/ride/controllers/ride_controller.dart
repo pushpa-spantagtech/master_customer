@@ -72,7 +72,7 @@ class RideController extends GetxController implements GetxService {
   double discountFare = 0;
   double discountAmount = 0;
   String rentalVehicle = '';
-  int rentalHour = 1;
+  int rentalHour = 0;
   double rentalPackageFare = 0;
 
   bool isLocalRide = false;
@@ -1102,6 +1102,10 @@ class RideController extends GetxController implements GetxService {
     if (value) {
       isRentalRide = false;
       isOutstationRide = false;
+
+      rentalHour = 0;
+      rentalPackageFare = 0;
+      rentalVehicle = '';
     }
     update();
   }
@@ -1120,13 +1124,16 @@ class RideController extends GetxController implements GetxService {
     if (value) {
       isLocalRide = false;
       isRentalRide = false;
+
+      rentalHour = 0;
+      rentalPackageFare = 0;
+      rentalVehicle = '';
     }
     update();
   }
 
   double outstationFare = 0;
   List<OutstationTariff> outstationTariffs = [];
-
   Future<void> getOutstationTariffs() async {
     Response response = await rideServiceInterface.getOutstationTariffs();
 
@@ -1134,7 +1141,24 @@ class RideController extends GetxController implements GetxService {
       outstationTariffs =
           OutstationTariffModel.fromJson(response.body).data ?? [];
 
+      final double distanceKm = double.tryParse(estimatedDistance) ?? 0;
+
+      for (final tariff in outstationTariffs) {
+        final double baseKm =
+            double.tryParse(tariff.baseKm?.toString() ?? '0') ?? 0;
+        final double baseFare =
+            double.tryParse(tariff.baseFare?.toString() ?? '0') ?? 0;
+        final double extraPerKm =
+            double.tryParse(tariff.extraPerKm?.toString() ?? '0') ?? 0;
+
+        final double extraKm = distanceKm > baseKm ? distanceKm - baseKm : 0;
+        final double totalFare = baseFare + (extraKm * extraPerKm);
+
+        // tariff.baseFare = totalFare.toStringAsFixed(2);
+      }
+
       print('Outstation Tariffs Loaded: ${outstationTariffs.length}');
+      print('Outstation Distance KM: $distanceKm');
     } else {
       ApiChecker.checkApi(response);
     }

@@ -187,7 +187,7 @@ class TripDetails {
     discountAmount = double.tryParse(json['discount_amount'].toString());
     note = json['note'];
     totalFare = json['total_fare'].toString();
-    otp = json['otp'];
+    otp = json['otp']?.toString();
     riseRequestCount = json['rise_request_count'];
     type = json['type'];
     createdAt = json['created_at'];

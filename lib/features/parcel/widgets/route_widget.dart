@@ -90,7 +90,6 @@ class _RouteWidgetState extends State<RouteWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// PICKUP
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -110,7 +109,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                                 "Pickup",
                                 style: textMedium.copyWith(
                                   color: Colors.grey,
-                                  fontSize: 12,
+                                  fontSize: 14,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -309,7 +308,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                                 "Drop",
                                 style: textMedium.copyWith(
                                   color: Colors.grey,
-                                  fontSize: 12,
+                                  fontSize: 14,
                                 ),
                               ),
                               const SizedBox(height: 2),
