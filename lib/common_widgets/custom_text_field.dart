@@ -79,233 +79,243 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void initState() {
     super.initState();
-    widget.focusNode?.addListener(() {
-      if (mounted) {
-        setState(() {
-          _isFocused = widget.focusNode?.hasFocus ?? false;
-        });
-      }
-    });
+    widget.focusNode?.addListener(_focusListener);
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode?.removeListener(_focusListener);
+    super.dispose();
+  }
+
+  void _focusListener() {
+    if (mounted) {
+      setState(() {
+        _isFocused = widget.focusNode?.hasFocus ?? false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if ((widget.label ?? '').isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Text(
-              widget.label ?? '',
-              style: textMedium.copyWith(
-                fontSize: Dimensions.paddingSizeSixteen,
-                color: const Color.fromRGBO(20, 20, 20, 0.7),
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-        ],
-        TextField(
-          maxLines: widget.maxLines,
-          controller: widget.controller,
-          focusNode: widget.focusNode,
-          style: textRegular.copyWith(
-              fontSize: Dimensions.fontSizeDefault,
-              height: 1.0,
-              color: const Color.fromRGBO(20, 20, 20, 0.8)),
-          textInputAction: widget.inputAction,
-          keyboardType:
-              (widget.isAmount || widget.inputType == TextInputType.phone)
-                  ? const TextInputType.numberWithOptions(
-                      signed: false,
-                      decimal: true,
-                    )
-                  : widget.inputType,
-          cursorColor: borderColor,
-          textCapitalization: widget.capitalization,
-          enabled: widget.isEnabled,
-          autofocus: false,
-          textAlignVertical: TextAlignVertical.center,
-          autofillHints: widget.inputType == TextInputType.name
-              ? [AutofillHints.name]
-              : widget.inputType == TextInputType.emailAddress
-                  ? [AutofillHints.email]
-                  : widget.inputType == TextInputType.phone
-                      ? [AutofillHints.telephoneNumber]
-                      : widget.inputType == TextInputType.streetAddress
-                          ? [AutofillHints.fullStreetAddress]
-                          : widget.inputType == TextInputType.url
-                              ? [AutofillHints.url]
-                              : widget.inputType ==
-                                      TextInputType.visiblePassword
-                                  ? [AutofillHints.password]
-                                  : null,
-          obscureText: widget.isPassword ? _obscureText : false,
-          inputFormatters: widget.inputType == TextInputType.phone
-              ? <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(10),
-                ]
-              : widget.isAmount
-                  ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))]
-                  : null,
-          decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              borderSide: BorderSide(
-                  color: Theme.of(context)
-                      .hintColor
-                      .withValues(alpha: widget.showBorder ? 1 : 0.0)),
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              borderSide: const BorderSide(
-                color: Color.fromRGBO(248, 249, 250, 1),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              borderSide: BorderSide(color: borderColor),
-            ),
-            hintText: widget.hintText,
-            fillColor: _isFocused
-                ? const Color.fromRGBO(255, 255, 255, 1)
-                : (widget.fillColor ?? const Color.fromRGBO(248, 249, 250, 1)),
-            hintStyle: textRegular.copyWith(
-                fontSize: Dimensions.fontSizeDefault,
-                color: Theme.of(context).hintColor),
-            filled: true,
-            contentPadding: EdgeInsets.symmetric(
-                horizontal: 0, vertical: !widget.isEnabled ? 12 : 0),
-            prefixIcon: widget.prefix == false
-                ? null
-                : widget.prefixIcon != null
-                    ? Container(
-                        width: widget.prefixHeight,
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Center(
-                          child: Image.asset(
-                            widget.prefixIcon!,
-                            height: 20,
-                            width: 20,
-                            color: const Color.fromRGBO(250, 173, 2, 1),
-                          ),
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.only(left: 14),
-                        child: IntrinsicWidth(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: 24,
-                                child: Center(
-                                  child: CodePickerWidget(
-                                    flagWidth: 24,
-                                    padding: EdgeInsets.zero,
-                                    onChanged: widget.onCountryChanged,
-                                    initialSelection: widget.countryDialCode,
-                                    favorite: [widget.countryDialCode!],
-                                    showDropDownButton: true,
-                                    showCountryOnly: true,
-                                    showOnlyCountryWhenClosed: true,
-                                    showFlagDialog: true,
-                                    hideMainText: true,
-                                    showFlagMain: true,
-                                    dialogBackgroundColor:
-                                        Theme.of(context).cardColor,
-                                    barrierColor: Get.isDarkMode
-                                        ? Colors.black.withValues(alpha: 0.4)
-                                        : null,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                widget.countryDialCode ?? '',
-                                style: textRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeDefault,
-                                  color: const Color.fromRGBO(20, 20, 20, 0.8),
-                                  height: 1.0,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                            ],
-                          ),
-                        ),
-                      ),
-            suffixIcon: widget.suffixIcon != null
-                ? InkWell(
-                    onTap: widget.onPressedSuffix,
-                    child: Container(
-                      margin: EdgeInsets.only(
-                          right: widget.fillColor != null ? 0 : 10),
-                      width: 40,
-                      padding: const EdgeInsets.all(1),
-                      decoration: BoxDecoration(
-                        color: widget.fillColor != null
-                            ? Colors.transparent
-                            : Theme.of(context)
-                                .primaryColor
-                                .withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(widget.borderRadius),
-                          bottomLeft: Radius.circular(widget.borderRadius),
-                        ),
-                      ),
-                      child: Center(
-                          child: Image.asset(widget.suffixIcon!,
-                              height: 20, width: 20)),
-                    ),
-                  )
-                : widget.isPassword
-                    ? IconButton(
-                        icon: Icon(
-                            _obscureText
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: _obscureText
-                                ? Theme.of(context)
-                                    .hintColor
-                                    .withValues(alpha: 0.5)
-                                : borderColor),
-                        onPressed: _toggle,
-                      )
-                    : null,
-            errorText: _validate ? widget.errorText : '',
-            errorStyle: textRegular.copyWith(
-                fontSize: Dimensions.fontSizeSmall, height: 0.1),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              borderSide: BorderSide(
-                  color: Theme.of(context)
-                      .hintColor
-                      .withValues(alpha: widget.showBorder ? 1 : 0.0)),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              borderSide: BorderSide(color: Theme.of(context).primaryColor),
-            ),
-          ),
-          onSubmitted: (text) {
-            widget.nextFocus != null
-                ? FocusScope.of(context).requestFocus(widget.nextFocus)
-                : null;
-            setState(() {
-              widget.controller!.text.isEmpty
-                  ? _validate = true
-                  : _validate = false;
-            });
-          },
-          onTap: widget.onTap,
-          onChanged: widget.onChanged,
-          readOnly: widget.read,
+    final double radius = widget.borderRadius < 14 ? 16 : widget.borderRadius;
+    final Color normalBorderColor = Theme.of(context)
+        .hintColor
+        .withValues(alpha: widget.showBorder ? 0.35 : 0.0);
+    const Color disabledFillColor = Color.fromRGBO(248, 249, 250, 1);
+    final Color activeFillColor =
+        _isFocused ? Colors.white : (widget.fillColor ?? Colors.white);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
+      child: TextField(
+        maxLines: widget.maxLines,
+        controller: widget.controller,
+        focusNode: widget.focusNode,
+        style: textRegular.copyWith(
+          fontSize: Dimensions.fontSizeDefault,
+          height: 1.2,
+          color: const Color.fromRGBO(20, 20, 20, 0.85),
         ),
-      ],
+        textInputAction: widget.inputAction,
+        keyboardType:
+            (widget.isAmount || widget.inputType == TextInputType.phone)
+                ? const TextInputType.numberWithOptions(
+                    signed: false, decimal: true)
+                : widget.inputType,
+        cursorColor: borderColor,
+        textCapitalization: widget.capitalization,
+        enabled: widget.isEnabled,
+        autofocus: false,
+        textAlignVertical: TextAlignVertical.center,
+        autofillHints: widget.inputType == TextInputType.name
+            ? [AutofillHints.name]
+            : widget.inputType == TextInputType.emailAddress
+                ? [AutofillHints.email]
+                : widget.inputType == TextInputType.phone
+                    ? [AutofillHints.telephoneNumber]
+                    : widget.inputType == TextInputType.streetAddress
+                        ? [AutofillHints.fullStreetAddress]
+                        : widget.inputType == TextInputType.url
+                            ? [AutofillHints.url]
+                            : widget.inputType == TextInputType.visiblePassword
+                                ? [AutofillHints.password]
+                                : null,
+        obscureText: widget.isPassword ? _obscureText : false,
+        inputFormatters: widget.inputType == TextInputType.phone
+            ? <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(10),
+              ]
+            : widget.isAmount
+                ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))]
+                : null,
+        decoration: InputDecoration(
+          labelText: (widget.label ?? '').isNotEmpty ? widget.label : null,
+          hintText: widget.hintText,
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          floatingLabelStyle: textMedium.copyWith(
+            fontSize: Dimensions.fontSizeDefault,
+            color: borderColor,
+          ),
+          labelStyle: textRegular.copyWith(
+            fontSize: Dimensions.fontSizeDefault,
+            color: Theme.of(context).hintColor,
+          ),
+          hintStyle: textRegular.copyWith(
+            fontSize: Dimensions.fontSizeDefault,
+            color: Theme.of(context).hintColor.withValues(alpha: 0.75),
+          ),
+          filled: true,
+          fillColor: widget.isEnabled ? activeFillColor : disabledFillColor,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radius),
+            borderSide: BorderSide(color: normalBorderColor),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radius),
+            borderSide:
+                BorderSide(color: normalBorderColor.withValues(alpha: 0.35)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radius),
+            borderSide: BorderSide(color: borderColor, width: 1.4),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radius),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radius),
+            borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error, width: 1.4),
+          ),
+          prefixIcon: widget.prefix == false
+              ? null
+              : widget.prefixIcon != null
+                  ? SizedBox(
+                      width: 54,
+                      child: Center(
+                        child: Image.asset(
+                          widget.prefixIcon!,
+                          height: 22,
+                          width: 22,
+                          color: borderColor,
+                        ),
+                      ),
+                    )
+                  : _countryCodePrefix(context),
+          prefixIconConstraints:
+              const BoxConstraints(minWidth: 54, minHeight: 52),
+          suffixIcon: _suffixIcon(context),
+          suffixIconConstraints:
+              const BoxConstraints(minWidth: 48, minHeight: 52),
+          errorText: _validate ? widget.errorText : '',
+          errorStyle: textRegular.copyWith(
+              fontSize: Dimensions.fontSizeSmall, height: 0.2),
+        ),
+        onSubmitted: (text) {
+          if (widget.nextFocus != null) {
+            FocusScope.of(context).requestFocus(widget.nextFocus);
+          }
+          setState(() {
+            widget.controller!.text.isEmpty
+                ? _validate = true
+                : _validate = false;
+          });
+        },
+        onTap: widget.onTap,
+        onChanged: widget.onChanged,
+        readOnly: widget.read,
+      ),
     );
+  }
+
+  Widget? _countryCodePrefix(BuildContext context) {
+    if (widget.countryDialCode == null) {
+      return null;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, right: 6),
+      child: IntrinsicWidth(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 24,
+              child: Center(
+                child: CodePickerWidget(
+                  flagWidth: 24,
+                  padding: EdgeInsets.zero,
+                  onChanged: widget.onCountryChanged,
+                  initialSelection: widget.countryDialCode,
+                  favorite: [widget.countryDialCode!],
+                  showDropDownButton: true,
+                  showCountryOnly: true,
+                  showOnlyCountryWhenClosed: true,
+                  showFlagDialog: true,
+                  hideMainText: true,
+                  showFlagMain: true,
+                  dialogBackgroundColor: Theme.of(context).cardColor,
+                  barrierColor: Get.isDarkMode
+                      ? Colors.black.withValues(alpha: 0.4)
+                      : null,
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              widget.countryDialCode ?? '',
+              style: textRegular.copyWith(
+                fontSize: Dimensions.fontSizeDefault,
+                color: const Color.fromRGBO(20, 20, 20, 0.8),
+                height: 1.0,
+              ),
+            ),
+            const SizedBox(width: 6),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget? _suffixIcon(BuildContext context) {
+    if (widget.suffix == false) {
+      return null;
+    }
+
+    if (widget.suffixIcon != null) {
+      return InkWell(
+        onTap: widget.onPressedSuffix,
+        borderRadius: BorderRadius.circular(24),
+        child: SizedBox(
+          width: 48,
+          child: Center(
+            child: Image.asset(widget.suffixIcon!, height: 20, width: 20),
+          ),
+        ),
+      );
+    }
+
+    if (widget.isPassword) {
+      return IconButton(
+        icon: Icon(
+          _obscureText
+              ? Icons.visibility_off_outlined
+              : Icons.visibility_outlined,
+          color: _obscureText
+              ? Theme.of(context).hintColor.withValues(alpha: 0.7)
+              : borderColor,
+        ),
+        onPressed: _toggle,
+      );
+    }
+
+    return null;
   }
 
   void _toggle() {

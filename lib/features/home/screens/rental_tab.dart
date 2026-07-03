@@ -97,7 +97,10 @@ class _RentalTabState extends State<RentalTab> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text('${package["free_hours"]} hr'),
+                                  Text(
+                                    '${package["free_hours"]} hr',
+                                    style: textSemiBold.copyWith(),
+                                  ),
                                   Text('${package["free_km"]} Kms'),
                                 ],
                               ),
@@ -106,29 +109,49 @@ class _RentalTabState extends State<RentalTab> {
                         },
                       ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(
+                height: 8,
+              ),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xffF3F5F7),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  'Hourly Rentals, Budget-Friendly Prices,\nTrusted Journeys - Unlock a better ride with Seven Taxi Rental.',
-                  textAlign: TextAlign.center,
-                  style: textMedium.copyWith(
-                    fontSize: Dimensions.paddingSizeSmall,
-                    color: const Color.fromRGBO(
-                      20,
-                      20,
-                      20,
-                      0.6,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 0),
                     ),
-                  ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.local_taxi_rounded,
+                      color: Color(0xFFFAAD02),
+                      size: 28,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Hourly Rentals',
+                      style: textBold.copyWith(
+                        fontSize: 16,
+                        color: const Color(0xFF141414),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Budget-Friendly Prices,\nTrusted Journeys - Unlock a better ride with Seven Taxi Rental.',
+                      textAlign: TextAlign.center,
+                      style: textMedium.copyWith(
+                        fontSize: Dimensions.paddingSizeSmall,
+                        height: 1.45,
+                        color: const Color(0x99141414),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

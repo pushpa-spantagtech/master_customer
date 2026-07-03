@@ -27,9 +27,9 @@ class ButtonWidget extends StatelessWidget {
     this.transparent = false,
     this.margin = EdgeInsets.zero,
     this.width = Dimensions.webMaxWidth,
-    this.height = 45,
+    this.height = 48,
     this.fontSize,
-    this.radius = 16,
+    this.radius = 18,
     this.icon,
     this.imageIcon,
     this.showBorder = false,
@@ -39,80 +39,89 @@ class ButtonWidget extends StatelessWidget {
     this.backgroundColor,
     this.boldText = true,
   }) : assert(
-          !(icon != null && imageIcon != null),
-          'Provide either icon or imageIcon, not both',
-        );
+  !(icon != null && imageIcon != null),
+  'Provide either icon or imageIcon, not both',
+  );
 
   @override
   Widget build(BuildContext context) {
-    final ButtonStyle flatButtonStyle = TextButton.styleFrom(
-        backgroundColor: backgroundColor ??
-            (onPressed == null
-                ? Theme.of(context).disabledColor
-                : transparent
-                    ? Colors.transparent
-                    : Theme.of(context).primaryColor),
-        minimumSize: Size(width, height),
-        padding: EdgeInsets.zero,
-        overlayColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radius),
-            side: showBorder
-                ? BorderSide(
-                    color: borderColor ?? Theme.of(context).primaryColor,
-                    width: borderWidth)
-                : const BorderSide(color: Colors.transparent)));
+    final Color buttonColor = backgroundColor ??
+        (onPressed == null
+            ? Theme.of(context).disabledColor
+            : transparent
+            ? Colors.transparent
+            : Theme.of(context).primaryColor);
+
+    final Color foregroundColor = textColor ??
+        (transparent ? Theme.of(context).primaryColor : Colors.white);
+
+    final ButtonStyle buttonStyle = FilledButton.styleFrom(
+      backgroundColor: buttonColor,
+      foregroundColor: foregroundColor,
+      disabledBackgroundColor: Theme.of(context).disabledColor,
+      disabledForegroundColor: Colors.white.withOpacity(0.75),
+      minimumSize: Size(width, height),
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      elevation: transparent ? 0 : 1.5,
+      shadowColor: transparent
+          ? Colors.transparent
+          : Theme.of(context).primaryColor.withOpacity(0.25),
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radius),
+        side: showBorder
+            ? BorderSide(
+          color: borderColor ?? Theme.of(context).primaryColor,
+          width: borderWidth,
+        )
+            : BorderSide.none,
+      ),
+    );
 
     return Center(
-        child: SizedBox(
-            width: width,
-            child: Padding(
-              padding: margin,
-              child: TextButton(
-                onPressed: onPressed,
-                style: flatButtonStyle,
-                child:
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  imageIcon != null
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: Dimensions.paddingSizeMedium),
-                          child: Image.asset(
-                            imageIcon!,
-                            height: 24,
-                            width: 24,
-                          ),
-                        )
-                      : icon != null
-                          ? Padding(
-                              padding: const EdgeInsets.only(
-                                  right: Dimensions.paddingSizeMedium),
-                              child: Icon(icon,
-                                  color: transparent
-                                      ? Theme.of(context).primaryColor
-                                      : Colors.white))
-                          : const SizedBox(),
-                  const SizedBox(
-                    width: Dimensions.paddingSizeSmall,
+      child: SizedBox(
+        width: width,
+        child: Padding(
+          padding: margin,
+          child: FilledButton(
+            onPressed: onPressed,
+            style: buttonStyle,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (imageIcon != null) ...[
+                  Image.asset(
+                    imageIcon!,
+                    height: 22,
+                    width: 22,
                   ),
-                  Text(buttonText,
-                      textAlign: TextAlign.center,
-                      style: boldText
-                          ? textBold.copyWith(
-                              color: textColor ??
-                                  (transparent
-                                      ? Theme.of(context).primaryColor
-                                      : Colors.white),
-                              fontSize: fontSize ?? Dimensions.fontSizeLarge,
-                            )
-                          : textMedium.copyWith(
-                              color: textColor ??
-                                  (transparent
-                                      ? Theme.of(context).primaryColor
-                                      : Colors.white),
-                              fontSize: fontSize ?? Dimensions.fontSizeLarge)),
-                ]),
-              ),
-            )));
+                  const SizedBox(width: Dimensions.paddingSizeSmall),
+                ] else if (icon != null) ...[
+                  Icon(
+                    icon,
+                    size: 22,
+                    color: foregroundColor,
+                  ),
+                  const SizedBox(width: Dimensions.paddingSizeSmall),
+                ],
+                Flexible(
+                  child: Text(
+                    buttonText,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: (boldText ? textBold : textMedium).copyWith(
+                      color: foregroundColor,
+                      fontSize: fontSize ?? Dimensions.fontSizeLarge,
+                      height: 1.1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

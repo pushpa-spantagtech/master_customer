@@ -29,53 +29,62 @@ class RideBottomSheet extends StatelessWidget {
             }
           }
         });
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.45,
-          decoration: const BoxDecoration(
-            color: Color.fromRGBO(255, 255, 255, 1),
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(30),
+
+        return Material(
+          color: Colors.transparent,
+          elevation: 12,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.47,
+            padding: EdgeInsets.only(
+              top: 10,
+              bottom: MediaQuery.of(context).padding.bottom + 8,
             ),
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 15),
-              const TabBar(
-                indicatorColor: Colors.transparent,
-                labelPadding: EdgeInsets.zero,
-                dividerColor: Colors.transparent,
-                tabs: [
-                  _VehicleTab(
-                    title: 'Local',
-                    image: Images.car,
-                  ),
-                  _VehicleTab(
-                    title: 'Rental',
-                    image: Images.car,
-                  ),
-                  _VehicleTab(
-                    title: 'Outstation',
-                    image: Images.car,
-                  ),
-                ],
-              ),
-              Expanded(
-                child: NotificationListener<OverscrollIndicatorNotification>(
-                  onNotification: (overscroll) {
-                    overscroll.disallowIndicator();
-                    return true;
-                  },
-                  child: const TabBarView(
-                    physics: NeverScrollableScrollPhysics(),
-                    children: [
-                      LocalTab(),
-                      RentalTab(),
-                      OutstationTab(),
-                    ],
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 42,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0E0E0),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-              ),
-            ],
+                const TabBar(
+                  indicatorColor: Colors.transparent,
+                  labelPadding: EdgeInsets.zero,
+                  dividerColor: Colors.transparent,
+                  overlayColor: WidgetStatePropertyAll(Colors.transparent),
+                  tabs: [
+                    _VehicleTab(title: 'Local', image: Images.car),
+                    _VehicleTab(title: 'Rental', image: Images.car),
+                    _VehicleTab(title: 'Outstation', image: Images.car),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: NotificationListener<OverscrollIndicatorNotification>(
+                    onNotification: (overscroll) {
+                      overscroll.disallowIndicator();
+                      return true;
+                    },
+                    child: const TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
+                      children: [
+                        LocalTab(),
+                        RentalTab(),
+                        OutstationTab(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       }),
@@ -109,33 +118,42 @@ class _VehicleTab extends StatelessWidget {
 
         final bool selected = controller.index == index;
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              image,
-              height: 28,
-            ),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 5,
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                image,
+                height: selected ? 32 : 28,
               ),
-              decoration: BoxDecoration(
-                color: selected ? const Color(0xFFFF5A5F) : Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: selected ? Colors.white : Colors.grey,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
+              const SizedBox(height: 7),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 7,
+                ),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? const Color(0xFFFF5A5F)
+                      : const Color(0xFFF7F7F7),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: selected
+                        ? Colors.white
+                        : const Color(0xFF7A7A7A),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

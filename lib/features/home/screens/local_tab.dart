@@ -9,20 +9,24 @@ class LocalTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
       physics: const ClampingScrollPhysics(),
       children: [
         const HomeSearchWidget(
           isLocal: true,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 18),
         Container(
           decoration: BoxDecoration(
-            color: Colors.transparent,
-            border: Border.all(
-              color: const Color.fromRGBO(255, 239, 203, 1),
-            ),
-            borderRadius: BorderRadius.circular(12),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Theme(
             data: Theme.of(context).copyWith(
@@ -32,15 +36,33 @@ class LocalTab extends StatelessWidget {
             ),
             child: ExpansionTile(
               iconColor: const Color.fromRGBO(250, 173, 2, 1),
-              collapsedIconColor: const Color.fromRGBO(250, 173, 2, 1),
-              shape: const Border(),
-              collapsedShape: const Border(),
-              tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              title: Text(
-                'Things To Know',
-                style:
-                    textSemiBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+              collapsedIconColor: Colors.grey,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              collapsedShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              tilePadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 4,
+              ),
+              childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              title: Row(
+                children: [
+                  const Icon(
+                    Icons.info_outline_rounded,
+                    size: 20,
+                    color: Color.fromRGBO(250, 173, 2, 1),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Things To Know',
+                    style: textSemiBold.copyWith(
+                      fontSize: Dimensions.fontSizeDefault,
+                    ),
+                  ),
+                ],
               ),
               children: const [
                 _ThingItem('Meter starts from your pickup place.'),
@@ -73,19 +95,20 @@ class _ThingItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 7),
-            child: Icon(
-              Icons.circle,
-              size: 4,
-              color: Colors.black,
-            ),
+          const Icon(
+            Icons.check_circle_rounded,
+            size: 18,
+            color: Color.fromRGBO(250, 173, 2, 1),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: textMedium.copyWith(fontSize: Dimensions.fontSizeDefault),
+              style: textMedium.copyWith(
+                fontSize: Dimensions.fontSizeDefault,
+                height: 1.45,
+                color: const Color.fromRGBO(85, 85, 85, 1),
+              ),
             ),
           ),
         ],

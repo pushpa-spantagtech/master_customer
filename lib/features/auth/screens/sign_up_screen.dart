@@ -99,200 +99,241 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                     ),
-                    CustomTextField(
-                      label: 'first_name'.tr,
-                      capitalization: TextCapitalization.words,
-                      hintText: 'first_name'.tr,
-                      inputType: TextInputType.name,
-                      prefixIcon: Images.profileIcon,
-                      controller: fNameController,
-                      focusNode: fNameNode,
-                      nextFocus: lNameNode,
-                      inputAction: TextInputAction.next,
-                    ),
-                    CustomTextField(
-                      label: 'last_name'.tr,
-                      capitalization: TextCapitalization.words,
-                      hintText: 'last_name'.tr,
-                      inputType: TextInputType.name,
-                      prefixIcon: Images.profileIcon,
-                      controller: lNameController,
-                      focusNode: lNameNode,
-                      nextFocus: phoneNode,
-                      inputAction: TextInputAction.next,
-                    ),
-                    CustomTextField(
-                      label: 'phone'.tr,
-                      hintText: 'phone'.tr,
-                      inputType: TextInputType.phone,
-                      countryDialCode: authController.countryDialCode,
-                      controller: phoneController,
-                      focusNode: phoneNode,
-                      nextFocus: passwordNode,
-                      inputAction: TextInputAction.next,
-                      onCountryChanged: (CountryCode countryCode) {
-                        authController.countryDialCode = countryCode.dialCode!;
-                        authController.setCountryCode(countryCode.dialCode!);
-                      },
-                    ),
-                    CustomTextField(
-                      label: 'password'.tr,
-                      hintText: 'enter_password'.tr,
-                      inputType: TextInputType.text,
-                      prefixIcon: Images.lock,
-                      isPassword: true,
-                      controller: passwordController,
-                      focusNode: passwordNode,
-                      nextFocus: confirmPasswordNode,
-                      inputAction: TextInputAction.next,
-                    ),
-                    CustomTextField(
-                      label: 'confirm_password'.tr,
-                      hintText: 'enter_confirm_password'.tr,
-                      inputType: TextInputType.text,
-                      prefixIcon: Images.lock,
-                      controller: confirmPasswordController,
-                      focusNode: confirmPasswordNode,
-                      inputAction: TextInputAction.done,
-                      isPassword: true,
-                    ),
-                    const SizedBox(height: Dimensions.paddingSizeSmall),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Dimensions.paddingSizeEight,
-                        vertical: Dimensions.paddingSizeTwo,
-                      ),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: Transform.scale(
-                              scale: 1,
-                              child: Checkbox(
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                                visualDensity: VisualDensity.compact,
-                                checkColor:
-                                    const Color.fromRGBO(255, 255, 255, 1),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                                side: BorderSide(
-                                  color: Theme.of(context).hintColor,
-                                ),
-                                activeColor:
-                                    const Color.fromRGBO(250, 173, 2, 1),
-                                value: authController.isTermsAccepted,
-                                onChanged: (value) {
-                                  authController
-                                      .toggleTermsAccepted(value ?? false);
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: Dimensions.paddingSizeSmall),
-                          Text(
-                            '${'i_agree'.tr} ',
-                            style: textMedium.copyWith(
-                              fontSize: Dimensions.fontSizeDefault,
-                              color: const Color.fromRGBO(20, 20, 20, 0.7),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              await Get.to(() => const PolicyScreen());
-                              authController.markTermsAsOpened();
-                            },
-                            child: Text(
-                              'terms_and_conditions'.tr,
-                              style: textMedium.copyWith(
-                                fontSize: Dimensions.fontSizeDefault,
-                                color: const Color.fromRGBO(250, 173, 2, 1),
-                                letterSpacing: 0,
-                              ),
-                            ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 18,
+                            offset: Offset(0, 5),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: Dimensions.paddingSizeSmall),
-                    authController.isLoading
-                        ? const Center(
-                            child: SpinKitCircle(
-                                color: Color.fromRGBO(250, 173, 2, 1),
-                                size: 40.0))
-                        : ButtonWidget(
-                            buttonText: 'register'.tr,
-                            textColor: const Color.fromRGBO(255, 255, 255, 1),
-                            borderColor:
-                                const Color.fromRGBO(255, 128, 128, 0.2),
-                            backgroundColor:
-                                const Color.fromRGBO(250, 173, 2, 1),
-                            fontSize: 18.0,
-                            onPressed: () {
-                              String fName = fNameController.text.trim();
-                              String lName = lNameController.text.trim();
-                              String phone = phoneController.text.trim();
-                              String password = passwordController.text.trim();
-                              String confirmPassword =
-                                  confirmPasswordController.text.trim();
-
-                              if (fName.isEmpty) {
-                                showCustomSnackBar('first_name_is_required'.tr);
-                                FocusScope.of(context).requestFocus(fNameNode);
-                              } else if (lName.isEmpty) {
-                                showCustomSnackBar('last_name_is_required'.tr);
-                                FocusScope.of(context).requestFocus(lNameNode);
-                              } else if (phone.isEmpty) {
-                                showCustomSnackBar(
-                                    'Please enter your mobile number'.tr);
-                                FocusScope.of(context).requestFocus(phoneNode);
-                              } else if (phone.length != 10) {
-                                showCustomSnackBar(
-                                    'Please enter a valid 10-digit mobile number.');
-                                FocusScope.of(context).requestFocus(phoneNode);
-                              } else if (!GetUtils.isPhoneNumber(
-                                  authController.countryDialCode + phone)) {
-                                showCustomSnackBar(
-                                    'Please enter a valid mobile number.');
-                                FocusScope.of(context).requestFocus(phoneNode);
-                              } else if (password.isEmpty) {
-                                showCustomSnackBar('password_is_required'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(passwordNode);
-                              } else if (password.length < 8) {
-                                showCustomSnackBar(
-                                    'minimum_password_length_is_8'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(passwordNode);
-                              } else if (confirmPassword.isEmpty) {
-                                showCustomSnackBar(
-                                    'confirm_password_is_required'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(confirmPasswordNode);
-                              } else if (password != confirmPassword) {
-                                showCustomSnackBar('password_is_mismatch'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(confirmPasswordNode);
-                              } else if (!authController.isTermsAccepted) {
-                                showCustomSnackBar(
-                                  'Please read and accept the Terms & Conditions before registering.',
-                                );
-                                return;
-                              } else {
-                                authController.register(SignUpBody(
-                                    fName: fName,
-                                    lName: lName,
-                                    phone:
-                                        authController.countryDialCode + phone,
-                                    password: password,
-                                    confirmPassword: confirmPassword,
-                                    userType: AppConstants.customerType));
-                              }
+                      child: Column(
+                        children: [
+                          CustomTextField(
+                            label: 'first_name'.tr,
+                            capitalization: TextCapitalization.words,
+                            hintText: 'first_name'.tr,
+                            inputType: TextInputType.name,
+                            prefixIcon: Images.profileIcon,
+                            controller: fNameController,
+                            focusNode: fNameNode,
+                            nextFocus: lNameNode,
+                            inputAction: TextInputAction.next,
+                          ),
+                          CustomTextField(
+                            label: 'last_name'.tr,
+                            capitalization: TextCapitalization.words,
+                            hintText: 'last_name'.tr,
+                            inputType: TextInputType.name,
+                            prefixIcon: Images.profileIcon,
+                            controller: lNameController,
+                            focusNode: lNameNode,
+                            nextFocus: phoneNode,
+                            inputAction: TextInputAction.next,
+                          ),
+                          CustomTextField(
+                            label: 'phone'.tr,
+                            hintText: 'phone'.tr,
+                            inputType: TextInputType.phone,
+                            countryDialCode: authController.countryDialCode,
+                            controller: phoneController,
+                            focusNode: phoneNode,
+                            nextFocus: passwordNode,
+                            inputAction: TextInputAction.next,
+                            onCountryChanged: (CountryCode countryCode) {
+                              authController.countryDialCode =
+                                  countryCode.dialCode!;
+                              authController
+                                  .setCountryCode(countryCode.dialCode!);
                             },
                           ),
-                    const SizedBox(height: Dimensions.paddingSizeSmall),
+                          CustomTextField(
+                            label: 'password'.tr,
+                            hintText: 'enter_password'.tr,
+                            inputType: TextInputType.text,
+                            prefixIcon: Images.lock,
+                            isPassword: true,
+                            controller: passwordController,
+                            focusNode: passwordNode,
+                            nextFocus: confirmPasswordNode,
+                            inputAction: TextInputAction.next,
+                          ),
+                          CustomTextField(
+                            label: 'confirm_password'.tr,
+                            hintText: 'enter_confirm_password'.tr,
+                            inputType: TextInputType.text,
+                            prefixIcon: Images.lock,
+                            controller: confirmPasswordController,
+                            focusNode: confirmPasswordNode,
+                            inputAction: TextInputAction.done,
+                            isPassword: true,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Dimensions.paddingSizeEight,
+                              vertical: Dimensions.paddingSizeTwo,
+                            ),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: Transform.scale(
+                                    scale: 1,
+                                    child: Checkbox(
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      visualDensity: VisualDensity.compact,
+                                      checkColor: const Color.fromRGBO(
+                                          255, 255, 255, 1),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                      side: BorderSide(
+                                        color: Theme.of(context).hintColor,
+                                      ),
+                                      activeColor:
+                                          const Color.fromRGBO(250, 173, 2, 1),
+                                      value: authController.isTermsAccepted,
+                                      onChanged: (value) {
+                                        authController.toggleTermsAccepted(
+                                            value ?? false);
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                    width: Dimensions.paddingSizeSmall),
+                                Text(
+                                  '${'i_agree'.tr} ',
+                                  style: textMedium.copyWith(
+                                    fontSize: Dimensions.fontSizeDefault,
+                                    color:
+                                        const Color.fromRGBO(20, 20, 20, 0.7),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () async {
+                                    await Get.to(() => const PolicyScreen());
+                                    authController.markTermsAsOpened();
+                                  },
+                                  child: Text(
+                                    'terms_and_conditions'.tr,
+                                    style: textMedium.copyWith(
+                                      fontSize: Dimensions.fontSizeDefault,
+                                      color:
+                                          const Color.fromRGBO(250, 173, 2, 1),
+                                      letterSpacing: 0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                          authController.isLoading
+                              ? const Center(
+                                  child: SpinKitCircle(
+                                      color: Color.fromRGBO(250, 173, 2, 1),
+                                      size: 40.0))
+                              : ButtonWidget(
+                                  buttonText: 'register'.tr,
+                                  textColor:
+                                      const Color.fromRGBO(255, 255, 255, 1),
+                                  borderColor:
+                                      const Color.fromRGBO(255, 128, 128, 0.2),
+                                  backgroundColor:
+                                      const Color.fromRGBO(250, 173, 2, 1),
+                                  fontSize: 18.0,
+                                  onPressed: () {
+                                    String fName = fNameController.text.trim();
+                                    String lName = lNameController.text.trim();
+                                    String phone = phoneController.text.trim();
+                                    String password =
+                                        passwordController.text.trim();
+                                    String confirmPassword =
+                                        confirmPasswordController.text.trim();
+
+                                    if (fName.isEmpty) {
+                                      showCustomSnackBar(
+                                          'first_name_is_required'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(fNameNode);
+                                    } else if (lName.isEmpty) {
+                                      showCustomSnackBar(
+                                          'last_name_is_required'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(lNameNode);
+                                    } else if (phone.isEmpty) {
+                                      showCustomSnackBar(
+                                          'Please enter your mobile number'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(phoneNode);
+                                    } else if (phone.length != 10) {
+                                      showCustomSnackBar(
+                                          'Please enter a valid 10-digit mobile number.');
+                                      FocusScope.of(context)
+                                          .requestFocus(phoneNode);
+                                    } else if (!GetUtils.isPhoneNumber(
+                                        authController.countryDialCode +
+                                            phone)) {
+                                      showCustomSnackBar(
+                                          'Please enter a valid mobile number.');
+                                      FocusScope.of(context)
+                                          .requestFocus(phoneNode);
+                                    } else if (password.isEmpty) {
+                                      showCustomSnackBar(
+                                          'password_is_required'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(passwordNode);
+                                    } else if (password.length < 8) {
+                                      showCustomSnackBar(
+                                          'minimum_password_length_is_8'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(passwordNode);
+                                    } else if (confirmPassword.isEmpty) {
+                                      showCustomSnackBar(
+                                          'confirm_password_is_required'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(confirmPasswordNode);
+                                    } else if (password != confirmPassword) {
+                                      showCustomSnackBar(
+                                          'password_is_mismatch'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(confirmPasswordNode);
+                                    } else if (!authController
+                                        .isTermsAccepted) {
+                                      showCustomSnackBar(
+                                        'Please read and accept the Terms & Conditions before registering.',
+                                      );
+                                      return;
+                                    } else {
+                                      authController.register(SignUpBody(
+                                          fName: fName,
+                                          lName: lName,
+                                          phone:
+                                              authController.countryDialCode +
+                                                  phone,
+                                          password: password,
+                                          confirmPassword: confirmPassword,
+                                          userType: AppConstants.customerType));
+                                    }
+                                  },
+                                ),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                       Text(
                         '${'already_have_an_account_?'.tr} ',

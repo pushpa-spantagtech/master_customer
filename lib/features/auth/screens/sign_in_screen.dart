@@ -126,7 +126,6 @@ class _SignInScreenState extends State<SignInScreen> {
                                   .setCountryCode(countryCode.dialCode!);
                             },
                           ),
-                          const SizedBox(height: Dimensions.paddingSizeThree),
                           CustomTextField(
                             label: 'password'.tr,
                             hintText: 'enter_password'.tr,
