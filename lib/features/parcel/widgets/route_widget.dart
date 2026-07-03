@@ -34,13 +34,34 @@ class RouteWidget extends StatefulWidget {
 class _RouteWidgetState extends State<RouteWidget> {
   String totalDistance = '0', estDistance = '0', removeComma = '0';
 
+  double _safeDistanceValue(String value) {
+    final cleanedValue = value
+        .replaceAll('km', '')
+        .replaceAll('KM', '')
+        .replaceAll(',', '')
+        .trim();
+
+    if (cleanedValue.isEmpty || cleanedValue.toLowerCase() == 'null') {
+      return 0.0;
+    }
+
+    return double.tryParse(cleanedValue) ?? 0.0;
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (widget.totalDistance.contains("km")) {
-      removeComma = widget.totalDistance.replaceAll("km", '');
-      totalDistance = removeComma.replaceAll(",", '');
+    totalDistance = widget.totalDistance
+        .replaceAll('km', '')
+        .replaceAll('KM', '')
+        .replaceAll(',', '')
+        .trim();
+
+    if (totalDistance.isEmpty || totalDistance.toLowerCase() == 'null') {
+      totalDistance = '0';
     }
-    estDistance = double.parse(totalDistance).toStringAsFixed(2);
+
+    final parsedDistance = double.tryParse(totalDistance) ?? 0.0;
+    estDistance = parsedDistance.toStringAsFixed(2);
 
     int stopNumber = 1;
 
@@ -56,36 +77,9 @@ class _RouteWidgetState extends State<RouteWidget> {
       return GetBuilder<LocationController>(builder: (locationController) {
         return Padding(
           padding:
-              const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSix),
+          const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSix),
           child: Column(children: [
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Padding(
-              //     padding: const EdgeInsets.symmetric(
-              //         horizontal: Dimensions.paddingSizeSix),
-              //     child: Column(children: [
-              // SizedBox(
-              //     width: Dimensions.iconSizeMedium,
-              //     child: Image.asset(
-              //       Images.boxIconsLocation,
-              //       height: 20,
-              //       width: 20,
-              //     )),
-              // const SizedBox(
-              //     height: 30,
-              //     width: 15,
-              //     child: CustomDivider(
-              //         height: 2,
-              //         dashWidth: 1,
-              //         axis: Axis.vertical,
-              //         color: Colors.transparent)),
-              // SizedBox(
-              //     width: Dimensions.iconSizeMedium,
-              //     child: Image.asset(
-              //       Images.tablerLocation,
-              //       height: 20,
-              //       width: 20,
-              //     ))
-              // ])),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +100,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Pickup",
+                                'Pickup',
                                 style: textMedium.copyWith(
                                   color: Colors.grey,
                                   fontSize: 14,
@@ -122,10 +116,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 16),
-
-                    /// EXTRA ROUTE 1 (If using existing feature)
                     if (widget.extraOneAddress.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
@@ -141,7 +132,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                               ),
                               child: const Center(
                                 child: Text(
-                                  "1",
+                                  '1',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 10,
@@ -156,7 +147,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Stop 1",
+                                    'Stop 1',
                                     style: textMedium.copyWith(
                                       color: Colors.grey,
                                       fontSize: 12,
@@ -173,8 +164,6 @@ class _RouteWidgetState extends State<RouteWidget> {
                           ],
                         ),
                       ),
-
-                    /// EXTRA ROUTE 2
                     if (widget.extraTwoAddress.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
@@ -190,7 +179,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                               ),
                               child: const Center(
                                 child: Text(
-                                  "2",
+                                  '2',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 10,
@@ -205,7 +194,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Stop 2",
+                                    'Stop 2',
                                     style: textMedium.copyWith(
                                       color: Colors.grey,
                                       fontSize: 12,
@@ -222,15 +211,13 @@ class _RouteWidgetState extends State<RouteWidget> {
                           ],
                         ),
                       ),
-
-                    /// ENTRANCE STOPS
                     if (widget.entrance.isNotEmpty)
                       ...List.generate(
                         widget.entrance
                             .split(',')
                             .where((e) => e.trim().isNotEmpty)
                             .length,
-                        (index) {
+                            (index) {
                           final stops = widget.entrance
                               .split(',')
                               .where((e) => e.trim().isNotEmpty)
@@ -250,7 +237,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      "${stopNumber + index}",
+                                      '${stopNumber + index}',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 10,
@@ -263,10 +250,10 @@ class _RouteWidgetState extends State<RouteWidget> {
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Stop ${stopNumber + index}",
+                                        'Stop ${stopNumber + index}',
                                         style: textMedium.copyWith(
                                           color: Colors.grey,
                                           fontSize: 12,
@@ -285,10 +272,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                           );
                         },
                       ),
-
                     const SizedBox(height: 4),
-
-                    /// DROP
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -305,7 +289,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Drop",
+                                'Drop',
                                 style: textMedium.copyWith(
                                   color: Colors.grey,
                                   fontSize: 14,
@@ -328,21 +312,23 @@ class _RouteWidgetState extends State<RouteWidget> {
             const SizedBox(height: Dimensions.paddingSizeDefault),
             if (!widget.fromParcelOngoing)
               GetBuilder<RideController>(builder: (rideController) {
+                final displayDistance = _safeDistanceValue(widget.totalDistance);
+
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(children: [
-                    Image.asset(Images.distanceCalculated,
-                        width: 20, color: const Color.fromRGBO(250, 173, 2, 1)),
-                    const SizedBox(
-                      width: 4,
+                    Image.asset(
+                      Images.distanceCalculated,
+                      width: 20,
+                      color: const Color.fromRGBO(250, 173, 2, 1),
                     ),
-                    Text("total_distance".tr, style: textMedium.copyWith()),
+                    const SizedBox(width: 4),
+                    Text('total_distance'.tr, style: textMedium.copyWith()),
                     const Spacer(),
                     Text(
-                        widget.totalDistance.contains('km')
-                            ? widget.totalDistance
-                            : '${double.parse(widget.totalDistance).toStringAsFixed(2)} km',
-                        style: textMedium.copyWith()),
+                      '${displayDistance.toStringAsFixed(2)} km',
+                      style: textMedium.copyWith(),
+                    ),
                   ]),
                 );
               }),
