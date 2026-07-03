@@ -2,22 +2,17 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
-import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
 import 'package:ride_sharing_user_app/features/map/widget/accepting_ongoing_bottomsheet.dart';
 import 'package:ride_sharing_user_app/features/map/widget/initial_widget.dart';
 import 'package:ride_sharing_user_app/features/map/widget/otp_sent_bottomsheet.dart';
 import 'package:ride_sharing_user_app/features/map/widget/risefare_bottomsheet.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/finding_rider_widget.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/tolltip_widget.dart';
-import 'package:ride_sharing_user_app/features/payment/screens/payment_screen.dart';
-import 'package:ride_sharing_user_app/features/ride/widgets/confirmation_trip_dialog.dart';
 import 'package:ride_sharing_user_app/features/trip/widgets/rider_details.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
-import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/common_widgets/confirmation_dialog_widget.dart';
 
 class RideExpendableBottomSheet extends StatefulWidget {
   final GlobalKey<ExpandableBottomSheetState> expandableKey;
@@ -129,102 +124,41 @@ class _RideExpendableBottomSheetState extends State<RideExpendableBottomSheet> {
                                             )
                                           : (rideController.currentRideState ==
                                                   RideState.ongoingRide)
-                                              ? GestureDetector(
-                                                  onTap: () {
-                                                    showDialog(
-                                                        context: context,
-                                                        builder: (_) {
-                                                          return ConfirmationDialogWidget(
-                                                            icon:
-                                                                Images.endTrip,
-                                                            description:
-                                                                'end_this_trip_at_your_destination'
-                                                                    .tr,
-                                                            onYesPressed:
-                                                                () async {
-                                                              Get.back();
-                                                              Get.dialog(
-                                                                  const ConfirmationTripDialog(
-                                                                      isStartedTrip:
-                                                                          false),
-                                                                  barrierDismissible:
-                                                                      false);
-                                                              await Future.delayed(
-                                                                  const Duration(
-                                                                      seconds:
-                                                                          5));
-                                                              Get.find<
-                                                                      RideController>()
-                                                                  .stopLocationRecord();
-
-                                                              await Get.find<
-                                                                      RideController>()
-                                                                  .tripStatusUpdate(
-                                                                rideController
-                                                                    .tripDetails!
-                                                                    .id!,
-                                                                'completed',
-                                                                'trip_completed',
-                                                                '',
-                                                              );
-
-                                                              rideController
-                                                                  .updateRideCurrentState(
-                                                                      RideState
-                                                                          .completeRide);
-                                                              Get.find<
-                                                                      MapController>()
-                                                                  .notifyMapController();
-
-                                                              await Get.find<
-                                                                      RideController>()
-                                                                  .getFinalFare(
-                                                                rideController
-                                                                    .tripDetails!
-                                                                    .id!,
-                                                              );
-                                                              Get.off(() =>
-                                                                  const PaymentScreen());
-                                                            },
-                                                          );
-                                                        });
-                                                  },
-                                                  child: Column(children: [
-                                                    TollTipWidget(
-                                                        showInsight: false,
-                                                        title: 'trip_is_ongoing'
-                                                            .tr),
-                                                    Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: Dimensions
-                                                              .paddingSizeDefault),
-                                                      child: Text.rich(TextSpan(
-                                                        style: textRegular.copyWith(
-                                                            fontSize: Dimensions
-                                                                .fontSizeLarge,
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .bodyMedium!
-                                                                .color!
-                                                                .withValues(
-                                                                    alpha:
-                                                                        0.8)),
-                                                        children: [
-                                                          TextSpan(
-                                                              text:
-                                                                  'you_are_on_the_way_to_destination'
-                                                                      .tr)
-                                                        ],
-                                                      )),
-                                                    ),
-                                                    const ActivityScreenRiderDetails(),
-                                                    const SizedBox(
-                                                        height: Dimensions
+                                              ? Column(children: [
+                                                  TollTipWidget(
+                                                      showInsight: false,
+                                                      title:
+                                                          'trip_is_ongoing'.tr),
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: Dimensions
                                                             .paddingSizeDefault),
-                                                  ]),
-                                                )
+                                                    child: Text.rich(TextSpan(
+                                                      style: textRegular.copyWith(
+                                                          fontSize: Dimensions
+                                                              .fontSizeLarge,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .bodyMedium!
+                                                                  .color!
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.8)),
+                                                      children: [
+                                                        TextSpan(
+                                                            text:
+                                                                'you_are_on_the_way_to_destination'
+                                                                    .tr)
+                                                      ],
+                                                    )),
+                                                  ),
+                                                  const ActivityScreenRiderDetails(),
+                                                  const SizedBox(
+                                                      height: Dimensions
+                                                          .paddingSizeDefault),
+                                                ])
                                               : const SizedBox(),
                     ]),
                   );

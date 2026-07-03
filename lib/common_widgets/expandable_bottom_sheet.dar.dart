@@ -146,6 +146,20 @@ class ExpandableBottomSheetState extends State<ExpandableBottomSheet>
     return ExpansionStatus.middle;
   }
 
+  // Keep the sheet stable when content/map rebuilds.
+  // Without this, first page load or marker/polyline update can recalculate
+  // content height and leave the sheet in the middle automatically.
+  ExpansionStatus _statusBeforeRebuild() {
+    if (_positionOffset == null) return ExpansionStatus.contracted;
+    if ((_positionOffset! - _maxOffset).abs() < 1) {
+      return ExpansionStatus.contracted;
+    }
+    if ((_positionOffset! - _minOffset).abs() < 1) {
+      return ExpansionStatus.expanded;
+    }
+    return ExpansionStatus.middle;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -240,6 +254,16 @@ class ExpandableBottomSheetState extends State<ExpandableBottomSheet>
   }
 
   void _afterUpdateWidgetBuild(bool isFirstBuild) {
+    if (!mounted ||
+        _headerKey.currentContext?.size == null ||
+        _footerKey.currentContext?.size == null ||
+        _contentKey.currentContext?.size == null ||
+        context.size == null) {
+      return;
+    }
+
+    final ExpansionStatus oldStatus = _statusBeforeRebuild();
+
     double headerHeight = _headerKey.currentContext!.size!.height;
     double footerHeight = _footerKey.currentContext!.size!.height;
     double contentHeight = _contentKey.currentContext!.size!.height;
@@ -256,14 +280,34 @@ class ExpandableBottomSheetState extends State<ExpandableBottomSheet>
         footerHeight -
         checkedPersistentContentHeight;
 
-    if (!isFirstBuild) {
-      _positionOutOfBounds();
-    } else {
+    final double newDraggableHeight = _maxOffset - _minOffset;
+
+    if (isFirstBuild ||
+        _positionOffset == null ||
+        oldStatus == ExpansionStatus.contracted) {
       setState(() {
         _positionOffset = _maxOffset;
-        _draggableHeight = _maxOffset - _minOffset;
+        _draggableHeight = newDraggableHeight;
       });
+      return;
     }
+
+    if (oldStatus == ExpansionStatus.expanded) {
+      setState(() {
+        _positionOffset = _minOffset;
+        _draggableHeight = newDraggableHeight;
+      });
+      return;
+    }
+
+    setState(() {
+      _draggableHeight = newDraggableHeight;
+      if (_positionOffset! < _minOffset) {
+        _positionOffset = _minOffset;
+      } else if (_positionOffset! > _maxOffset) {
+        _positionOffset = _maxOffset;
+      }
+    });
   }
 
   void _positionOutOfBounds() {
@@ -346,13 +390,13 @@ class ExpandableBottomSheetState extends State<ExpandableBottomSheet>
         _callCallbacks = true;
         _animateToBottom();
       } else {
-        if (_positionOffset == _maxOffset &&
-            widget.onIsContractedCallback != null) {
-          widget.onIsContractedCallback!();
-        }
-        if (_positionOffset == _minOffset &&
-            widget.onIsExtendedCallback != null) {
-          widget.onIsExtendedCallback!();
+        // Snap to nearest side. This avoids the sheet remaining in the middle.
+        final double middle = (_minOffset + _maxOffset) / 2;
+        _callCallbacks = true;
+        if (_positionOffset! <= middle) {
+          _animateToTop();
+        } else {
+          _animateToBottom();
         }
       }
     }

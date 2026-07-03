@@ -76,21 +76,52 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 GetBuilder<RideController>(builder: (rideController) {
                   String firstRoute = '';
                   String secondRoute = '';
-                  List<dynamic> extraRoute = [];
-                  if (rideController.tripDetails?.intermediateAddresses !=
-                          null &&
-                      rideController.tripDetails?.intermediateAddresses !=
-                          '["",""]') {
-                    extraRoute = jsonDecode(
-                        rideController.tripDetails!.intermediateAddresses!);
 
-                    if (extraRoute.isNotEmpty) {
-                      firstRoute = extraRoute[0];
-                    }
-                    if (extraRoute.isNotEmpty && extraRoute.length > 1) {
-                      secondRoute = extraRoute[1];
-                    }
+                  // On the payment screen, tripDetails can be null after the
+                  // final fare API is loaded. So use finalFare as fallback for
+                  // pickup, destination, distance and intermediate addresses.
+                  final String? intermediateAddresses =
+                      rideController.tripDetails?.intermediateAddresses ??
+                          rideController.finalFare?.intermediateAddresses;
+
+                  if (intermediateAddresses != null &&
+                      intermediateAddresses.isNotEmpty &&
+                      intermediateAddresses != '["",""]') {
+                    try {
+                      final List<dynamic> extraRoute =
+                          jsonDecode(intermediateAddresses);
+
+                      if (extraRoute.isNotEmpty &&
+                          extraRoute[0] != null &&
+                          extraRoute[0].toString().isNotEmpty) {
+                        firstRoute = extraRoute[0].toString();
+                      }
+                      if (extraRoute.length > 1 &&
+                          extraRoute[1] != null &&
+                          extraRoute[1].toString().isNotEmpty) {
+                        secondRoute = extraRoute[1].toString();
+                      }
+                    } catch (_) {}
                   }
+
+                  final String pickupAddress =
+                      rideController.tripDetails?.pickupAddress ??
+                          rideController.finalFare?.pickupAddress ??
+                          '';
+                  final String destinationAddress =
+                      rideController.tripDetails?.destinationAddress ??
+                          rideController.finalFare?.destinationAddress ??
+                          '';
+                  final String entrance =
+                      rideController.tripDetails?.entrance ??
+                          rideController.finalFare?.entrance ??
+                          '';
+                  final String totalDistance = rideController
+                          .finalFare?.actualDistance
+                          ?.toString() ??
+                      rideController.tripDetails?.actualDistance ??
+                      rideController.finalFare?.estimatedDistance?.toString() ??
+                      '0';
 
                   return Column(children: [
                     Padding(
@@ -401,20 +432,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           },
                           children: [
                             const SizedBox(height: Dimensions.paddingSizeFour),
-                            if (rideController.tripDetails != null)
+                            if (pickupAddress.isNotEmpty &&
+                                destinationAddress.isNotEmpty)
                               RouteWidget(
-                                totalDistance: rideController
-                                        .finalFare?.actualDistance
-                                        ?.toString() ??
-                                    '0',
-                                fromAddress:
-                                    rideController.tripDetails!.pickupAddress!,
-                                toAddress: rideController
-                                    .tripDetails!.destinationAddress!,
+                                totalDistance: totalDistance,
+                                fromAddress: pickupAddress,
+                                toAddress: destinationAddress,
                                 extraOneAddress: firstRoute,
                                 extraTwoAddress: secondRoute,
-                                entrance:
-                                    rideController.tripDetails!.entrance ?? '',
+                                entrance: entrance,
                               ),
                           ],
                         ),
@@ -463,14 +489,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     fontSize: 18.0,
                     buttonText: 'pay_now'.tr,
                     onPressed: () {
-                      print('==============================');
-                      print('Pay Now Clicked');
-                      print(
-                          'Final Fare = ${Get.find<RideController>().finalFare}');
-                      print('Payment Type = ${paymentController.paymentType}');
-                      print(
-                          'Payment Index = ${paymentController.paymentTypeIndex}');
-                      print('==============================');
                       if (paymentController.paymentTypeIndex == 1 &&
                           paymentController.paymentGatewayIndex != -1) {
                         Get.to(() => DigitalPaymentScreen(

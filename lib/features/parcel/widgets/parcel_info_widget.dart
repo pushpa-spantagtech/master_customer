@@ -34,9 +34,19 @@ class _ParcelInfoWidgetState extends State<ParcelInfoWidget> {
     super.initState();
 
     if (widget.isSender) {
-      Get.find<ParcelController>().senderContactController.text =
-          Get.find<ProfileController>().profileModel!.data!.phone!;
-      Get.find<ParcelController>().senderNameController.text =
+      Get
+          .find<ParcelController>()
+          .senderContactController
+          .text =
+      Get
+          .find<ProfileController>()
+          .profileModel!
+          .data!
+          .phone!;
+      Get
+          .find<ParcelController>()
+          .senderNameController
+          .text =
           Get.find<ProfileController>().customerName();
     }
   }
@@ -55,8 +65,13 @@ class _ParcelInfoWidgetState extends State<ParcelInfoWidget> {
               showBorder: false,
               hintText: 'contact_number'.tr,
               fillColor: Get.isDarkMode
-                  ? Theme.of(context).cardColor
-                  : Theme.of(context).primaryColor.withValues(alpha: 0.04),
+                  ? Theme
+                  .of(context)
+                  .cardColor
+                  : Theme
+                  .of(context)
+                  .primaryColor
+                  .withValues(alpha: 0.04),
               controller: widget.isSender
                   ? parcelController.senderContactController
                   : parcelController.receiverContactController,
@@ -77,8 +92,13 @@ class _ParcelInfoWidgetState extends State<ParcelInfoWidget> {
                 capitalization: TextCapitalization.words,
                 hintText: 'name'.tr,
                 fillColor: Get.isDarkMode
-                    ? Theme.of(context).cardColor
-                    : Theme.of(context).primaryColor.withValues(alpha: 0.04),
+                    ? Theme
+                    .of(context)
+                    .cardColor
+                    : Theme
+                    .of(context)
+                    .primaryColor
+                    .withValues(alpha: 0.04),
                 controller: widget.isSender
                     ? parcelController.senderNameController
                     : parcelController.receiverNameController,
@@ -93,13 +113,14 @@ class _ParcelInfoWidgetState extends State<ParcelInfoWidget> {
                     parcelController.focusOnBottomSheet(widget.expandableKey)),
             TextFieldTitle(title: 'address'.tr, textOpacity: 0.8),
             InkWell(
-              onTap: () => RouteHelper.goPageAndHideTextField(
-                  context,
-                  PickMapScreen(
-                    type: widget.isSender
-                        ? LocationType.senderLocation
-                        : LocationType.receiverLocation,
-                  )),
+              onTap: () =>
+                  RouteHelper.goPageAndHideTextField(
+                      context,
+                      PickMapScreen(
+                        type: widget.isSender
+                            ? LocationType.senderLocation
+                            : LocationType.receiverLocation,
+                      )),
               child: CustomTextField(
                 prefix: false,
                 suffixIcon: Images.location,
@@ -108,8 +129,13 @@ class _ParcelInfoWidgetState extends State<ParcelInfoWidget> {
                 showBorder: false,
                 hintText: 'location'.tr,
                 fillColor: Get.isDarkMode
-                    ? Theme.of(context).cardColor
-                    : Theme.of(context).primaryColor.withValues(alpha: 0.04),
+                    ? Theme
+                    .of(context)
+                    .cardColor
+                    : Theme
+                    .of(context)
+                    .primaryColor
+                    .withValues(alpha: 0.04),
                 controller: widget.isSender
                     ? parcelController.senderAddressController
                     : parcelController.receiverAddressController,
@@ -125,86 +151,96 @@ class _ParcelInfoWidgetState extends State<ParcelInfoWidget> {
             GetBuilder<AddressController>(builder: (addressController) {
               return addressController.addressList != null
                   ? addressController.addressList!.isNotEmpty
-                      ? Padding(
+                  ? Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: Dimensions.paddingSizeSmall),
+                child: SizedBox(
+                  height: Get.width * 0.075,
+                  child: ListView.builder(
+                    itemCount: addressController.addressList?.length,
+                    padding: EdgeInsets.zero,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          if (widget.isSender) {
+                            Get.find<LocationController>()
+                                .setSenderAddress(addressController
+                                .addressList?[index]);
+                          } else {
+                            Get.find<LocationController>()
+                                .setReceiverAddress(addressController
+                                .addressList?[index]);
+                          }
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(
+                              right: Dimensions.paddingSizeSmall),
                           padding: const EdgeInsets.symmetric(
-                              vertical: Dimensions.paddingSizeSmall),
-                          child: SizedBox(
-                            height: Get.width * 0.075,
-                            child: ListView.builder(
-                              itemCount: addressController.addressList?.length,
-                              padding: EdgeInsets.zero,
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, index) {
-                                return InkWell(
-                                  onTap: () {
-                                    if (widget.isSender) {
-                                      Get.find<LocationController>()
-                                          .setSenderAddress(addressController
-                                              .addressList?[index]);
-                                    } else {
-                                      Get.find<LocationController>()
-                                          .setReceiverAddress(addressController
-                                              .addressList?[index]);
-                                    }
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.only(
-                                        right: Dimensions.paddingSizeSmall),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: Dimensions.paddingSize),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).cardColor,
-                                      border: Border.all(
-                                        color: Get.isDarkMode
-                                            ? Theme.of(context).hintColor
-                                            : Theme.of(context)
-                                                .primaryColor
-                                                .withValues(alpha: 0.4),
-                                        width: 0.5,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                          Dimensions.paddingSizeSmall),
-                                    ),
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Image.asset(
-                                            addressController
-                                                        .addressList?[index]
-                                                        .addressLabel ==
-                                                    'home'
-                                                ? Images.homeIcon
-                                                : addressController
-                                                            .addressList?[index]
-                                                            .addressLabel ==
-                                                        'office'
-                                                    ? Images.workIcon
-                                                    : Images.otherIcon,
-                                            color: Get.find<ThemeController>()
-                                                    .darkTheme
-                                                ? Theme.of(context).primaryColor
-                                                : Theme.of(context).hintColor,
-                                            height: 16,
-                                            width: 16,
-                                          ),
-                                          const SizedBox(
-                                              width:
-                                                  Dimensions.paddingSizeSmall),
-                                          Text(
-                                              addressController
-                                                  .addressList![index]
-                                                  .addressLabel!
-                                                  .tr,
-                                              style: textBold),
-                                        ]),
-                                  ),
-                                );
-                              },
+                              horizontal: Dimensions.paddingSize),
+                          decoration: BoxDecoration(
+                            color: Theme
+                                .of(context)
+                                .cardColor,
+                            border: Border.all(
+                              color: Get.isDarkMode
+                                  ? Theme
+                                  .of(context)
+                                  .hintColor
+                                  : Theme
+                                  .of(context)
+                                  .primaryColor
+                                  .withValues(alpha: 0.4),
+                              width: 0.5,
                             ),
+                            borderRadius: BorderRadius.circular(
+                                Dimensions.paddingSizeSmall),
                           ),
-                        )
-                      : const SizedBox(height: Dimensions.paddingSizeSmall)
+                          child: Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.start,
+                              children: [
+                                Image.asset(
+                                  addressController
+                                      .addressList?[index]
+                                      .addressLabel ==
+                                      'home'
+                                      ? Images.homeIcon
+                                      : addressController
+                                      .addressList?[index]
+                                      .addressLabel ==
+                                      'office'
+                                      ? Images.workIcon
+                                      : Images.otherIcon,
+                                  color: Get
+                                      .find<ThemeController>()
+                                      .darkTheme
+                                      ? Theme
+                                      .of(context)
+                                      .primaryColor
+                                      : Theme
+                                      .of(context)
+                                      .hintColor,
+                                  height: 16,
+                                  width: 16,
+                                ),
+                                const SizedBox(
+                                    width:
+                                    Dimensions.paddingSizeSmall),
+                                Text(
+                                    addressController
+                                        .addressList![index]
+                                        .addressLabel!
+                                        .tr,
+                                    style: textBold),
+                              ]),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              )
+                  : const SizedBox(height: Dimensions.paddingSizeSmall)
                   : const SizedBox(height: Dimensions.paddingSizeSmall);
             }),
             ButtonWidget(

@@ -14,6 +14,7 @@ class RentalTab extends StatefulWidget {
 
 class _RentalTabState extends State<RentalTab> {
   final RideController rideController = Get.find<RideController>();
+
   @override
   void initState() {
     super.initState();

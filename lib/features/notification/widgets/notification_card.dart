@@ -32,14 +32,16 @@ class NotificationCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(Dimensions.paddingSize),
                 margin:
-                    const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
+                const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
                 decoration: BoxDecoration(
                   border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.1)),
                   color: Get.isDarkMode
-                      ? Theme.of(context).scaffoldBackgroundColor
+                      ? Theme
+                      .of(context)
+                      .scaffoldBackgroundColor
                       : const Color.fromRGBO(255, 239, 203, 1),
                   borderRadius:
-                      BorderRadius.circular(Dimensions.paddingSizeSmall),
+                  BorderRadius.circular(Dimensions.paddingSizeSmall),
                 ),
                 child: Image.asset(
                   Images.notificationCarIcon,
@@ -65,11 +67,13 @@ class NotificationCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Get.isDarkMode
-              ? Theme.of(context).scaffoldBackgroundColor
+              ? Theme
+              .of(context)
+              .scaffoldBackgroundColor
               : const Color.fromRGBO(255, 255, 255, 1),
           border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.1)),
           borderRadius:
-              const BorderRadius.all(Radius.circular(Dimensions.radiusLarge)),
+          const BorderRadius.all(Radius.circular(Dimensions.radiusLarge)),
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: Dimensions.paddingSizeDefault,
@@ -82,7 +86,9 @@ class NotificationCard extends StatelessWidget {
             margin: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
             decoration: BoxDecoration(
               color: Get.isDarkMode
-                  ? Theme.of(context).scaffoldBackgroundColor
+                  ? Theme
+                  .of(context)
+                  .scaffoldBackgroundColor
                   : const Color.fromRGBO(255, 239, 203, 1),
               border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.1)),
               borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
@@ -97,20 +103,20 @@ class NotificationCard extends StatelessWidget {
           ),
           Expanded(
             child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Expanded(
                     child: Padding(
-                  padding: const EdgeInsets.only(
-                      right: Dimensions.paddingSizeExtraLarge),
-                  child: Text(
-                    notification.title ?? '',
-                    style: textMedium.copyWith(
-                        fontSize: Dimensions.fontSizeDefault),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                )),
+                      padding: const EdgeInsets.only(
+                          right: Dimensions.paddingSizeExtraLarge),
+                      child: Text(
+                        notification.title ?? '',
+                        style: textMedium.copyWith(
+                            fontSize: Dimensions.fontSizeDefault),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    )),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                       vertical: Dimensions.paddingSizeExtraSmall),

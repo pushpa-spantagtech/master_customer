@@ -15,13 +15,8 @@ class DottedBorderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        if (Get
-            .find<ParcelController>()
-            .parcelCategoryList == null ||
-            Get
-                .find<ParcelController>()
-                .parcelCategoryList!
-                .isEmpty) {
+        if (Get.find<ParcelController>().parcelCategoryList == null ||
+            Get.find<ParcelController>().parcelCategoryList!.isEmpty) {
           showCustomSnackBar('no_parcel_category_found'.tr);
         } else {
           Get.to(() => const MapScreen(fromScreen: MapScreenType.parcel));
@@ -32,17 +27,14 @@ class DottedBorderCard extends StatelessWidget {
         child: DottedBorder(
           dashPattern: const [5, 5],
           borderType: BorderType.RRect,
-          color: Theme
-              .of(context)
-              .primaryColor
-              .withValues(alpha: 0.3),
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
           radius: const Radius.circular(Dimensions.paddingSizeDefault),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(Dimensions.paddingSizeDefault),
             child: Container(
               decoration: BoxDecoration(
                   borderRadius:
-                  BorderRadius.circular(Dimensions.paddingSizeDefault)),
+                      BorderRadius.circular(Dimensions.paddingSizeDefault)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                     horizontal: Dimensions.paddingSizeExtraLarge,
@@ -56,9 +48,7 @@ class DottedBorderCard extends StatelessWidget {
                           Text(
                             'send'.tr,
                             style: textMedium.copyWith(
-                                color: Theme
-                                    .of(context)
-                                    .primaryColor,
+                                color: Theme.of(context).primaryColor,
                                 fontSize: Dimensions.fontSizeOverLarge),
                           ),
                           Padding(
@@ -66,9 +56,7 @@ class DottedBorderCard extends StatelessWidget {
                                   vertical: Dimensions.paddingSizeExtraSmall),
                               child: Text('safest_delivery'.tr,
                                   style: textMedium.copyWith(
-                                      color: Theme
-                                          .of(context)
-                                          .hintColor,
+                                      color: Theme.of(context).hintColor,
                                       fontSize: Dimensions.fontSizeDefault)))
                         ]),
                     const Spacer(),

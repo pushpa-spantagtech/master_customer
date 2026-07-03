@@ -83,7 +83,7 @@ class AuthRepository implements AuthRepositoryInterface {
       FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
           alert: true, badge: true, sound: true);
       NotificationSettings settings =
-          await FirebaseMessaging.instance.requestPermission(
+      await FirebaseMessaging.instance.requestPermission(
         alert: true,
         announcement: false,
         badge: true,
@@ -177,8 +177,8 @@ class AuthRepository implements AuthRepositoryInterface {
   }
 
   @override
-  Future<void> saveUserNumberAndPassword(
-      String code, String number, String password) async {
+  Future<void> saveUserNumberAndPassword(String code, String number,
+      String password) async {
     try {
       await sharedPreferences.setString(AppConstants.userPassword, password);
       await sharedPreferences.setString(AppConstants.userNumber, number);

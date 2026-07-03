@@ -12,7 +12,8 @@ class TripRepository implements TripRepositoryInterface {
   Future<Response> getTripList(String tripType, int offset, String from,
       String to, String status) async {
     return await apiClient.getData(
-        '${AppConstants.tripList}?type=ride_request&limit=20&offset=$offset&filter=$status&start=$from&end=$to');
+        '${AppConstants
+            .tripList}?type=ride_request&limit=20&offset=$offset&filter=$status&start=$from&end=$to');
   }
 
   @override
