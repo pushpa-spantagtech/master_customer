@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
-import 'package:ride_sharing_user_app/common_widgets/swipable_button_widget/slider_button_widget.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/tolltip_widget.dart';
-import 'package:ride_sharing_user_app/localization/localization_controller.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
@@ -27,12 +25,167 @@ class FindingRiderWidget extends StatefulWidget {
 }
 
 class _FindingRiderWidgetState extends State<FindingRiderWidget> {
-  bool isSearching = true;
+  static const Color _brandRed = Color(0xFFE71921);
+  static const Color _brandGold = Color(0xFFFFB100);
+  bool _cancelDialogOpen = false;
 
   @override
   void initState() {
-    Get.find<RideController>().countingTimeStates();
     super.initState();
+    Get.find<RideController>().countingTimeStates();
+  }
+
+  Future<void> _showCancelSearchDialog(RideController rideController) async {
+    if (_cancelDialogOpen) return;
+    _cancelDialogOpen = true;
+
+    await Get.dialog(
+      StatefulBuilder(
+        builder: (context, setDialogState) {
+          bool isCancelling = false;
+
+          Future<void> cancelRide() async {
+            if (isCancelling) return;
+
+            setDialogState(() {
+              isCancelling = true;
+            });
+
+            final response = await rideController.tripStatusUpdate(
+              rideController.tripDetails!.id!,
+              'cancelled',
+              'ride_request_cancelled_successfully',
+              '',
+            );
+
+            if (response.statusCode == 200) {
+              rideController.updateRideCurrentState(RideState.initial);
+              Get.find<MapController>().notifyMapController();
+              Get.find<RideController>().clearRideDetails();
+              Get.find<BottomMenuController>().navigateToDashboard();
+            } else {
+              if (Get.isDialogOpen ?? false) {
+                Get.back();
+              }
+            }
+          }
+
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(26),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.14),
+                    blurRadius: 28,
+                    offset: const Offset(0, 14),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 76,
+                    height: 76,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFECEE),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close_rounded,
+                      color: _brandRed,
+                      size: 38,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    'are_you_sure'.tr,
+                    textAlign: TextAlign.center,
+                    style: textBold.copyWith(
+                      fontSize: 22,
+                      color: const Color(0xFF121A2C),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'you_want_to_cancel_searching'.tr,
+                    textAlign: TextAlign.center,
+                    style: textMedium.copyWith(
+                      fontSize: 14,
+                      color: Theme.of(context).hintColor,
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: isCancelling ? null : () => Get.back(),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: const Color(0xFFFFF1C7),
+                        foregroundColor: _brandGold,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        'keep_searching'.tr,
+                        style: textBold.copyWith(
+                          color: _brandGold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: isCancelling ? null : cancelRide,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: _brandRed,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: isCancelling
+                          ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                          : Text(
+                        'cancel_searching'.tr,
+                        style: textBold.copyWith(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+      barrierDismissible: false,
+    );
+
+    _cancelDialogOpen = false;
   }
 
   @override
@@ -41,257 +194,187 @@ class _FindingRiderWidgetState extends State<FindingRiderWidget> {
       return GetBuilder<ParcelController>(builder: (parcelController) {
         return Padding(
           padding: const EdgeInsets.symmetric(
-              horizontal: Dimensions.paddingSizeDefault),
-          child: isSearching
-              ? Column(children: [
-                  TollTipWidget(
-                    showInsight: false,
-                    title: rideController.selectedCategory == RideType.parcel
-                        ? 'deliveryman'
-                        : 'rider_finding',
+            horizontal: Dimensions.paddingSizeDefault,
+          ),
+          child: Column(
+            children: [
+              TollTipWidget(
+                showInsight: false,
+                title: rideController.selectedCategory == RideType.parcel
+                    ? 'deliveryman'
+                    : 'rider_finding',
+              ),
+              const SizedBox(height: Dimensions.paddingSize),
+              const _SearchingOrangeProgress(),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: Dimensions.paddingSizeDefault,
+                ),
+                child: Image.asset(
+                  rideController.stateCount == 3
+                      ? Images.searchingCarIcon
+                      : Images.locationIcon,
+                  width: 60,
+                  height: 60,
+                ),
+              ),
+              Text(
+                widget.fromPage == FindingRide.parcel
+                    ? 'finding_deliveryman'.tr
+                    : rideController.stateCount == 0
+                    ? 'searching_for_rider'.tr
+                    : rideController.stateCount == 1
+                    ? 'please_wait_just_for_a_moment'.tr
+                    : rideController.stateCount == 2
+                    ? 'looks_like_riders_around_you_are_busy_now'.tr
+                    : 'looks_like_riders_around_you_are_not_interested'.tr,
+                style: textMedium.copyWith(
+                  fontSize: Dimensions.fontSizeDefault,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              (rideController.stateCount == 2 ||
+                  widget.fromPage == FindingRide.parcel)
+                  ? Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  'please_hold_on_a_little_more'.tr,
+                  style: textMedium.copyWith(
+                    fontSize: Dimensions.fontSizeDefault,
                   ),
-                  const SizedBox(height: Dimensions.paddingSize),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.27,
-                          child: LinearProgressIndicator(
-                            backgroundColor: Colors.grey.withValues(alpha: .50),
-                            color: const Color.fromRGBO(250, 173, 2, 1),
-                            value: rideController.firstCount,
-                          ),
+                ),
+              )
+                  : const SizedBox(),
+              if (rideController.stateCount != 3 &&
+                  widget.fromPage == FindingRide.ride)
+                const SizedBox(height: Dimensions.paddingSizeLarge * 2),
+              if (rideController.stateCount == 3 &&
+                  widget.fromPage == FindingRide.ride) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: Dimensions.paddingSizeDefault,
+                    horizontal: Dimensions.paddingSizeExtraOverLarge,
+                  ),
+                  child: ButtonWidget(
+                    buttonText: 'keep_searching'.tr,
+                    onPressed: () {
+                      widget.expandableKey.currentState?.contract();
+                      rideController.initCountingTimeStates(isRestart: true);
+                    },
+                    radius: 10,
+                    textColor: _brandGold,
+                    borderColor: const Color.fromRGBO(0, 0, 0, 0.1),
+                    backgroundColor: const Color.fromRGBO(255, 239, 203, 1),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: Dimensions.paddingSizeExtraOverLarge,
+                    right: Dimensions.paddingSizeExtraOverLarge,
+                    bottom: Dimensions.paddingSizeDefault,
+                  ),
+                  // child: ButtonWidget(
+                  //   buttonText: 'rise_fare'.tr,
+                  //   textColor: Colors.white,
+                  //   borderColor: const Color.fromRGBO(255, 128, 128, 0.2),
+                  //   backgroundColor: _brandGold,
+                  //   onPressed: () {
+                  //     rideController.updateRideCurrentState(RideState.riseFare);
+                  //   },
+                  //   radius: 10,
+                  // ),
+                ),
+              ],
+              if (widget.fromPage == FindingRide.parcel)
+                const SizedBox(height: Dimensions.paddingSizeDefault),
+              if (!(rideController.stateCount == 3 &&
+                  widget.fromPage == FindingRide.ride))
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: Dimensions.paddingSizeDefault,
+                    bottom: Dimensions.paddingSizeDefault,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showCancelSearchDialog(rideController),
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        color: _brandRed,
+                        size: 22,
+                      ),
+                      label: Text(
+                        'cancel_searching'.tr,
+                        style: textBold.copyWith(
+                          color: _brandRed,
+                          fontSize: 16,
                         ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.27,
-                          child: LinearProgressIndicator(
-                            backgroundColor: Colors.grey.withValues(alpha: .50),
-                            color: const Color.fromRGBO(250, 173, 2, 1),
-                            value: rideController.secondCount,
-                          ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        side: const BorderSide(
+                          color: _brandRed,
+                          width: 1.4,
                         ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.27,
-                          child: LinearProgressIndicator(
-                            backgroundColor: Colors.grey.withValues(alpha: .50),
-                            color: const Color.fromRGBO(250, 173, 2, 1),
-                            value: rideController.thirdCount,
-                          ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
                         ),
-                      ]),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: Dimensions.paddingSizeDefault),
-                    child: Image.asset(
-                      rideController.stateCount == 3
-                          ? Images.searchingCarIcon
-                          : Images.locationIcon,
-                      width: 60,
-                      height: 60,
+                      ),
                     ),
                   ),
-                  Text(
-                    widget.fromPage == FindingRide.parcel
-                        ? 'finding_deliveryman'.tr
-                        : rideController.stateCount == 0
-                            ? 'searching_for_rider'.tr
-                            : rideController.stateCount == 1
-                                ? 'please_wait_just_for_a_moment'.tr
-                                : rideController.stateCount == 2
-                                    ? 'looks_like_riders_around_you_are_busy_now'
-                                        .tr
-                                    : 'looks_like_riders_around_you_are_not_interested'
-                                        .tr,
-                    style: textMedium.copyWith(
-                        fontSize: Dimensions.fontSizeDefault),
-                    textAlign: TextAlign.center,
-                  ),
-                  (rideController.stateCount == 2 ||
-                          widget.fromPage == FindingRide.parcel)
-                      ? Text(
-                          'please_hold_on_a_little_more'.tr,
-                          style: textMedium.copyWith(
-                              fontSize: Dimensions.fontSizeDefault),
-                        )
-                      : const SizedBox(),
-                  if (rideController.stateCount != 3 &&
-                      widget.fromPage == FindingRide.ride)
-                    const SizedBox(height: Dimensions.paddingSizeLarge * 2),
-                  if (rideController.stateCount == 3 &&
-                      widget.fromPage == FindingRide.ride) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: Dimensions.paddingSizeDefault,
-                        horizontal: Dimensions.paddingSizeExtraOverLarge,
-                      ),
-                      child: ButtonWidget(
-                        buttonText: 'keep_searching'.tr,
-                        onPressed: () {
-                          widget.expandableKey.currentState?.contract();
-                          rideController.initCountingTimeStates(
-                              isRestart: true);
-                        },
-                        radius: 10,
-                        textColor: const Color.fromRGBO(250, 173, 2, 1),
-                        borderColor: const Color.fromRGBO(0, 0, 0, 0.1),
-                        backgroundColor: const Color.fromRGBO(255, 239, 203, 1),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: Dimensions.paddingSizeExtraOverLarge,
-                        right: Dimensions.paddingSizeExtraOverLarge,
-                        bottom: Dimensions.paddingSizeDefault,
-                      ),
-                      child: ButtonWidget(
-                        buttonText: 'rise_fare'.tr,
-                        textColor: const Color.fromRGBO(255, 255, 255, 1),
-                        borderColor: const Color.fromRGBO(255, 128, 128, 0.2),
-                        backgroundColor: const Color.fromRGBO(250, 173, 2, 1),
-                        onPressed: () {
-                          rideController
-                              .updateRideCurrentState(RideState.riseFare);
-                        },
-                        radius: 10,
-                      ),
-                    ),
-                  ],
-                  if (widget.fromPage == FindingRide.parcel)
-                    const SizedBox(height: Dimensions.paddingSizeDefault),
-                  !(rideController.stateCount == 3 &&
-                          widget.fromPage == FindingRide.ride)
-                      ? SliderButton(
-                          action: () {
-                            isSearching = false;
-                            widget.expandableKey.currentState?.expand();
-                            setState(() {});
-                          },
-                          label: Text(
-                            'cancel_searching'.tr,
-                            style: textSemiBold.copyWith(
-                                color: const Color.fromRGBO(250, 173, 2, 1)),
-                          ),
-                          dismissThresholds: 0.2,
-                          dismissible: false,
-                          shimmer: false,
-                          width: 1170,
-                          height: 40,
-                          buttonSize: 40,
-                          radius: 20,
-                          icon: Container(
-                            width: 38,
-                            height: 38,
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color.fromRGBO(255, 255, 255, 1)),
-                            child: Center(
-                                child: Icon(
-                              Get.find<LocalizationController>().isLtr
-                                  ? Icons.arrow_forward_ios_rounded
-                                  : Icons.keyboard_arrow_left,
-                              color: Colors.grey,
-                              size: 15.0,
-                            )),
-                          ),
-                          isLtr: Get.find<LocalizationController>().isLtr,
-                          boxShadow: const BoxShadow(blurRadius: 0),
-                          buttonColor: Colors.transparent,
-                          backgroundColor:
-                              const Color.fromRGBO(255, 239, 203, 1),
-                          baseColor: Theme.of(context).primaryColor,
-                        )
-                      : const SizedBox(),
-                ])
-              : Column(children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: Dimensions.paddingSizeDefault),
-                    child: Image.asset(Images.cancelRideIcon, width: 70),
-                  ),
-                  Text('are_you_sure'.tr,
-                      style: textMedium.copyWith(
-                          fontSize: Dimensions.fontSizeExtraLarge)),
-                  Text('you_want_to_cancel_searching'.tr,
-                      style: textMedium.copyWith(
-                        fontSize: Dimensions.fontSizeDefault,
-                        color: Theme.of(context).hintColor,
-                      )),
-                  rideController.isLoading
-                      ? const Padding(
-                          padding:
-                              EdgeInsets.all(Dimensions.paddingSizeDefault),
-                          child: CircularProgressIndicator(
-                            color: Color.fromRGBO(250, 173, 2, 1),
-                          ),
-                        )
-                      : Column(children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: Dimensions.paddingSizeDefault,
-                              horizontal: Dimensions.paddingSizeExtraOverLarge,
-                            ),
-                            child: ButtonWidget(
-                              buttonText: 'keep_searching'.tr,
-                              onPressed: () {
-                                widget.expandableKey.currentState?.contract();
-                                isSearching = true;
-                                setState(() {});
-                                rideController.initCountingTimeStates(
-                                    isRestart: true);
-                              },
-                              radius: 10,
-                              borderColor: const Color.fromRGBO(0, 0, 0, 0.1),
-                              backgroundColor:
-                                  const Color.fromRGBO(255, 239, 203, 1),
-                              textColor: Get.isDarkMode
-                                  ? Colors.white
-                                  : const Color.fromRGBO(250, 173, 2, 1),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: Dimensions.paddingSizeExtraOverLarge,
-                              right: Dimensions.paddingSizeExtraOverLarge,
-                              bottom: Dimensions.paddingSizeDefault,
-                            ),
-                            child: ButtonWidget(
-                              buttonText: 'cancel_searching'.tr,
-                              textColor: const Color.fromRGBO(255, 255, 255, 1),
-                              borderColor:
-                                  const Color.fromRGBO(255, 128, 128, 0.2),
-                              backgroundColor:
-                                  const Color.fromRGBO(250, 173, 2, 1),
-                              onPressed: () {
-                                widget.expandableKey.currentState?.contract();
-                                rideController
-                                    .tripStatusUpdate(
-                                  rideController.tripDetails!.id!,
-                                  'cancelled',
-                                  'ride_request_cancelled_successfully',
-                                  '',
-                                )
-                                    .then((value) {
-                                  if (value.statusCode == 200) {
-                                    rideController.updateRideCurrentState(
-                                        RideState.initial);
-                                    Get.find<MapController>()
-                                        .notifyMapController();
-                                    Get.find<RideController>()
-                                        .clearRideDetails();
-                                    Get.find<BottomMenuController>()
-                                        .navigateToDashboard();
-                                  }
-                                });
-                              },
-                              radius: 10,
-                            ),
-                          ),
-                        ]),
-                  if (rideController.isLoading)
-                    const SizedBox(height: Dimensions.paddingSizeSignUp),
-                ]),
+                ),
+            ],
+          ),
         );
       });
     });
+  }
+}
+
+class _SearchingOrangeProgress extends StatefulWidget {
+  const _SearchingOrangeProgress({super.key});
+
+  @override
+  State<_SearchingOrangeProgress> createState() => _SearchingOrangeProgressState();
+}
+
+class _SearchingOrangeProgressState extends State<_SearchingOrangeProgress>
+    with SingleTickerProviderStateMixin {
+
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(100),
+      child: SizedBox(
+        height: 4,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (_, __) => LinearProgressIndicator(
+            value: _controller.value,
+            minHeight: 4,
+            backgroundColor: const Color(0xFFE5E5E5),
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFB100)),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -113,9 +113,9 @@ class LocationController extends GetxController implements GetxService {
   final TextEditingController locationController = TextEditingController();
   final TextEditingController entranceController = TextEditingController();
   final TextEditingController pickupLocationController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController destinationLocationController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController extraRouteOneController = TextEditingController();
   final TextEditingController extraRouteTwoController = TextEditingController();
   final FocusNode entranceNode = FocusNode();
@@ -227,8 +227,8 @@ class LocationController extends GetxController implements GetxService {
 
   Future<Address?> getCurrentLocation(
       {bool isAnimate = true,
-      GoogleMapController? mapController,
-      LocationType type = LocationType.from}) async {
+        GoogleMapController? mapController,
+        LocationType type = LocationType.from}) async {
     bool isSuccess = await checkPermission(() {});
     Address? addressModel;
     if (isSuccess) {
@@ -263,7 +263,7 @@ class LocationController extends GetxController implements GetxService {
               _position.longitude.toString(),
               false);
           String address =
-              await initAddressAddressFromGeocode(_initialPosition);
+          await initAddressAddressFromGeocode(_initialPosition);
 
           if (responseModel.isSuccess && responseModel.zoneId != null) {
             addressModel = Address(
@@ -277,18 +277,29 @@ class LocationController extends GetxController implements GetxService {
         }
 
         _locationSubscription =
-            Geolocator.getPositionStream().listen((newLocalData) async {
-          if (mapController != null) {
-            Get.find<MapController>().updateMarkerAndCircle(
-              latLng: LatLng(newLocalData.latitude, newLocalData.longitude),
-            );
-          }
+            Geolocator.getPositionStream(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.high,
+                distanceFilter: 10,
+              ),
+            ).listen((newLocalData) async {
+              // Live GPS updates must only update the user's current/live location.
+              // Do not update pickup/fromAddress here, otherwise the selected source
+              // can jump while the user is moving or while the map camera changes.
+              _position = newLocalData;
+              _initialPosition = LatLng(newLocalData.latitude, newLocalData.longitude);
 
-          await locationServiceInterface.storeLiveLocation(
-            newLocalData.latitude.toString(),
-            newLocalData.longitude.toString(),
-          );
-        });
+              if (mapController != null) {
+                Get.find<MapController>().updateMarkerAndCircle(
+                  latLng: LatLng(newLocalData.latitude, newLocalData.longitude),
+                );
+              }
+
+              await locationServiceInterface.storeLiveLocation(
+                newLocalData.latitude.toString(),
+                newLocalData.longitude.toString(),
+              );
+            });
       } catch (e) {
         if (kDebugMode) {
           print(e);
@@ -298,7 +309,7 @@ class LocationController extends GetxController implements GetxService {
         mapController.animateCamera(CameraUpdate.newCameraPosition(
           CameraPosition(
               target:
-                  LatLng(_initialPosition.latitude, _initialPosition.longitude),
+              LatLng(_initialPosition.latitude, _initialPosition.longitude),
               zoom: 16),
         ));
       }
@@ -388,7 +399,7 @@ class LocationController extends GetxController implements GetxService {
 
   Future<String> initAddressAddressFromGeocode(LatLng latLng) async {
     Response response =
-        await locationServiceInterface.getAddressFromGeocode(latLng);
+    await locationServiceInterface.getAddressFromGeocode(latLng);
     if (response.statusCode == 200) {
       _address =
           response.body['data']['results'][0]['formatted_address'].toString();
@@ -407,7 +418,7 @@ class LocationController extends GetxController implements GetxService {
 
   Future<String> getAddressFromGeocode(LatLng latLng) async {
     Response response =
-        await locationServiceInterface.getAddressFromGeocode(latLng);
+    await locationServiceInterface.getAddressFromGeocode(latLng);
     if (response.statusCode == 200) {
       _address =
           response.body['data']['results'][0]['formatted_address'].toString();
@@ -474,43 +485,36 @@ class LocationController extends GetxController implements GetxService {
       _loading = true;
       update();
       try {
+        final Position newPosition = Position(
+          latitude: positionLatLng.latitude,
+          longitude: positionLatLng.longitude,
+          timestamp: DateTime.now(),
+          heading: 1,
+          accuracy: 1,
+          altitude: 1,
+          speedAccuracy: 1,
+          speed: 1,
+          altitudeAccuracy: 1,
+          headingAccuracy: 1,
+        );
+
         if (fromAddressScreen) {
-          type == LocationType.from
-              ? fromAddress
-              : type == LocationType.to
-                  ? toAddress
-                  : type == LocationType.extraOne
-                      ? extraRouteOneController.text
-                      : type == LocationType.extraTwo
-                          ? extraRouteTwoController.text
-                          : _position = Position(
-                              latitude: positionLatLng.latitude,
-                              longitude: positionLatLng.longitude,
-                              timestamp: DateTime.now(),
-                              heading: 1,
-                              accuracy: 1,
-                              altitude: 1,
-                              speedAccuracy: 1,
-                              speed: 1,
-                              altitudeAccuracy: 1,
-                              headingAccuracy: 1);
+          if (type == LocationType.location || type == null) {
+            _position = newPosition;
+          }
         } else {
-          _pickPosition = Position(
-              latitude: positionLatLng.latitude,
-              longitude: positionLatLng.longitude,
-              timestamp: DateTime.now(),
-              heading: 1,
-              accuracy: 1,
-              altitude: 1,
-              speedAccuracy: 1,
-              speed: 1,
-              altitudeAccuracy: 1,
-              headingAccuracy: 1);
+          // This is only the temporary map-picked position used by PickMapScreen.
+          // Do not directly update fromAddress/toAddress here. The final assignment
+          // must happen only when the user taps Pick Location.
+          _pickPosition = newPosition;
         }
+
         ZoneResponseModel responseModel = await getZone(
-            positionLatLng.latitude.toString(),
-            positionLatLng.longitude.toString(),
-            true);
+          positionLatLng.latitude.toString(),
+          positionLatLng.longitude.toString(),
+          true,
+        );
+
         if (Get.find<RideController>().isOutstationRide) {
           _buttonDisabled = false;
         } else if (responseModel.isSuccess) {
@@ -518,19 +522,63 @@ class LocationController extends GetxController implements GetxService {
         } else {
           _buttonDisabled = true;
         }
+
         if (_changeAddress) {
           String addressFromGeocode = await getAddressFromGeocode(
-              LatLng(positionLatLng.latitude, positionLatLng.longitude));
-          fromAddressScreen
-              ? _address = addressFromGeocode
-              : _pickAddress = addressFromGeocode;
+            LatLng(positionLatLng.latitude, positionLatLng.longitude),
+          );
 
-          locationController.text = address;
+          if (fromAddressScreen) {
+            _address = addressFromGeocode;
+
+            if (type == LocationType.from) {
+              fromAddress = Address(
+                latitude: positionLatLng.latitude,
+                longitude: positionLatLng.longitude,
+                address: addressFromGeocode,
+                zoneId: _zoneID,
+              );
+              pickupLocationController.text = addressFromGeocode;
+            } else if (type == LocationType.to) {
+              toAddress = Address(
+                latitude: positionLatLng.latitude,
+                longitude: positionLatLng.longitude,
+                address: addressFromGeocode,
+                zoneId: _zoneID,
+              );
+              destinationLocationController.text = addressFromGeocode;
+            } else if (type == LocationType.extraOne) {
+              extraRouteAddress = Address(
+                latitude: positionLatLng.latitude,
+                longitude: positionLatLng.longitude,
+                address: addressFromGeocode,
+                zoneId: _zoneID,
+              );
+              extraRouteOneController.text = addressFromGeocode;
+            } else if (type == LocationType.extraTwo) {
+              extraRouteTwoAddress = Address(
+                latitude: positionLatLng.latitude,
+                longitude: positionLatLng.longitude,
+                address: addressFromGeocode,
+                zoneId: _zoneID,
+              );
+              extraRouteTwoController.text = addressFromGeocode;
+            } else {
+              locationController.text = addressFromGeocode;
+            }
+          } else {
+            // PickMapScreen preview address only. This text is shown in the map
+            // search pill. It must not overwrite pickup/destination fields yet.
+            _pickAddress = addressFromGeocode;
+          }
         } else {
           _changeAddress = true;
         }
-        // ignore: empty_catches
-      } catch (e) {}
+      } catch (e) {
+        if (kDebugMode) {
+          print(e);
+        }
+      }
     } else {
       _updateAddAddressData = true;
     }
@@ -564,11 +612,11 @@ class LocationController extends GetxController implements GetxService {
         extraRouteTwoAddress = address;
       } else if (type == LocationType.senderLocation) {
         Get.find<ParcelController>().senderAddressController.text =
-            address.address!;
+        address.address!;
         parcelSenderAddress = address;
       } else if (type == LocationType.receiverLocation) {
         Get.find<ParcelController>().receiverAddressController.text =
-            address.address!;
+        address.address!;
         parcelReceiverAddress = address;
       } else {
         _pickAddress = address.address!;
@@ -622,7 +670,7 @@ class LocationController extends GetxController implements GetxService {
     Response response = await locationServiceInterface.getPlaceDetails(placeID);
     if (response.statusCode == 200 && response.body['data']['status'] == 'OK') {
       PlaceDetailsModel placeDetails =
-          PlaceDetailsModel.fromJson(response.body);
+      PlaceDetailsModel.fromJson(response.body);
       latLng = LatLng(placeDetails.data!.result!.geometry!.location!.lat!,
           placeDetails.data!.result!.geometry!.location!.lng!);
 // pushpa
@@ -633,10 +681,26 @@ class LocationController extends GetxController implements GetxService {
         if (fromSearch) {
           if (type == LocationType.from) {
             fromAddress = Address(
-                latitude: latLng.latitude,
-                longitude: latLng.longitude,
-                address: address);
+              latitude: latLng.latitude,
+              longitude: latLng.longitude,
+              address: address,
+              zoneId: _zoneID,
+            );
             pickupLocationController.text = address;
+
+            _pickPosition = Position(
+              latitude: latLng.latitude,
+              longitude: latLng.longitude,
+              timestamp: DateTime.now(),
+              accuracy: 1,
+              altitude: 1,
+              heading: 1,
+              speed: 1,
+              speedAccuracy: 1,
+              altitudeAccuracy: 1,
+              headingAccuracy: 1,
+            );
+            _pickAddress = address;
           } else if (type == LocationType.to) {
             if (Get.find<RideController>().isOutstationRide) {
               selecting = false;
@@ -649,6 +713,7 @@ class LocationController extends GetxController implements GetxService {
               latitude: latLng.latitude,
               longitude: latLng.longitude,
               address: address,
+              zoneId: _zoneID,
             );
             destinationLocationController.text = address;
           } else if (type == LocationType.extraOne) {
@@ -666,7 +731,8 @@ class LocationController extends GetxController implements GetxService {
           }
         }
 
-        _pickPosition = Position(
+        if (!fromSearch) {
+          _pickPosition = Position(
             latitude: latLng.latitude,
             longitude: latLng.longitude,
             timestamp: DateTime.now(),
@@ -676,8 +742,10 @@ class LocationController extends GetxController implements GetxService {
             speed: 1,
             speedAccuracy: 1,
             altitudeAccuracy: 1,
-            headingAccuracy: 1);
-        _pickAddress = address;
+            headingAccuracy: 1,
+          );
+          _pickAddress = address;
+        }
 
         _changeAddress = false;
         if (mapController != null) {
@@ -688,10 +756,10 @@ class LocationController extends GetxController implements GetxService {
         _loading = false;
         update();
         selectedAddress = Address(
-          latitude: pickPosition.latitude,
-          longitude: pickPosition.longitude,
+          latitude: latLng.latitude,
+          longitude: latLng.longitude,
           addressLabel: 'others',
-          address: pickAddress,
+          address: address,
           zoneId: _zoneID,
         );
       } else {

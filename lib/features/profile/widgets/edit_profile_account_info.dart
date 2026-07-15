@@ -57,7 +57,7 @@ class _EditProfileAccountInfoState extends State<EditProfileAccountInfo> {
             prefixIcon: Images.editProfileName,
             borderRadius: 10,
             capitalization: TextCapitalization.words,
-            showBorder: false,
+            showBorder: true,
             controller: lastNameController,
             hintText: 'enter_last_name'.tr,
           ),

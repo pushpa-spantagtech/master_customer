@@ -25,16 +25,17 @@ class DottedBorderCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
         child: DottedBorder(
-          dashPattern: const [5, 5],
-          borderType: BorderType.RRect,
-          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
-          radius: const Radius.circular(Dimensions.paddingSizeDefault),
+          options: RoundedRectDottedBorderOptions(
+            dashPattern: const [5, 5],
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+            radius: const Radius.circular(Dimensions.paddingSizeDefault),
+          ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(Dimensions.paddingSizeDefault),
             child: Container(
               decoration: BoxDecoration(
                   borderRadius:
-                      BorderRadius.circular(Dimensions.paddingSizeDefault)),
+                  BorderRadius.circular(Dimensions.paddingSizeDefault)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                     horizontal: Dimensions.paddingSizeExtraLarge,

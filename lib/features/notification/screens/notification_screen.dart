@@ -31,7 +31,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       body: BodyWidget(
         appBar: AppBarWidget(
           title: 'notification'.tr,
-          showBackButton: false,
+          showBackButton: true,
           toolbarHeight: 65,
           fontSize: 18,
           backgroundColor: const Color.fromRGBO(255, 0, 0, 1),

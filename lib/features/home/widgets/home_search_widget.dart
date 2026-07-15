@@ -1,92 +1,114 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/util/images.dart';
-import 'package:ride_sharing_user_app/util/styles.dart';
 import 'package:ride_sharing_user_app/features/set_destination/screens/set_destination_screen.dart';
+import 'package:ride_sharing_user_app/util/styles.dart';
 
 class HomeSearchWidget extends StatelessWidget {
   final bool isLocal;
+  final bool isRental;
   final bool isOutstation;
 
   const HomeSearchWidget({
     super.key,
     this.isLocal = false,
+    this.isRental = false,
     this.isOutstation = false,
   });
 
+  static const Color _brandRed = Color(0xFFE71921);
+  static const Color _ink = Color(0xFF121A2C);
+  static const Color _muted = Color(0xFF8B93A1);
+
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      cursorColor: const Color.fromRGBO(250, 173, 2, 1),
-      autofocus: false,
-      readOnly: true,
-      textAlignVertical: TextAlignVertical.center,
-      textInputAction: TextInputAction.search,
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: Dimensions.paddingSizeDefault,
-          vertical: Dimensions.paddingSizeExtraSmall,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: Color.fromRGBO(250, 173, 2, 1),
-          ),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: Color.fromRGBO(250, 173, 2, 1),
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: Color.fromRGBO(250, 173, 2, 1),
-          ),
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: Color.fromRGBO(250, 173, 2, 1),
-          ),
-        ),
-        isDense: true,
-        hintText: 'where_to_go'.tr,
-        hintStyle: textMedium.copyWith(
-          color: const Color.fromRGBO(20, 20, 20, 1),
-        ),
-        // suffixIcon: IconButton(
-        //   color: Theme.of(context).hintColor,
-        //   onPressed: () {
-        //     Get.dialog(const VoiceSearchDialog(), barrierDismissible: false);
-        //   },
-        //   icon: Image.asset(
-        //     Images.microPhoneIcon,
-        //     color: Get.isDarkMode ? Theme.of(context).hintColor : null,
-        //     height: 20,
-        //     width: 20,
-        //   ),
-        // ),
-        prefixIcon: IconButton(
-          onPressed: () => Get.to(
+    if (isRental) {
+      return const SizedBox.shrink();
+    }
+
+    return InkWell(
+      onTap: () => Get.to(
             () => SetDestinationScreen(
-              isLocal: isLocal,
-              isOutstation: isOutstation,
-            ),
-          ),
-          icon: Image.asset(
-            Images.homeSearchIcon,
-            color: Get.isDarkMode ? Theme.of(context).hintColor : null,
-            height: 15,
-            width: 15,
-          ),
+          isLocal: isLocal,
+          isRental: isRental,
+          isOutstation: isOutstation,
         ),
       ),
-      onTap: () => Get.to(
-        () =>
-            SetDestinationScreen(isLocal: isLocal, isOutstation: isOutstation),
+      borderRadius: BorderRadius.circular(18),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 20),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+
+            Container(
+              height: 76,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: const Color(0xFFFFCACA),
+                  width: 1.3,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _brandRed.withValues(alpha: 0.07),
+                    blurRadius: 22,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF1F1),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.location_on_rounded,
+                      color: _brandRed,
+                      size: 23,
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Text(
+                      'where_to_go'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textBold.copyWith(
+                        color: _ink,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Positioned(
+              left: 18,
+              top: -9,
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Text(
+                  isOutstation ? 'Drop city' : 'Destination',
+                  style: textMedium.copyWith(
+                    color: _brandRed,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

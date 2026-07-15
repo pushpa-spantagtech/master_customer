@@ -43,10 +43,11 @@ class WalletMoneyAmountWidget extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(Dimensions.paddingSizeDefault,
                   0, Dimensions.paddingSizeSmall, Dimensions.paddingSizeSmall),
               child: DottedBorder(
-                dashPattern: const [1, 1],
-                borderType: BorderType.RRect,
-                color: Theme.of(context).primaryColor,
-                radius: const Radius.circular(Dimensions.paddingSizeDefault),
+                options: RoundedRectDottedBorderOptions(
+                  dashPattern: const [1, 1],
+                  color: Theme.of(context).primaryColor,
+                  radius: const Radius.circular(Dimensions.paddingSizeDefault),
+                ),
                 child: ClipRRect(
                   borderRadius:
                       BorderRadius.circular(Dimensions.paddingSizeDefault),

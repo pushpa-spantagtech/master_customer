@@ -17,6 +17,7 @@ import 'package:ride_sharing_user_app/features/splash/controllers/config_control
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/helper/pusher_helper.dart';
 
+
 class MessageController extends GetxController implements GetxService {
   final MessageServiceInterface messageServiceInterface;
 
@@ -107,12 +108,17 @@ class MessageController extends GetxController implements GetxService {
     if (isRemove) {
       _otherFile = null;
       _file = null;
+      objFile = null;
     } else {
-      _otherFile = (await FilePicker.platform.pickFiles())!;
-      if (_otherFile != null) {
+      _otherFile = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+      );
+
+      if (_otherFile != null && _otherFile!.files.isNotEmpty) {
         objFile = _otherFile!.files.single;
       }
     }
+
     update();
   }
 

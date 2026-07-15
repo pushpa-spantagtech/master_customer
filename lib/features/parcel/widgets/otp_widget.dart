@@ -37,7 +37,7 @@ class _OtpWidgetState extends State<OtpWidget> {
                             color: const Color.fromRGBO(250, 173, 2, 1)),
                         color: const Color.fromRGBO(255, 255, 255, 1),
                         borderRadius:
-                            BorderRadius.circular(Dimensions.paddingSizeSix)),
+                        BorderRadius.circular(Dimensions.paddingSizeSix)),
                     child: Center(
                         child: Text('${rideController.tripDetails?.otp?[0]}',
                             style: textBold.copyWith(
@@ -55,7 +55,7 @@ class _OtpWidgetState extends State<OtpWidget> {
                             color: const Color.fromRGBO(250, 173, 2, 1)),
                         color: const Color.fromRGBO(255, 255, 255, 1),
                         borderRadius:
-                            BorderRadius.circular(Dimensions.paddingSizeSix)),
+                        BorderRadius.circular(Dimensions.paddingSizeSix)),
                     child: Center(
                         child: Text('${rideController.tripDetails?.otp?[1]}',
                             style: textBold.copyWith(
@@ -73,7 +73,7 @@ class _OtpWidgetState extends State<OtpWidget> {
                             color: const Color.fromRGBO(250, 173, 2, 1)),
                         color: const Color.fromRGBO(255, 255, 255, 1),
                         borderRadius:
-                            BorderRadius.circular(Dimensions.paddingSizeSix)),
+                        BorderRadius.circular(Dimensions.paddingSizeSix)),
                     child: Center(
                         child: Text('${rideController.tripDetails?.otp?[2]}',
                             style: textBold.copyWith(
@@ -91,7 +91,7 @@ class _OtpWidgetState extends State<OtpWidget> {
                             color: const Color.fromRGBO(250, 173, 2, 1)),
                         color: const Color.fromRGBO(255, 255, 255, 1),
                         borderRadius:
-                            BorderRadius.circular(Dimensions.paddingSizeSix)),
+                        BorderRadius.circular(Dimensions.paddingSizeSix)),
                     child: Center(
                         child: Text('${rideController.tripDetails?.otp?[3]}',
                             style: textBold.copyWith(
@@ -120,7 +120,7 @@ class _OtpWidgetState extends State<OtpWidget> {
                             fontSize: Dimensions.fontSizeDefault)),
                     TextSpan(
                         text: ''
-                                'share_the_pin'
+                            'share_the_pin'
                             .tr,
                         style: textSemiBold.copyWith(
                             color: const Color.fromRGBO(250, 173, 2, 1),

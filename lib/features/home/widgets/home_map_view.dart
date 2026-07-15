@@ -16,8 +16,9 @@ import 'package:ride_sharing_user_app/features/location/controllers/location_con
 
 class HomeMapView extends StatefulWidget {
   final String? title;
+  final bool fullScreen;
 
-  const HomeMapView({super.key, this.title});
+  const HomeMapView({super.key, this.title, this.fullScreen = false});
 
   @override
   HomeMapViewState createState() => HomeMapViewState();
@@ -26,11 +27,6 @@ class HomeMapView extends StatefulWidget {
 class HomeMapViewState extends State<HomeMapView> {
   GoogleMapController? _mapController;
   int isFirstCount = 0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -42,138 +38,108 @@ class HomeMapViewState extends State<HomeMapView> {
   Widget build(BuildContext context) {
     return GetBuilder<MapController>(builder: (mapController) {
       return GetBuilder<LocationController>(builder: (locationController) {
-        Completer<GoogleMapController> mapCompleter =
-            Completer<GoogleMapController>();
-        if (mapController.mapController != null) {
+        final Completer<GoogleMapController> mapCompleter = Completer<GoogleMapController>();
+        if (mapController.mapController != null && !mapCompleter.isCompleted) {
           mapCompleter.complete(mapController.mapController);
         }
 
+        final double mapHeight = widget.fullScreen
+            ? Get.height
+            : ((Get.find<BannerController>().bannerList != null &&
+            Get.find<BannerController>().bannerList!.isNotEmpty) ||
+            (Get.find<OfferController>().bestOfferModel != null &&
+                Get.find<OfferController>().bestOfferModel!.data != null &&
+                Get.find<OfferController>().bestOfferModel!.data!.isNotEmpty) ||
+            (Get.find<CouponController>().couponModel != null &&
+                Get.find<CouponController>().couponModel!.data != null &&
+                Get.find<CouponController>().couponModel!.data!.isNotEmpty)
+            ? Get.height * 0.75
+            : Get.height * 0.55);
+
         if (mapController.nearestDeliveryManMarkers == null) {
-          return SizedBox(
-            height: (Get.find<BannerController>().bannerList != null &&
-                        Get.find<BannerController>().bannerList!.isNotEmpty) ||
-                    (Get.find<OfferController>().bestOfferModel != null &&
-                        Get.find<OfferController>().bestOfferModel!.data !=
-                            null &&
-                        Get.find<OfferController>()
-                            .bestOfferModel!
-                            .data!
-                            .isNotEmpty) ||
-                    (Get.find<CouponController>().couponModel != null &&
-                        Get.find<CouponController>().couponModel!.data !=
-                            null &&
-                        Get.find<CouponController>()
-                            .couponModel!
-                            .data!
-                            .isNotEmpty)
-                ? Get.height * 0.75
-                : Get.height * 0.55,
-            child: const BannerShimmer(),
-          );
+          return SizedBox(height: mapHeight, child: const BannerShimmer());
         }
-        return Stack(
-          children: [
-            Column(children: [
-              if (widget.title != null) ...[
-                CustomTitle(
-                  title: widget.title!.tr,
-                  color: Theme.of(context).textTheme.bodyLarge!.color,
-                  fontSize: Dimensions.fontSizeDefault,
-                ),
-                const SizedBox(height: Dimensions.paddingSizeSmall),
-              ],
-              Container(
-                height: (Get.find<BannerController>().bannerList != null &&
-                            Get.find<BannerController>()
-                                .bannerList!
-                                .isNotEmpty) ||
-                        (Get.find<OfferController>().bestOfferModel != null &&
-                            Get.find<OfferController>().bestOfferModel!.data !=
-                                null &&
-                            Get.find<OfferController>()
-                                .bestOfferModel!
-                                .data!
-                                .isNotEmpty) ||
-                        (Get.find<CouponController>().couponModel != null &&
-                            Get.find<CouponController>().couponModel!.data !=
-                                null &&
-                            Get.find<CouponController>()
-                                .couponModel!
-                                .data!
-                                .isNotEmpty)
-                    ? Get.height * 0.75
-                    : Get.height * 0.55,
-                decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.paddingSizeSmall),
-                  border: Border.all(
-                      color:
-                          Theme.of(context).hintColor.withValues(alpha: 0.35)),
-                ),
-                child: ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.paddingSizeSmall),
-                  child: GoogleMap(
-                    style: Get.isDarkMode
-                        ? Get.find<ThemeController>().darkMap
-                        : Get.find<ThemeController>().lightMap,
-                    markers: mapController.nearestDeliveryManMarkers!.toSet(),
-                    initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                          Get.find<LocationController>()
-                                  .getUserAddress()
-                                  ?.latitude ??
-                              0,
-                          Get.find<LocationController>()
-                                  .getUserAddress()
-                                  ?.longitude ??
-                              0,
-                        ),
-                        zoom: 16),
-                    minMaxZoomPreference: const MinMaxZoomPreference(0, 16),
-                    onMapCreated: (gController) {
-                      _mapController = gController;
-                      calculateCenterBound(
-                        Get.find<LocationController>()
-                                .getUserAddress()
-                                ?.latitude ??
-                            0,
-                        Get.find<LocationController>()
-                                .getUserAddress()
-                                ?.longitude ??
-                            0,
-                      );
-                      mapController.setMapController(gController);
-                    },
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: false,
-                    zoomControlsEnabled: false,
-                    zoomGesturesEnabled: false,
-                  ),
+
+        final LatLng initialTarget = LatLng(
+          Get.find<LocationController>().getUserAddress()?.latitude ?? 0,
+          Get.find<LocationController>().getUserAddress()?.longitude ?? 0,
+        );
+
+        Widget map = GoogleMap(
+          style: Get.isDarkMode
+              ? Get.find<ThemeController>().darkMap
+              : Get.find<ThemeController>().lightMap,
+          markers: mapController.nearestDeliveryManMarkers!.toSet(),
+          initialCameraPosition: CameraPosition(target: initialTarget, zoom: 15.5),
+          minMaxZoomPreference: const MinMaxZoomPreference(0, 18),
+          onMapCreated: (gController) {
+            _mapController = gController;
+            calculateCenterBound(initialTarget.latitude, initialTarget.longitude);
+            mapController.setMapController(gController);
+          },
+          myLocationEnabled: true,
+          myLocationButtonEnabled: false,
+          zoomControlsEnabled: false,
+          zoomGesturesEnabled: true,
+          scrollGesturesEnabled: true,
+          rotateGesturesEnabled: false,
+          tiltGesturesEnabled: false,
+          compassEnabled: false,
+        );
+
+        if (widget.fullScreen) {
+          return Stack(
+            children: [
+              Positioned.fill(child: map),
+              Positioned(
+                right: 18,
+                bottom: Get.height * 0.48,
+                child: _FloatingMapButton(
+                  icon: Icons.my_location_rounded,
+                  onTap: () async {
+                    await locationController.getCurrentLocation(mapController: _mapController);
+                    await _mapController?.animateCamera(
+                      CameraUpdate.newCameraPosition(
+                        CameraPosition(target: Get.find<LocationController>().initialPosition, zoom: 16),
+                      ),
+                    );
+                  },
                 ),
               ),
-            ]),
+            ],
+          );
+        }
+
+        return Column(children: [
+          if (widget.title != null) ...[
+            CustomTitle(
+              title: widget.title!.tr,
+              color: Theme.of(context).textTheme.bodyLarge!.color,
+              fontSize: Dimensions.fontSizeDefault,
+            ),
+            const SizedBox(height: Dimensions.paddingSizeSmall),
           ],
-        );
+          Container(
+            height: mapHeight,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+              border: Border.all(color: Theme.of(context).hintColor.withValues(alpha: 0.35)),
+            ),
+            child: ClipRRect(borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall), child: map),
+          ),
+        ]);
       });
     });
   }
 
   LatLng calculateCenterBound(double lat, double lng) {
-    double searchRadius =
-        (Get.find<ConfigController>().config?.searchRadius ?? 0) / 2;
-    // Calculating coordinates for center left , center right ,center top, center bottom
+    double searchRadius = (Get.find<ConfigController>().config?.searchRadius ?? 0) / 2;
     List<LatLng> list = [];
-    list.add(calculateOffset(
-        LatLng(lat, lng), searchRadius, 270)); // 270 degrees (West lat-lng)
-    list.add(calculateOffset(
-        LatLng(lat, lng), searchRadius, 90)); // 270 degrees (East  lat-lng)
-    list.add(calculateOffset(
-        LatLng(lat, lng), searchRadius, 180)); // 270 degrees (South  lat-lng)
-    list.add(calculateOffset(
-        LatLng(lat, lng), searchRadius, 360)); // 270 degrees (North  lat-lng)
-    LatLngBounds bounds =
-        Get.find<MapController>().boundWithMaximumLatLngPoint(list);
+    list.add(calculateOffset(LatLng(lat, lng), searchRadius, 270));
+    list.add(calculateOffset(LatLng(lat, lng), searchRadius, 90));
+    list.add(calculateOffset(LatLng(lat, lng), searchRadius, 180));
+    list.add(calculateOffset(LatLng(lat, lng), searchRadius, 360));
+    LatLngBounds bounds = Get.find<MapController>().boundWithMaximumLatLngPoint(list);
     LatLng centerBounds = LatLng(
       (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
       (bounds.northeast.longitude + bounds.southwest.longitude) / 2,
@@ -181,14 +147,13 @@ class HomeMapViewState extends State<HomeMapView> {
 
     if (isFirstCount == 0) {
       isFirstCount++;
-      Get.find<MapController>()
-          .zoomToFit(_mapController, bounds, centerBounds, 0);
+      Get.find<MapController>().zoomToFit(_mapController, bounds, centerBounds, 0);
     }
     return centerBounds;
   }
 
   LatLng calculateOffset(LatLng center, double distance, double bearing) {
-    const double earthRadius = 6371.0; // Radius of the Earth in kilometers
+    const double earthRadius = 6371.0;
     double radLat = radians(center.latitude);
     double radLon = radians(center.longitude);
     double radBearing = radians(bearing);
@@ -200,11 +165,36 @@ class HomeMapViewState extends State<HomeMapView> {
     return LatLng(degrees(newLat), degrees(newLon));
   }
 
-  double radians(double degrees) {
-    return degrees * pi / 180;
-  }
+  double radians(double degrees) => degrees * pi / 180;
+  double degrees(double radians) => radians * 180 / pi;
+}
 
-  double degrees(double radians) {
-    return radians * 180 / pi;
+class _FloatingMapButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _FloatingMapButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(color: Colors.black.withValues(alpha: 0.14), blurRadius: 20, offset: const Offset(0, 10)),
+            ],
+          ),
+          child: Icon(icon, color: const Color(0xFFE71921), size: 24),
+        ),
+      ),
+    );
   }
 }

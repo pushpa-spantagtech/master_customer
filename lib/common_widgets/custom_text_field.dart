@@ -104,7 +104,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         .withValues(alpha: widget.showBorder ? 0.35 : 0.0);
     const Color disabledFillColor = Color.fromRGBO(248, 249, 250, 1);
     final Color activeFillColor =
-        _isFocused ? Colors.white : (widget.fillColor ?? Colors.white);
+    _isFocused ? Colors.white : (widget.fillColor ?? Colors.white);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
@@ -119,10 +119,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         textInputAction: widget.inputAction,
         keyboardType:
-            (widget.isAmount || widget.inputType == TextInputType.phone)
-                ? const TextInputType.numberWithOptions(
-                    signed: false, decimal: true)
-                : widget.inputType,
+        (widget.isAmount || widget.inputType == TextInputType.phone)
+            ? const TextInputType.numberWithOptions(
+            signed: false, decimal: true)
+            : widget.inputType,
         cursorColor: borderColor,
         textCapitalization: widget.capitalization,
         enabled: widget.isEnabled,
@@ -131,25 +131,25 @@ class _CustomTextFieldState extends State<CustomTextField> {
         autofillHints: widget.inputType == TextInputType.name
             ? [AutofillHints.name]
             : widget.inputType == TextInputType.emailAddress
-                ? [AutofillHints.email]
-                : widget.inputType == TextInputType.phone
-                    ? [AutofillHints.telephoneNumber]
-                    : widget.inputType == TextInputType.streetAddress
-                        ? [AutofillHints.fullStreetAddress]
-                        : widget.inputType == TextInputType.url
-                            ? [AutofillHints.url]
-                            : widget.inputType == TextInputType.visiblePassword
-                                ? [AutofillHints.password]
-                                : null,
+            ? [AutofillHints.email]
+            : widget.inputType == TextInputType.phone
+            ? [AutofillHints.telephoneNumber]
+            : widget.inputType == TextInputType.streetAddress
+            ? [AutofillHints.fullStreetAddress]
+            : widget.inputType == TextInputType.url
+            ? [AutofillHints.url]
+            : widget.inputType == TextInputType.visiblePassword
+            ? [AutofillHints.password]
+            : null,
         obscureText: widget.isPassword ? _obscureText : false,
         inputFormatters: widget.inputType == TextInputType.phone
             ? <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(10),
-              ]
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(10),
+        ]
             : widget.isAmount
-                ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))]
-                : null,
+            ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))]
+            : null,
         decoration: InputDecoration(
           labelText: (widget.label ?? '').isNotEmpty ? widget.label : null,
           hintText: widget.hintText,
@@ -169,7 +169,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           filled: true,
           fillColor: widget.isEnabled ? activeFillColor : disabledFillColor,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(radius),
             borderSide: BorderSide(color: normalBorderColor),
@@ -177,7 +177,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(radius),
             borderSide:
-                BorderSide(color: normalBorderColor.withValues(alpha: 0.35)),
+            BorderSide(color: normalBorderColor.withValues(alpha: 0.35)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(radius),
@@ -195,23 +195,23 @@ class _CustomTextFieldState extends State<CustomTextField> {
           prefixIcon: widget.prefix == false
               ? null
               : widget.prefixIcon != null
-                  ? SizedBox(
-                      width: 54,
-                      child: Center(
-                        child: Image.asset(
-                          widget.prefixIcon!,
-                          height: 22,
-                          width: 22,
-                          color: borderColor,
-                        ),
-                      ),
-                    )
-                  : _countryCodePrefix(context),
+              ? SizedBox(
+            width: 54,
+            child: Center(
+              child: Image.asset(
+                widget.prefixIcon!,
+                height: 22,
+                width: 22,
+                color: borderColor,
+              ),
+            ),
+          )
+              : _countryCodePrefix(context),
           prefixIconConstraints:
-              const BoxConstraints(minWidth: 54, minHeight: 52),
+          const BoxConstraints(minWidth: 54, minHeight: 52),
           suffixIcon: _suffixIcon(context),
           suffixIconConstraints:
-              const BoxConstraints(minWidth: 48, minHeight: 52),
+          const BoxConstraints(minWidth: 48, minHeight: 52),
           errorText: _validate ? widget.errorText : '',
           errorStyle: textRegular.copyWith(
               fontSize: Dimensions.fontSizeSmall, height: 0.2),

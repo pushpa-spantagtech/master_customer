@@ -14,11 +14,12 @@ class DottedBorderBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DottedBorder(
-      dashPattern: const [8, 4],
-      strokeWidth: 1,
-      borderType: BorderType.RRect,
-      color: Colors.grey,
-      radius: const Radius.circular(10),
+      options: const RoundedRectDottedBorderOptions(
+        dashPattern: [8, 4],
+        strokeWidth: 1,
+        color: Colors.grey,
+        radius: Radius.circular(10),
+      ),
       child: GestureDetector(
         onTap: onTap,
         child: SizedBox(

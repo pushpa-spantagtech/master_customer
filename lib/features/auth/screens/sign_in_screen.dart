@@ -45,7 +45,7 @@ class _SignInScreenState extends State<SignInScreen> {
           Get.find<AuthController>().getLoginCountryCode();
     } else if (Get.find<ConfigController>().config!.countryCode != null) {
       Get.find<AuthController>().countryDialCode = CountryCode.fromCountryCode(
-              Get.find<ConfigController>().config!.countryCode!)
+          Get.find<ConfigController>().config!.countryCode!)
           .dialCode!;
     }
   }
@@ -121,7 +121,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             inputAction: TextInputAction.next,
                             onCountryChanged: (CountryCode countryCode) {
                               authController.countryDialCode =
-                                  countryCode.dialCode!;
+                              countryCode.dialCode!;
                               authController
                                   .setCountryCode(countryCode.dialCode!);
                             },
@@ -154,11 +154,11 @@ class _SignInScreenState extends State<SignInScreen> {
                                               255, 255, 255, 1),
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(5)),
+                                              BorderRadius.circular(5)),
                                           activeColor: const Color.fromRGBO(
                                               250, 173, 2, 1),
                                           value:
-                                              authController.isActiveRememberMe,
+                                          authController.isActiveRememberMe,
                                           onChanged: (bool? isChecked) =>
                                               authController.toggleRememberMe(),
                                         ),
@@ -191,57 +191,57 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           authController.isLoading
                               ? const Center(
-                                  child: SpinKitCircle(
-                                  color: Color.fromRGBO(250, 173, 2, 1),
-                                  size: 40.0,
-                                ))
+                              child: SpinKitCircle(
+                                color: Color.fromRGBO(250, 173, 2, 1),
+                                size: 40.0,
+                              ))
                               : ButtonWidget(
-                                  textColor:
-                                      const Color.fromRGBO(255, 255, 255, 1),
-                                  borderColor:
-                                      const Color.fromRGBO(255, 128, 128, 0.2),
-                                  backgroundColor:
-                                      const Color.fromRGBO(250, 173, 2, 1),
-                                  fontSize: 18.0,
-                                  buttonText: 'log_in'.tr,
-                                  onPressed: () {
-                                    String phone = phoneController.text.trim();
-                                    String password =
-                                        passwordController.text.trim();
-                                    if (phone.isEmpty) {
-                                      showCustomSnackBar(
-                                          'phone_number_is_required'.tr);
-                                      FocusScope.of(context)
-                                          .requestFocus(phoneNode);
-                                    } else if (!GetUtils.isPhoneNumber(
-                                        authController.countryDialCode +
-                                            phone)) {
-                                      showCustomSnackBar(
-                                          'phone_number_is_not_valid'.tr);
-                                      FocusScope.of(context)
-                                          .requestFocus(phoneNode);
-                                    } else if (password.isEmpty) {
-                                      showCustomSnackBar(
-                                          'password_is_required'.tr);
-                                      FocusScope.of(context)
-                                          .requestFocus(passwordNode);
-                                    } else if (password.length < 8) {
-                                      showCustomSnackBar(
-                                          'minimum_password_length_is_8'.tr);
-                                    } else {
-                                      authController.login(
-                                          authController.countryDialCode,
-                                          phone,
-                                          password);
-                                    }
-                                  },
-                                ),
+                            textColor:
+                            const Color.fromRGBO(255, 255, 255, 1),
+                            borderColor:
+                            const Color.fromRGBO(255, 128, 128, 0.2),
+                            backgroundColor:
+                            const Color.fromRGBO(250, 173, 2, 1),
+                            fontSize: 18.0,
+                            buttonText: 'log_in'.tr,
+                            onPressed: () {
+                              String phone = phoneController.text.trim();
+                              String password =
+                              passwordController.text.trim();
+                              if (phone.isEmpty) {
+                                showCustomSnackBar(
+                                    'phone_number_is_required'.tr);
+                                FocusScope.of(context)
+                                    .requestFocus(phoneNode);
+                              } else if (!GetUtils.isPhoneNumber(
+                                  authController.countryDialCode +
+                                      phone)) {
+                                showCustomSnackBar(
+                                    'phone_number_is_not_valid'.tr);
+                                FocusScope.of(context)
+                                    .requestFocus(phoneNode);
+                              } else if (password.isEmpty) {
+                                showCustomSnackBar(
+                                    'password_is_required'.tr);
+                                FocusScope.of(context)
+                                    .requestFocus(passwordNode);
+                              } else if (password.length < 8) {
+                                showCustomSnackBar(
+                                    'minimum_password_length_is_8'.tr);
+                              } else {
+                                authController.login(
+                                    authController.countryDialCode,
+                                    phone,
+                                    password);
+                              }
+                            },
+                          ),
                           Row(children: [
                             const Expanded(
                                 child: Divider(
-                              thickness: 1,
-                              color: Color.fromRGBO(20, 20, 20, 0.1),
-                            )),
+                                  thickness: 1,
+                                  color: Color.fromRGBO(20, 20, 20, 0.1),
+                                )),
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: Dimensions.paddingSizeSmall,
@@ -254,9 +254,9 @@ class _SignInScreenState extends State<SignInScreen> {
                             ),
                             const Expanded(
                                 child: Divider(
-                              thickness: 1,
-                              color: Color.fromRGBO(20, 20, 20, 0.1),
-                            )),
+                                  thickness: 1,
+                                  color: Color.fromRGBO(20, 20, 20, 0.1),
+                                )),
                           ]),
                           ButtonWidget(
                             imageIcon: Images.tablerMessage,
@@ -268,7 +268,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             transparent: true,
                             buttonText: 'otp_login'.tr,
                             onPressed: () => Get.to(
-                                () => const OtpLoginScreen(fromSignIn: true)),
+                                    () => const OtpLoginScreen(fromSignIn: true)),
                           ),
                         ],
                       ),
@@ -292,7 +292,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             Get.to(() => const SignUpScreen());
                           },
                           overlayColor:
-                              WidgetStateProperty.all(Colors.transparent),
+                          WidgetStateProperty.all(Colors.transparent),
                           child: Text('sign_up'.tr,
                               style: textMedium.copyWith(
                                 color: const Color.fromRGBO(255, 0, 0, 0.7),

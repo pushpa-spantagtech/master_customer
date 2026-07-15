@@ -38,6 +38,7 @@ class ProfileScreen extends StatelessWidget {
             backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
           ),
           body: SingleChildScrollView(
+            physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
             child: Column(children: [
               Stack(
@@ -166,11 +167,11 @@ class ProfileScreen extends StatelessWidget {
               //   icon: Images.profileIcon,
               //   onTap: () => Get.to(() => const EditProfileScreen()),
               // ),
-              ProfileMenuItem(
-                title: 'my_address',
-                icon: Images.location,
-                onTap: () => Get.to(() => const MyAddressScreen()),
-              ),
+              // ProfileMenuItem(
+              //   title: 'my_address',
+              //   icon: Images.location,
+              //   onTap: () => Get.to(() => const MyAddressScreen()),
+              // ),
               ProfileMenuItem(
                 title: 'message',
                 icon: Images.profileMessage,

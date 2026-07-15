@@ -42,12 +42,31 @@ class MapController extends GetxController implements GetxService {
   void setMapController(GoogleMapController controller) {
     mapController = controller;
   }
+  Future<void> fitRouteToScreen(List<LatLng> points) async {
+    if (mapController == null || points.isEmpty) return;
+
+    try {
+      final LatLngBounds bounds = boundWithMaximumLatLngPoint(points);
+
+      await mapController!.animateCamera(
+        CameraUpdate.newLatLngBounds(bounds, 120),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      await mapController!.animateCamera(
+        CameraUpdate.scrollBy(0, 180),
+      );
+    } catch (e) {
+      // ignore
+    }
+  }
 
   Future<void> getPolyline() async {
     if (Get.find<RideController>().encodedPolyLine.isNotEmpty) {
       List<LatLng> polylineCoordinates = [];
       List<LatLng> result =
-          decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
+      decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
       if (result.isNotEmpty) {
         for (var point in result) {
           polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -108,13 +127,13 @@ class MapController extends GetxController implements GetxService {
 
   Future<void> searchDeliveryMen() async {
     final Uint8List carMarkerIcon =
-        await convertAssetToUnit8List(Images.carTop, width: 40);
+    await convertAssetToUnit8List(Images.carTop, width: 40);
     final Uint8List bikeMarkerIcon =
-        await convertAssetToUnit8List(Images.bikeTop, width: 40);
+    await convertAssetToUnit8List(Images.bikeTop, width: 40);
     nearestDeliveryManMarkers = {};
     for (int i = 0;
-        i < Get.find<RideController>().nearestDriverList.length;
-        i++) {
+    i < Get.find<RideController>().nearestDriverList.length;
+    i++) {
       MarkerId markerId = MarkerId('rider_$i');
       nearestDeliveryManMarkers!.add(Marker(
         markerId: markerId,
@@ -130,7 +149,7 @@ class MapController extends GetxController implements GetxService {
                 Get.find<RideController>().nearestDriverList[i].longitude!)),
         icon: BitmapDescriptor.fromBytes(
             Get.find<RideController>().nearestDriverList[i].category ==
-                    'motor_bike'
+                'motor_bike'
                 ? bikeMarkerIcon
                 : carMarkerIcon),
       ));
@@ -147,13 +166,18 @@ class MapController extends GetxController implements GetxService {
     }
   }
 
-  void setFromToMarker(LatLng from, LatLng to,
-      {bool isBound = true, required List<LatLng> latLongList}) async {
+  void setFromToMarker(
+      LatLng from,
+      LatLng to, {
+        bool isBound = true,
+        required List<LatLng> latLongList,
+      }) async {
     markers = HashSet();
+
     Uint8List fromMarker =
-        await convertAssetToUnit8List(Images.mapIcon, width: 50);
+    await convertAssetToUnit8List(Images.mapIcon, width: 50);
     Uint8List toMarker =
-        await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
+    await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
 
     markers.add(Marker(
       markerId: const MarkerId('from'),
@@ -177,46 +201,18 @@ class MapController extends GetxController implements GetxService {
       icon: BitmapDescriptor.fromBytes(toMarker),
     ));
 
-    // if(Get.find<RideController>().tripDetails != null) {
-    //   markers.add(Marker(
-    //     markerId: const MarkerId('car'),
-    //     position: Get.find<LocationController>().initialPosition,
-    //     icon:  BitmapDescriptor.fromBytes(car),
-    //   ));
-    // }
+    update();
 
     if (isBound) {
-      try {
-        LatLngBounds? bounds;
-        if (mapController != null) {
-          bounds = boundWithMaximumLatLngPoint(latLongList);
-        }
-        LatLng centerBounds = LatLng(
-          (bounds!.northeast.latitude + bounds.southwest.latitude) / 2,
-          (bounds.northeast.longitude + bounds.southwest.longitude) / 2,
-        );
-        double bearing = Geolocator.bearingBetween(
-            from.latitude, from.longitude, to.latitude, to.longitude);
-        mapController!.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          bearing: bearing,
-          target: centerBounds,
-          zoom: 16,
-        )));
-        zoomToFit(mapController, bounds, centerBounds, bearing, padding: 0.5);
-      } catch (e) {
-        // debugPrint('jhkygutyv' + e.toString());
-      }
+      await fitRouteToScreen(latLongList);
     }
-
-    update();
   }
 
   void updateMarkerAndCircle({LatLng? latLng}) async {
     markers.removeWhere((marker) => marker.markerId.value == "my_location");
 
     Uint8List car =
-        await convertAssetToUnit8List(Images.mapLocationIcon, width: 250);
-
+    await convertAssetToUnit8List(Images.mapLocationIcon, width: 250);
     if (Get.find<RideController>().tripDetails != null &&
         _polylineCoordinateList.isNotEmpty) {
       markers.add(Marker(
@@ -326,7 +322,7 @@ class MapController extends GetxController implements GetxService {
 
   void setOwnCurrentLocation() async {
     markers.removeWhere(
-      (marker) => marker.markerId.value == "my_location",
+          (marker) => marker.markerId.value == "my_location",
     );
 
     update();
@@ -462,7 +458,7 @@ class MapController extends GetxController implements GetxService {
   void setMarkersInitialPosition() {
     if (Get.find<RideController>().encodedPolyLine.isNotEmpty) {
       List<LatLng> markers =
-          decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
+      decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
       setFromToMarker(
           LatLng(markers[0].latitude, markers[0].longitude),
           LatLng(markers[markers.length - 1].latitude,
@@ -472,33 +468,8 @@ class MapController extends GetxController implements GetxService {
     }
   }
 
-  void boundMapScreen(LatLng startingPoint, LatLng endingPoint) {
-    try {
-      LatLngBounds? bounds;
-      if (mapController != null) {
-        if (startingPoint.latitude < endingPoint.latitude) {
-          bounds =
-              LatLngBounds(southwest: startingPoint, northeast: endingPoint);
-        } else {
-          bounds =
-              LatLngBounds(southwest: endingPoint, northeast: startingPoint);
-        }
-      }
-      LatLng centerBounds = LatLng(
-        (bounds!.northeast.latitude + bounds.southwest.latitude) / 2,
-        (bounds.northeast.longitude + bounds.southwest.longitude) / 2,
-      );
-      double bearing = Geolocator.bearingBetween(startingPoint.latitude,
-          startingPoint.longitude, endingPoint.latitude, endingPoint.longitude);
-      mapController!.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        bearing: bearing,
-        target: centerBounds,
-        zoom: 16,
-      )));
-      zoomToFit(mapController, bounds, centerBounds, bearing, padding: 0.5);
-    } catch (e) {
-      // debugPrint('jhkygutyv' + e.toString());
-    }
+  void boundMapScreen(LatLng startingPoint, LatLng endingPoint) async {
+    await fitRouteToScreen([startingPoint, endingPoint]);
   }
 
   LatLngBounds boundWithMaximumLatLngPoint(List<LatLng> list) {
