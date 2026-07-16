@@ -205,7 +205,8 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  if (widget.isRental || rideController.isRentalRide) ...[
+                                  if (widget.isRental ||
+                                      rideController.isRentalRide) ...[
                                     _SelectedRentalPackageCard(
                                       hour: _selectedRentalHour(rideController),
                                       km: _selectedRentalKm(rideController),
@@ -226,10 +227,12 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                     icon: Icons.location_on_rounded,
                                     trailingIcon: Icons.my_location_rounded,
                                     focusNode: pickLocationFocus,
-                                    controller: locationController.pickupLocationController,
+                                    controller: locationController
+                                        .pickupLocationController,
                                     hint: 'pick_location'.tr,
                                     isHighlighted: true,
-                                    isReadOnly: rideController.rideDetails != null,
+                                    isReadOnly:
+                                        rideController.rideDetails != null,
                                     onIconTap: () {
                                       if (rideController.rideDetails != null) {
                                         showCustomSnackBar(
@@ -241,13 +244,17 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                           context,
                                           PickMapScreen(
                                             type: LocationType.from,
-                                            oldLocationExist: locationController.pickPosition.latitude > 0,
+                                            oldLocationExist: locationController
+                                                    .pickPosition.latitude >
+                                                0,
                                           ),
                                         );
                                       }
                                     },
                                     onChanged: (value) async {
-                                      return await Get.find<LocationController>().searchLocation(
+                                      return await Get.find<
+                                              LocationController>()
+                                          .searchLocation(
                                         context,
                                         value,
                                         type: LocationType.from,
@@ -265,17 +272,21 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                   const SizedBox(height: 14),
                                   if (locationController.extraOneRoute) ...[
                                     _ExtraRouteField(
-                                      controller: locationController.extraRouteOneController,
+                                      controller: locationController
+                                          .extraRouteOneController,
                                       hint: 'extra_route_one'.tr,
                                       onChanged: (value) async {
-                                        return await Get.find<LocationController>().searchLocation(
+                                        return await Get.find<
+                                                LocationController>()
+                                            .searchLocation(
                                           context,
                                           value,
                                           type: LocationType.extraOne,
                                         );
                                       },
                                       onLocationTap: () {
-                                        if (rideController.rideDetails != null) {
+                                        if (rideController.rideDetails !=
+                                            null) {
                                           showCustomSnackBar(
                                             'your_ride_is_ongoing_complete'.tr,
                                             isError: true,
@@ -285,29 +296,39 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                             context,
                                             PickMapScreen(
                                               type: LocationType.extraOne,
-                                              oldLocationExist: locationController.pickPosition.latitude > 0,
+                                              oldLocationExist:
+                                                  locationController
+                                                          .pickPosition
+                                                          .latitude >
+                                                      0,
                                             ),
                                           );
                                         }
                                       },
-                                      onRemove: () => locationController.setExtraRoute(remove: true),
-                                      readOnly: rideController.rideDetails != null,
+                                      onRemove: () => locationController
+                                          .setExtraRoute(remove: true),
+                                      readOnly:
+                                          rideController.rideDetails != null,
                                     ),
                                     const SizedBox(height: 16),
                                   ],
                                   if (locationController.extraTwoRoute) ...[
                                     _ExtraRouteField(
-                                      controller: locationController.extraRouteTwoController,
+                                      controller: locationController
+                                          .extraRouteTwoController,
                                       hint: 'extra_route_two'.tr,
                                       onChanged: (value) async {
-                                        return await Get.find<LocationController>().searchLocation(
+                                        return await Get.find<
+                                                LocationController>()
+                                            .searchLocation(
                                           context,
                                           value,
                                           type: LocationType.extraTwo,
                                         );
                                       },
                                       onLocationTap: () {
-                                        if (rideController.rideDetails != null) {
+                                        if (rideController.rideDetails !=
+                                            null) {
                                           showCustomSnackBar(
                                             'your_ride_is_ongoing_complete'.tr,
                                             isError: true,
@@ -317,18 +338,26 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                             context,
                                             PickMapScreen(
                                               type: LocationType.extraTwo,
-                                              oldLocationExist: locationController.pickPosition.latitude > 0,
+                                              oldLocationExist:
+                                                  locationController
+                                                          .pickPosition
+                                                          .latitude >
+                                                      0,
                                             ),
                                           );
                                         }
                                       },
-                                      onRemove: () => locationController.setExtraRoute(remove: true),
-                                      readOnly: rideController.rideDetails != null,
+                                      onRemove: () => locationController
+                                          .setExtraRoute(remove: true),
+                                      readOnly:
+                                          rideController.rideDetails != null,
                                     ),
                                     const SizedBox(height: 16),
                                   ],
                                   Text(
-                                    widget.isOutstation ? 'Drop city' : 'Drop-off location',
+                                    widget.isOutstation
+                                        ? 'Drop city'
+                                        : 'Drop-off location',
                                     style: textBold.copyWith(
                                       color: textDark,
                                       fontSize: 17,
@@ -340,68 +369,95 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                       Expanded(
                                         child: _LocationCard(
                                           label: 'Enter destination',
-                                          title: widget.isOutstation ? 'Where are you going?' : 'Where are you going?',
-                                          icon: locationController.selecting ? null : Icons.near_me_rounded,
+                                          title: widget.isOutstation
+                                              ? 'Where are you going?'
+                                              : 'Where are you going?',
+                                          icon: locationController.selecting
+                                              ? null
+                                              : Icons.near_me_rounded,
                                           trailingIcon: Icons.map_outlined,
-                                          showLoader: locationController.selecting,
+                                          showLoader:
+                                              locationController.selecting,
                                           focusNode: destinationLocationFocus,
-                                          controller: locationController.destinationLocationController,
+                                          controller: locationController
+                                              .destinationLocationController,
                                           hint: 'destination'.tr,
-                                          isReadOnly: rideController.rideDetails != null,
+                                          isReadOnly:
+                                              rideController.rideDetails !=
+                                                  null,
                                           onIconTap: () {
-                                            if (rideController.rideDetails != null) {
+                                            if (rideController.rideDetails !=
+                                                null) {
                                               showCustomSnackBar(
-                                                'your_ride_is_ongoing_complete'.tr,
+                                                'your_ride_is_ongoing_complete'
+                                                    .tr,
                                                 isError: true,
                                               );
                                             } else {
-                                              RouteHelper.goPageAndHideTextField(
+                                              RouteHelper
+                                                  .goPageAndHideTextField(
                                                 context,
                                                 PickMapScreen(
                                                   type: LocationType.to,
-                                                  oldLocationExist: locationController.pickPosition.latitude > 0,
+                                                  oldLocationExist:
+                                                      locationController
+                                                              .pickPosition
+                                                              .latitude >
+                                                          0,
                                                 ),
                                               );
                                             }
                                           },
                                           onChanged: (value) async {
-                                            return await Get.find<LocationController>().searchLocation(
+                                            return await Get.find<
+                                                    LocationController>()
+                                                .searchLocation(
                                               context,
                                               value.trim(),
                                               type: LocationType.to,
                                             );
                                           },
                                           onTap: () {
-                                            if (rideController.rideDetails != null) {
+                                            if (rideController.rideDetails !=
+                                                null) {
                                               showCustomSnackBar(
-                                                'your_ride_is_ongoing_complete'.tr,
+                                                'your_ride_is_ongoing_complete'
+                                                    .tr,
                                                 isError: true,
                                               );
                                             }
                                           },
                                         ),
                                       ),
-                                      if (Get.find<ConfigController>().config!.addIntermediatePoint! &&
-                                          !locationController.extraTwoRoute) ...[
+                                      if (Get.find<ConfigController>()
+                                              .config!
+                                              .addIntermediatePoint! &&
+                                          !locationController
+                                              .extraTwoRoute) ...[
                                         const SizedBox(width: 10),
                                         InkWell(
-                                          onTap: () => locationController.setExtraRoute(),
-                                          borderRadius: BorderRadius.circular(18),
+                                          onTap: () => locationController
+                                              .setExtraRoute(),
+                                          borderRadius:
+                                              BorderRadius.circular(18),
                                           child: Container(
                                             height: 56,
                                             width: 56,
                                             decoration: BoxDecoration(
                                               color: brandYellow,
-                                              borderRadius: BorderRadius.circular(18),
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
                                               boxShadow: const [
                                                 BoxShadow(
-                                                  color: Color.fromRGBO(250, 173, 2, 0.25),
+                                                  color: Color.fromRGBO(
+                                                      250, 173, 2, 0.25),
                                                   blurRadius: 14,
                                                   offset: Offset(0, 5),
                                                 ),
                                               ],
                                             ),
-                                            child: const Icon(Icons.add_rounded, color: Colors.white),
+                                            child: const Icon(Icons.add_rounded,
+                                                color: Colors.white),
                                           ),
                                         ),
                                       ],
@@ -410,50 +466,70 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                   if (rideController.isRentalRide) ...[
                                     const SizedBox(height: 18),
                                     _AddStopsCard(
-                                      count: locationController.entranceControllers.length,
+                                      count: locationController
+                                          .entranceControllers.length,
                                       children: [
                                         ListView.builder(
                                           shrinkWrap: true,
-                                          physics: const NeverScrollableScrollPhysics(),
-                                          itemCount: locationController.entranceControllers.length,
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          itemCount: locationController
+                                              .entranceControllers.length,
                                           itemBuilder: (context, index) {
                                             return _RentalStopField(
                                               index: index,
-                                              controller: locationController.entranceControllers[index],
-                                              focusNode: locationController.entranceNodes[index],
+                                              controller: locationController
+                                                  .entranceControllers[index],
+                                              focusNode: locationController
+                                                  .entranceNodes[index],
                                               onRemove: () {
-                                                locationController.removeMoreEntrance(index);
+                                                locationController
+                                                    .removeMoreEntrance(index);
                                               },
                                             );
                                           },
                                         ),
                                         _AddStopButton(
                                           onTap: () {
-                                            if (locationController.entranceControllers.isNotEmpty &&
-                                                locationController.entranceControllers.last.text.trim().isEmpty) {
+                                            if (locationController
+                                                    .entranceControllers
+                                                    .isNotEmpty &&
+                                                locationController
+                                                    .entranceControllers
+                                                    .last
+                                                    .text
+                                                    .trim()
+                                                    .isEmpty) {
                                               showCustomSnackBar(
                                                 'Please complete Stop ${locationController.entranceControllers.length} or remove it before adding another stop.',
                                               );
                                               return;
                                             }
-                                            locationController.addMoreEntrance();
+                                            locationController
+                                                .addMoreEntrance();
                                           },
                                         ),
                                       ],
                                     ),
                                   ],
-
                                   if (widget.isOutstation) ...[
                                     const SizedBox(height: 18),
                                     const _OutstationInfoCard(),
                                   ],
                                   if (locationController.toAddress != null &&
-                                      (locationController.toAddress?.address?.isNotEmpty ?? false) &&
-                                      locationController.destinationLocationController.text.trim().isNotEmpty) ...[
+                                      (locationController
+                                              .toAddress?.address?.isNotEmpty ??
+                                          false) &&
+                                      locationController
+                                          .destinationLocationController.text
+                                          .trim()
+                                          .isNotEmpty) ...[
                                     const SizedBox(height: 18),
                                     _TripDistanceCard(
-                                      distanceText: _distanceText(locationController),
-                                      timeText: _durationText(locationController),
+                                      distanceText:
+                                          _distanceText(locationController),
+                                      timeText:
+                                          _durationText(locationController),
                                     ),
                                   ],
                                   const SizedBox(height: 24),
@@ -464,60 +540,69 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                           Container(
                             padding: EdgeInsets.fromLTRB(
                               horizontalPadding,
-                              10,
+                              8,
                               horizontalPadding,
-                              MediaQuery.of(context).padding.bottom + 14,
+                              8,
                             ),
                             decoration: const BoxDecoration(
                               color: Color(0xFFF7F8FB),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color.fromRGBO(18, 26, 44, 0.06),
-                                  blurRadius: 14,
-                                  offset: Offset(0, -4),
-                                ),
-                              ],
+                              // boxShadow: [
+                              //   BoxShadow(
+                              //     color: Color.fromRGBO(18, 26, 44, 0.06),
+                              //     blurRadius: 14,
+                              //     offset: Offset(0, -4),
+                              //   ),
+                              // ],
                             ),
                             child: rideController.loading
-                                ? const Center(
-                              child: SpinKitCircle(
-                                color: brandYellow,
-                                size: 40,
-                              ),
-                            )
-                                : SizedBox(
-                              height: 54,
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () => _handleDone(
-                                  context,
-                                  locationController,
-                                  rideController,
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: brandYellow,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.route_rounded, color: Colors.white, size: 26),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'done'.tr,
-                                      style: textBold.copyWith(
-                                        color: Colors.white,
-                                        fontSize: 22,
+                                ? const SizedBox(
+                                    height: 54,
+                                    child: Center(
+                                      child: SpinKitCircle(
+                                        color: brandYellow,
+                                        size: 40,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                                  )
+                                : SizedBox(
+                                    height: 54,
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () => _handleDone(
+                                        context,
+                                        locationController,
+                                        rideController,
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: brandYellow,
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(18),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(
+                                            Icons.route_rounded,
+                                            color: Colors.white,
+                                            size: 26,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Text(
+                                            'done'.tr,
+                                            style: textBold.copyWith(
+                                              color: Colors.white,
+                                              fontSize: 22,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                           ),
                         ],
                       ),
@@ -531,13 +616,15 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                   left: 18,
                   right: 18,
                   child: InkWell(
-                    onTap: () => locationController.setSearchResultShowHide(show: false),
+                    onTap: () =>
+                        locationController.setSearchResultShowHide(show: false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.08)),
+                        border: Border.all(
+                            color: const Color.fromRGBO(0, 0, 0, 0.08)),
                         boxShadow: const [
                           BoxShadow(
                             color: Color.fromRGBO(0, 0, 0, 0.10),
@@ -556,8 +643,10 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                             onTap: () {
                               Get.find<LocationController>().setLocation(
                                 fromSearch: true,
-                                locationController.predictionList[index].placeId!,
-                                locationController.predictionList[index].description!,
+                                locationController
+                                    .predictionList[index].placeId!,
+                                locationController
+                                    .predictionList[index].description!,
                                 null,
                                 type: locationController.locationType,
                               );
@@ -569,17 +658,26 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.location_on_rounded, color: brandYellow),
+                                  const Icon(Icons.location_on_rounded,
+                                      color: brandYellow),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      locationController.predictionList[index].description!,
+                                      locationController
+                                          .predictionList[index].description!,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                                        color: Theme.of(context).textTheme.bodyLarge!.color,
-                                        fontSize: Dimensions.fontSizeDefault,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .displayMedium!
+                                          .copyWith(
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge!
+                                                .color,
+                                            fontSize:
+                                                Dimensions.fontSizeDefault,
+                                          ),
                                     ),
                                   ),
                                 ],
@@ -598,7 +696,6 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
     );
   }
 
-
   int _selectedRentalHour(RideController rideController) {
     if (rideController.rentalHour > 0) {
       return rideController.rentalHour;
@@ -616,18 +713,22 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
     if (hour <= 0 || rideController.rentalPackages.isEmpty) return 0;
 
     final package = rideController.rentalPackages.firstWhere(
-          (e) => e['free_hours'].toString() == hour.toString(),
+      (e) => e['free_hours'].toString() == hour.toString(),
       orElse: () => rideController.rentalPackages.first,
     );
 
-    final value = package['free_km'] ?? package['free_distance'] ?? package['distance'] ?? 0;
+    final value = package['free_km'] ??
+        package['free_distance'] ??
+        package['distance'] ??
+        0;
     if (value is int) return value;
     return int.tryParse(value.toString()) ?? 0;
   }
 
   String _distanceText(LocationController locationController) {
     final double? fromLat = _toDouble(locationController.fromAddress?.latitude);
-    final double? fromLng = _toDouble(locationController.fromAddress?.longitude);
+    final double? fromLng =
+        _toDouble(locationController.fromAddress?.longitude);
     final double? toLat = _toDouble(locationController.toAddress?.latitude);
     final double? toLng = _toDouble(locationController.toAddress?.longitude);
 
@@ -635,13 +736,15 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
       return '-- km';
     }
 
-    final double distance = _calculateDistanceInKm(fromLat, fromLng, toLat, toLng);
+    final double distance =
+        _calculateDistanceInKm(fromLat, fromLng, toLat, toLng);
     return '${distance.toStringAsFixed(distance < 10 ? 1 : 0)} km';
   }
 
   String _durationText(LocationController locationController) {
     final double? fromLat = _toDouble(locationController.fromAddress?.latitude);
-    final double? fromLng = _toDouble(locationController.fromAddress?.longitude);
+    final double? fromLng =
+        _toDouble(locationController.fromAddress?.longitude);
     final double? toLat = _toDouble(locationController.toAddress?.latitude);
     final double? toLng = _toDouble(locationController.toAddress?.longitude);
 
@@ -649,7 +752,8 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
       return 'Select drop';
     }
 
-    final double distance = _calculateDistanceInKm(fromLat, fromLng, toLat, toLng);
+    final double distance =
+        _calculateDistanceInKm(fromLat, fromLng, toLat, toLng);
     final int minutes = math.max(1, (distance / 25 * 60).round());
     return '$minutes min';
   }
@@ -660,7 +764,8 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
     return double.tryParse(value.toString());
   }
 
-  double _calculateDistanceInKm(double fromLat, double fromLng, double toLat, double toLng) {
+  double _calculateDistanceInKm(
+      double fromLat, double fromLng, double toLat, double toLng) {
     const double earthRadius = 6371;
     final double dLat = _degreeToRadian(toLat - fromLat);
     final double dLng = _degreeToRadian(toLng - fromLng);
@@ -676,21 +781,21 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
   double _degreeToRadian(double degree) => degree * math.pi / 180;
 
   void _handleDone(
-      BuildContext context,
-      LocationController locationController,
-      RideController rideController,
-      ) {
+    BuildContext context,
+    LocationController locationController,
+    RideController rideController,
+  ) {
     if (Get.find<ConfigController>().config!.maintenanceMode != null &&
         Get.find<ConfigController>()
-            .config!
-            .maintenanceMode!
-            .maintenanceStatus ==
+                .config!
+                .maintenanceMode!
+                .maintenanceStatus ==
             1 &&
         Get.find<ConfigController>()
-            .config!
-            .maintenanceMode!
-            .selectedMaintenanceSystem!
-            .userApp ==
+                .config!
+                .maintenanceMode!
+                .selectedMaintenanceSystem!
+                .userApp ==
             1) {
       showCustomSnackBar('maintenance_mode_on_for_ride'.tr, isError: true);
     } else {
@@ -714,8 +819,8 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
       } else {
         if (rideController.isRentalRide) {
           for (int i = 0;
-          i < locationController.entranceControllers.length;
-          i++) {
+              i < locationController.entranceControllers.length;
+              i++) {
             if (locationController.entranceControllers[i].text.trim().isEmpty) {
               showCustomSnackBar(
                 'Please enter Stop ${i + 1} or remove it.',
@@ -732,7 +837,7 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
             );
 
             Get.to(
-                  () => const MapScreen(
+              () => const MapScreen(
                 fromScreen: MapScreenType.ride,
                 isShowCurrentPosition: false,
               ),
@@ -746,7 +851,6 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
     }
   }
 }
-
 
 class _SelectedRentalPackageCard extends StatelessWidget {
   final int hour;
@@ -802,7 +906,9 @@ class _SelectedRentalPackageCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  hour > 0 ? '$hour hr${km > 0 ? ' • $km km' : ''}' : 'Rental package selected',
+                  hour > 0
+                      ? '$hour hr${km > 0 ? ' • $km km' : ''}'
+                      : 'Rental package selected',
                   style: textBold.copyWith(
                     color: _SetDestinationScreenState.textDark,
                     fontSize: 18,
@@ -1022,17 +1128,17 @@ class _LocationCard extends StatelessWidget {
                     ),
                     child: showLoader
                         ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: _SetDestinationScreenState.brandYellow,
-                      ),
-                    )
+                            padding: EdgeInsets.all(16),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: _SetDestinationScreenState.brandYellow,
+                            ),
+                          )
                         : Icon(
-                      icon,
-                      color: _SetDestinationScreenState.brandYellow,
-                      size: 29,
-                    ),
+                            icon,
+                            color: _SetDestinationScreenState.brandYellow,
+                            size: 29,
+                          ),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -1148,13 +1254,20 @@ class _RecentPlaceTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: textBold.copyWith(color: _SetDestinationScreenState.textDark, fontSize: 15)),
+                Text(title,
+                    style: textBold.copyWith(
+                        color: _SetDestinationScreenState.textDark,
+                        fontSize: 15)),
                 const SizedBox(height: 4),
-                Text(subtitle, style: textMedium.copyWith(color: _SetDestinationScreenState.textGrey, fontSize: 13)),
+                Text(subtitle,
+                    style: textMedium.copyWith(
+                        color: _SetDestinationScreenState.textGrey,
+                        fontSize: 13)),
               ],
             ),
           ),
-          const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF6F7787), size: 18),
+          const Icon(Icons.arrow_forward_ios_rounded,
+              color: Color(0xFF6F7787), size: 18),
         ],
       ),
     );
@@ -1167,46 +1280,46 @@ class _OutstationInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // padding: const EdgeInsets.all(18),
-      // decoration: BoxDecoration(
-      //   color: Colors.white,
-      //   borderRadius: BorderRadius.circular(22),
-      //   boxShadow: const [
-      //     BoxShadow(
-      //       color: Color.fromRGBO(18, 26, 44, 0.06),
-      //       blurRadius: 22,
-      //       offset: Offset(0, 10),
-      //     ),
-      //   ],
-      // ),
-      // child: Row(
-      //   children: [
-      //     Container(
-      //       width: 64,
-      //       height: 64,
-      //       decoration: const BoxDecoration(
-      //         color: Color(0xFFFFECEE),
-      //         shape: BoxShape.circle,
-      //       ),
-      //       child: const Icon(Icons.route_rounded, color: _SetDestinationScreenState.brandRed, size: 34),
-      //     ),
-      //     const SizedBox(width: 16),
-      //     Expanded(
-      //       child: Column(
-      //         crossAxisAlignment: CrossAxisAlignment.start,
-      //         children: [
-      //           Text('Outstation rides', style: textBold.copyWith(color: _SetDestinationScreenState.textDark, fontSize: 18)),
-      //           const SizedBox(height: 6),
-      //           Text(
-      //             'Choose destination city and get accurate fare based on distance.',
-      //             style: textMedium.copyWith(color: _SetDestinationScreenState.textGrey, fontSize: 14, height: 1.35),
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   ],
-      // ),
-    );
+        // padding: const EdgeInsets.all(18),
+        // decoration: BoxDecoration(
+        //   color: Colors.white,
+        //   borderRadius: BorderRadius.circular(22),
+        //   boxShadow: const [
+        //     BoxShadow(
+        //       color: Color.fromRGBO(18, 26, 44, 0.06),
+        //       blurRadius: 22,
+        //       offset: Offset(0, 10),
+        //     ),
+        //   ],
+        // ),
+        // child: Row(
+        //   children: [
+        //     Container(
+        //       width: 64,
+        //       height: 64,
+        //       decoration: const BoxDecoration(
+        //         color: Color(0xFFFFECEE),
+        //         shape: BoxShape.circle,
+        //       ),
+        //       child: const Icon(Icons.route_rounded, color: _SetDestinationScreenState.brandRed, size: 34),
+        //     ),
+        //     const SizedBox(width: 16),
+        //     Expanded(
+        //       child: Column(
+        //         crossAxisAlignment: CrossAxisAlignment.start,
+        //         children: [
+        //           Text('Outstation rides', style: textBold.copyWith(color: _SetDestinationScreenState.textDark, fontSize: 18)),
+        //           const SizedBox(height: 6),
+        //           Text(
+        //             'Choose destination city and get accurate fare based on distance.',
+        //             style: textMedium.copyWith(color: _SetDestinationScreenState.textGrey, fontSize: 14, height: 1.35),
+        //           ),
+        //         ],
+        //       ),
+        //     ),
+        //   ],
+        // ),
+        );
   }
 }
 
@@ -1434,7 +1547,7 @@ class _RentalStopField extends StatelessWidget {
                           color: const Color(0xFF9E9E9E),
                         ),
                         contentPadding:
-                        const EdgeInsets.symmetric(vertical: 17),
+                            const EdgeInsets.symmetric(vertical: 17),
                       ),
                     ),
                   ),
@@ -1484,7 +1597,7 @@ class _AddStopButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color:
-            _SetDestinationScreenState.brandYellow.withValues(alpha: 0.7),
+                _SetDestinationScreenState.brandYellow.withValues(alpha: 0.7),
           ),
         ),
         child: Row(

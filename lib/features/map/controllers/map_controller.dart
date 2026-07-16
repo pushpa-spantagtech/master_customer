@@ -42,6 +42,7 @@ class MapController extends GetxController implements GetxService {
   void setMapController(GoogleMapController controller) {
     mapController = controller;
   }
+
   Future<void> fitRouteToScreen(List<LatLng> points) async {
     if (mapController == null || points.isEmpty) return;
 
@@ -66,7 +67,7 @@ class MapController extends GetxController implements GetxService {
     if (Get.find<RideController>().encodedPolyLine.isNotEmpty) {
       List<LatLng> polylineCoordinates = [];
       List<LatLng> result =
-      decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
+          decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
       if (result.isNotEmpty) {
         for (var point in result) {
           polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -127,13 +128,13 @@ class MapController extends GetxController implements GetxService {
 
   Future<void> searchDeliveryMen() async {
     final Uint8List carMarkerIcon =
-    await convertAssetToUnit8List(Images.carTop, width: 40);
+        await convertAssetToUnit8List(Images.carTop, width: 40);
     final Uint8List bikeMarkerIcon =
-    await convertAssetToUnit8List(Images.bikeTop, width: 40);
+        await convertAssetToUnit8List(Images.bikeTop, width: 40);
     nearestDeliveryManMarkers = {};
     for (int i = 0;
-    i < Get.find<RideController>().nearestDriverList.length;
-    i++) {
+        i < Get.find<RideController>().nearestDriverList.length;
+        i++) {
       MarkerId markerId = MarkerId('rider_$i');
       nearestDeliveryManMarkers!.add(Marker(
         markerId: markerId,
@@ -149,7 +150,7 @@ class MapController extends GetxController implements GetxService {
                 Get.find<RideController>().nearestDriverList[i].longitude!)),
         icon: BitmapDescriptor.fromBytes(
             Get.find<RideController>().nearestDriverList[i].category ==
-                'motor_bike'
+                    'motor_bike'
                 ? bikeMarkerIcon
                 : carMarkerIcon),
       ));
@@ -167,17 +168,17 @@ class MapController extends GetxController implements GetxService {
   }
 
   void setFromToMarker(
-      LatLng from,
-      LatLng to, {
-        bool isBound = true,
-        required List<LatLng> latLongList,
-      }) async {
+    LatLng from,
+    LatLng to, {
+    bool isBound = true,
+    required List<LatLng> latLongList,
+  }) async {
     markers = HashSet();
 
     Uint8List fromMarker =
-    await convertAssetToUnit8List(Images.mapIcon, width: 50);
+        await convertAssetToUnit8List(Images.mapIcon, width: 50);
     Uint8List toMarker =
-    await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
+        await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
 
     markers.add(Marker(
       markerId: const MarkerId('from'),
@@ -211,8 +212,12 @@ class MapController extends GetxController implements GetxService {
   void updateMarkerAndCircle({LatLng? latLng}) async {
     markers.removeWhere((marker) => marker.markerId.value == "my_location");
 
-    Uint8List car =
-    await convertAssetToUnit8List(Images.mapLocationIcon, width: 250);
+    Uint8List car = await convertAssetToUnit8List(
+      Get.find<RideController>().tripDetails!.vehicleCategory!.type == 'car'
+          ? Images.carTop
+          : Images.bike,
+      width: 55,
+    );
     if (Get.find<RideController>().tripDetails != null &&
         _polylineCoordinateList.isNotEmpty) {
       markers.add(Marker(
@@ -322,7 +327,7 @@ class MapController extends GetxController implements GetxService {
 
   void setOwnCurrentLocation() async {
     markers.removeWhere(
-          (marker) => marker.markerId.value == "my_location",
+      (marker) => marker.markerId.value == "my_location",
     );
 
     update();
@@ -458,7 +463,7 @@ class MapController extends GetxController implements GetxService {
   void setMarkersInitialPosition() {
     if (Get.find<RideController>().encodedPolyLine.isNotEmpty) {
       List<LatLng> markers =
-      decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
+          decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
       setFromToMarker(
           LatLng(markers[0].latitude, markers[0].longitude),
           LatLng(markers[markers.length - 1].latitude,

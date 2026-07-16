@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/util/images.dart';
-import 'package:ride_sharing_user_app/util/styles.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
+import 'package:ride_sharing_user_app/util/dimensions.dart';
+import 'package:ride_sharing_user_app/util/styles.dart';
 
 class RouteWidget extends StatefulWidget {
   final String totalDistance;
@@ -32,7 +31,9 @@ class RouteWidget extends StatefulWidget {
 }
 
 class _RouteWidgetState extends State<RouteWidget> {
-  String totalDistance = '0', estDistance = '0', removeComma = '0';
+  String totalDistance = '0';
+  String estDistance = '0';
+  String removeComma = '0';
 
   double _safeDistanceValue(String value) {
     final cleanedValue = value
@@ -73,268 +74,331 @@ class _RouteWidgetState extends State<RouteWidget> {
       stopNumber++;
     }
 
-    return GetBuilder<ParcelController>(builder: (parcelController) {
-      return GetBuilder<LocationController>(builder: (locationController) {
-        return Padding(
-          padding:
-          const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSix),
-          child: Column(children: [
-            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                            width: Dimensions.iconSizeMedium,
-                            child: Image.asset(
-                              Images.boxIconsLocation,
-                              height: 20,
-                              width: 20,
-                            )),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Pickup',
-                                style: textMedium.copyWith(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                widget.fromAddress,
-                                style: textMedium.copyWith(),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+    return GetBuilder<ParcelController>(
+      builder: (parcelController) {
+        return GetBuilder<LocationController>(
+          builder: (locationController) {
+            return Column(
+              children: [
+                Material(
+                  color: Theme.of(context).cardColor,
+                  elevation: 1,
+                  shadowColor: Colors.black.withValues(alpha: 0.06),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    side: const BorderSide(
+                      color: Color(0xFFD8DEE8),
+                      width: 1.2,
                     ),
-                    const SizedBox(height: 16),
-                    if (widget.extraOneAddress.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 18,
-                              height: 18,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFFFB300),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  '1',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Stop 1',
-                                    style: textMedium.copyWith(
-                                      color: Colors.grey,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    widget.extraOneAddress,
-                                    style: textMedium.copyWith(),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      children: [
+                        _RoutePoint(
+                          title: 'Pickup Location',
+                          address: widget.fromAddress,
+                          type: _RoutePointType.pickup,
                         ),
-                      ),
-                    if (widget.extraTwoAddress.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 18,
-                              height: 18,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFFFB300),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  '2',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Stop 2',
-                                    style: textMedium.copyWith(
-                                      color: Colors.grey,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    widget.extraTwoAddress,
-                                    style: textMedium.copyWith(),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (widget.entrance.isNotEmpty)
-                      ...List.generate(
-                        widget.entrance
-                            .split(',')
-                            .where((e) => e.trim().isNotEmpty)
-                            .length,
+                        if (widget.extraOneAddress.isNotEmpty) ...[
+                          const _RouteConnector(),
+                          _RoutePoint(
+                            title: 'Stop 1',
+                            address: widget.extraOneAddress,
+                            type: _RoutePointType.stop,
+                            stopNumber: 1,
+                          ),
+                        ],
+                        if (widget.extraTwoAddress.isNotEmpty) ...[
+                          const _RouteConnector(),
+                          _RoutePoint(
+                            title: 'Stop 2',
+                            address: widget.extraTwoAddress,
+                            type: _RoutePointType.stop,
+                            stopNumber: 2,
+                          ),
+                        ],
+                        if (widget.entrance.isNotEmpty)
+                          ...List.generate(
+                            widget.entrance
+                                .split(',')
+                                .where((element) => element.trim().isNotEmpty)
+                                .length,
                             (index) {
-                          final stops = widget.entrance
-                              .split(',')
-                              .where((e) => e.trim().isNotEmpty)
-                              .toList();
+                              final stops = widget.entrance
+                                  .split(',')
+                                  .where((element) => element.trim().isNotEmpty)
+                                  .toList();
 
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: 18,
-                                  height: 18,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFB300),
-                                    shape: BoxShape.circle,
+                              return Column(
+                                children: [
+                                  const _RouteConnector(),
+                                  _RoutePoint(
+                                    title: 'Stop ${stopNumber + index}',
+                                    address: stops[index],
+                                    type: _RoutePointType.stop,
+                                    stopNumber: stopNumber + index,
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      '${stopNumber + index}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Stop ${stopNumber + index}',
-                                        style: textMedium.copyWith(
-                                          color: Colors.grey,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        stops[index],
-                                        style: textMedium.copyWith(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    const SizedBox(height: 4),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                            width: Dimensions.iconSizeMedium,
-                            child: Image.asset(
-                              Images.tablerLocation,
-                              height: 20,
-                              width: 20,
-                            )),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                                ],
+                              );
+                            },
+                          ),
+                        const _RouteConnector(),
+                        _RoutePoint(
+                          title: 'Destination',
+                          address: widget.toAddress,
+                          type: _RoutePointType.destination,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (!widget.fromParcelOngoing) ...[
+                  const SizedBox(height: 12),
+                  GetBuilder<RideController>(
+                    builder: (rideController) {
+                      final displayDistance =
+                          _safeDistanceValue(widget.totalDistance);
+
+                      return Material(
+                        color: Theme.of(context).cardColor,
+                        elevation: 1,
+                        shadowColor: Colors.black.withValues(alpha: 0.05),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(
+                            color: Color(0xFFD8DEE8),
+                            width: 1.2,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          child: Row(
                             children: [
-                              Text(
-                                'Drop',
-                                style: textMedium.copyWith(
-                                  color: Colors.grey,
-                                  fontSize: 14,
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFFF4D6),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.route_rounded,
+                                  size: 18,
+                                  color: Color(0xFFFFB100),
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  'total_distance'.tr,
+                                  style: textMedium.copyWith(
+                                    fontSize: Dimensions.fontSizeSmall,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
                               Text(
-                                widget.toAddress,
-                                style: textMedium.copyWith(),
+                                '${displayDistance.toStringAsFixed(2)} km',
+                                style: textBold.copyWith(
+                                  fontSize: Dimensions.fontSizeSmall,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              )
-            ]),
-            const SizedBox(height: Dimensions.paddingSizeDefault),
-            if (!widget.fromParcelOngoing)
-              GetBuilder<RideController>(builder: (rideController) {
-                final displayDistance = _safeDistanceValue(widget.totalDistance);
-
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(children: [
-                    Image.asset(
-                      Images.distanceCalculated,
-                      width: 20,
-                      color: const Color.fromRGBO(250, 173, 2, 1),
-                    ),
-                    const SizedBox(width: 4),
-                    Text('total_distance'.tr, style: textMedium.copyWith()),
-                    const Spacer(),
-                    Text(
-                      '${displayDistance.toStringAsFixed(2)} km',
-                      style: textMedium.copyWith(),
-                    ),
-                  ]),
-                );
-              }),
-          ]),
+                      );
+                    },
+                  ),
+                ],
+              ],
+            );
+          },
         );
-      });
-    });
+      },
+    );
+  }
+}
+
+enum _RoutePointType {
+  pickup,
+  stop,
+  destination,
+}
+
+class _RoutePoint extends StatelessWidget {
+  final String title;
+  final String address;
+  final _RoutePointType type;
+  final int? stopNumber;
+
+  const _RoutePoint({
+    required this.title,
+    required this.address,
+    required this.type,
+    this.stopNumber,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 24,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: _RouteIcon(
+              type: type,
+              stopNumber: stopNumber,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: textMedium.copyWith(
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.color
+                      ?.withValues(alpha: 0.48),
+                  fontSize: Dimensions.fontSizeExtraSmall,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                address,
+                style: textMedium.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: Dimensions.fontSizeSmall,
+                  height: 1.35,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RouteIcon extends StatelessWidget {
+  final _RoutePointType type;
+  final int? stopNumber;
+
+  const _RouteIcon({
+    required this.type,
+    this.stopNumber,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    switch (type) {
+      case _RoutePointType.pickup:
+        return Container(
+          width: 20,
+          height: 20,
+          decoration: const BoxDecoration(
+            color: Color(0xFFFFF4D6),
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: Container(
+            width: 11,
+            height: 11,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFFFFB100),
+                width: 1.7,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Container(
+              width: 3.5,
+              height: 3.5,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFB100),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        );
+
+      case _RoutePointType.destination:
+        return Container(
+          width: 20,
+          height: 20,
+          decoration: const BoxDecoration(
+            color: Color(0xFFFFE9EC),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.location_on_rounded,
+            size: 14,
+            color: Color(0xFFFF4D5A),
+          ),
+        );
+
+      case _RoutePointType.stop:
+        return Container(
+          width: 20,
+          height: 20,
+          decoration: const BoxDecoration(
+            color: Color(0xFFFFF4D6),
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            '${stopNumber ?? ''}',
+            style: textBold.copyWith(
+              color: const Color(0xFFFFB100),
+              fontSize: 9,
+            ),
+          ),
+        );
+    }
+  }
+}
+
+class _RouteConnector extends StatelessWidget {
+  const _RouteConnector();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 9.5),
+      child: SizedBox(
+        height: 14,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(
+            4,
+            (index) => Container(
+              width: 1.5,
+              height: 2,
+              decoration: BoxDecoration(
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.42),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

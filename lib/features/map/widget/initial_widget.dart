@@ -61,8 +61,8 @@ class _InitialWidgetState extends State<InitialWidget> {
 
     if (Get.find<PaymentController>().paymentType == 'wallet' &&
         (rideController.discountAmount.toDouble() > 0
-            ? rideController.discountFare
-            : rideController.estimatedFare) >
+                ? rideController.discountFare
+                : rideController.estimatedFare) >
             Get.find<ProfileController>()
                 .profileModel!
                 .data!
@@ -86,7 +86,7 @@ class _InitialWidgetState extends State<InitialWidget> {
           }
 
           final selectedPackage = rideController.rentalPackages.firstWhere(
-                (e) => e["free_hours"] == selectedHour,
+            (e) => e["free_hours"] == selectedHour,
             orElse: () => rideController.rentalPackages.first,
           );
 
@@ -96,7 +96,7 @@ class _InitialWidgetState extends State<InitialWidget> {
             if (!_packageScrollController.hasClients) return;
 
             final index = rideController.rentalPackages.indexWhere(
-                  (e) => e["free_hours"] == selectedHour,
+              (e) => e["free_hours"] == selectedHour,
             );
 
             if (index != -1) {
@@ -124,7 +124,8 @@ class _InitialWidgetState extends State<InitialWidget> {
         final List<Widget> contentChildren = [];
 
         if (rideController.isLocalRide) {
-          final distance = double.tryParse(rideController.estimatedDistance) ?? 0;
+          final distance =
+              double.tryParse(rideController.estimatedDistance) ?? 0;
           final localVehicles = _buildLocalVehicleOptions(rideController);
 
           if (localVehicles.isEmpty) {
@@ -195,7 +196,7 @@ class _InitialWidgetState extends State<InitialWidget> {
               .toList();
 
           tariffs.sort(
-                (a, b) =>
+            (a, b) =>
                 (a['package_rate'] ?? 0).compareTo(b['package_rate'] ?? 0),
           );
 
@@ -226,7 +227,8 @@ class _InitialWidgetState extends State<InitialWidget> {
             }
           }
         } else if (rideController.isOutstationRide) {
-          final distance = double.tryParse(rideController.estimatedDistance) ?? 0;
+          final distance =
+              double.tryParse(rideController.estimatedDistance) ?? 0;
 
           if (rideController.outstationTariffs.isEmpty) {
             contentChildren.add(
@@ -274,12 +276,13 @@ class _InitialWidgetState extends State<InitialWidget> {
               totalDistance: rideController.fareList.isEmpty
                   ? '0'
                   : rideController.fareList[rideController.rideCategoryIndex]
-                  .estimatedDistance ??
-                  '0',
+                          .estimatedDistance ??
+                      '0',
               fromAddress: locationController.fromAddress?.address ?? '',
-              extraOneAddress: locationController.extraRouteAddress?.address ?? '',
+              extraOneAddress:
+                  locationController.extraRouteAddress?.address ?? '',
               extraTwoAddress:
-              locationController.extraRouteTwoAddress?.address ?? '',
+                  locationController.extraRouteTwoAddress?.address ?? '',
               toAddress: locationController.toAddress?.address ?? '',
               entrance: locationController.entranceController.text,
             ),
@@ -303,9 +306,10 @@ class _InitialWidgetState extends State<InitialWidget> {
                     vertical: Dimensions.paddingSizeExtraSmall,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                    color:
+                        Theme.of(context).primaryColor.withValues(alpha: 0.15),
                     borderRadius:
-                    BorderRadius.circular(Dimensions.paddingSizeSmall),
+                        BorderRadius.circular(Dimensions.paddingSizeSmall),
                   ),
                   child: Text(
                     'coupon_applied'.tr,
@@ -320,30 +324,30 @@ class _InitialWidgetState extends State<InitialWidget> {
           }
         }
 
-        final Widget bottomAction = rideController.isLoading || rideController.isSubmit
-            ? const Center(
-          child: SpinKitCircle(
-            color: Color.fromRGBO(250, 173, 2, 1),
-            size: 40.0,
-          ),
-        )
-            : isVehicleSelectionFlow
-            ? buildButtonWidget(rideController)
-            : (Get.find<ConfigController>().config!.bidOnFare!)
-            ? FareInputWidget(
-          expandableKey: widget.expandableKey,
-          fromRide: true,
-          fare: rideController.discountAmount.toDouble() > 0
-              ? rideController.discountFare.toString()
-              : rideController.estimatedFare.toString(),
-        )
-            : buildButtonWidget(rideController);
+        final Widget bottomAction =
+            rideController.isLoading || rideController.isSubmit
+                ? const Center(
+                    child: SpinKitCircle(
+                      color: Color.fromRGBO(250, 173, 2, 1),
+                      size: 40.0,
+                    ),
+                  )
+                : isVehicleSelectionFlow
+                    ? buildButtonWidget(rideController)
+                    : (Get.find<ConfigController>().config!.bidOnFare!)
+                        ? FareInputWidget(
+                            expandableKey: widget.expandableKey,
+                            fromRide: true,
+                            fare: rideController.discountAmount.toDouble() > 0
+                                ? rideController.discountFare.toString()
+                                : rideController.estimatedFare.toString(),
+                          )
+                        : buildButtonWidget(rideController);
 
         final double screenHeight = MediaQuery.of(context).size.height;
         final double bottomSafe = MediaQuery.of(context).padding.bottom;
-        final double sheetHeight = (screenHeight * 0.43)
-            .clamp(335.0, 390.0)
-            .toDouble();
+        final double sheetHeight =
+            (screenHeight * 0.43).clamp(335.0, 390.0).toDouble();
 
         return SizedBox(
           height: sheetHeight,
@@ -359,24 +363,24 @@ class _InitialWidgetState extends State<InitialWidget> {
               ),
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.fromLTRB(
-                  0,
-                  12,
-                  0,
-                  bottomSafe + 10,
+                padding: EdgeInsets.only(
+                  top: 8,
+                  left: 0,
+                  right: 0,
+                  bottom: bottomSafe > 0 ? 8 : 8,
                 ),
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color.fromRGBO(18, 26, 44, 0.10),
-                      blurRadius: 18,
-                      offset: Offset(0, -8),
-                    ),
-                  ],
+                  // boxShadow: [
+                  //   BoxShadow(
+                  //     color: Color.fromRGBO(18, 26, 44, 0.10),
+                  //     blurRadius: 18,
+                  //     offset: Offset(0, -8),
+                  //   ),
+                  // ],
                 ),
                 child: SizedBox(
-                  height: 52,
+                  height: 50,
                   width: double.infinity,
                   child: bottomAction,
                 ),
@@ -392,32 +396,29 @@ class _InitialWidgetState extends State<InitialWidget> {
     bool canBook = rideController.isLocalRide
         ? selectedLocalVehicle != null
         : rideController.isOutstationRide
-        ? selectedOutstationVehicle != null
-        : rideController.isRentalRide
-        ? selectedVehicle != null
-        : true;
+            ? selectedOutstationVehicle != null
+            : rideController.isRentalRide
+                ? selectedVehicle != null
+                : true;
     return ButtonWidget(
         textColor: canBook ? Colors.white : Colors.grey.shade600,
-        borderColor: canBook
-            ? _brandGold.withValues(alpha: 0.20)
-            : Colors.grey.shade300,
-        backgroundColor: canBook
-            ? _brandGold
-            : Colors.grey.shade300,
+        borderColor:
+            canBook ? _brandGold.withValues(alpha: 0.20) : Colors.grey.shade300,
+        backgroundColor: canBook ? _brandGold : Colors.grey.shade300,
         fontSize: 16.0,
         buttonText: rideController.isLocalRide
             ? (selectedLocalVehicle == null
-            ? "Select Vehicle"
-            : "Book $selectedLocalVehicle")
+                ? "Select Vehicle"
+                : "Book $selectedLocalVehicle")
             : rideController.isOutstationRide
-            ? (selectedOutstationVehicle == null
-            ? "Select Vehicle"
-            : "Book $selectedOutstationVehicle")
-            : rideController.isRentalRide
-            ? (selectedVehicle == null
-            ? "Select Vehicle"
-            : "Book $selectedVehicle")
-            : "find_rider".tr,
+                ? (selectedOutstationVehicle == null
+                    ? "Select Vehicle"
+                    : "Book $selectedOutstationVehicle")
+                : rideController.isRentalRide
+                    ? (selectedVehicle == null
+                        ? "Select Vehicle"
+                        : "Book $selectedVehicle")
+                    : "find_rider".tr,
         onPressed: () {
           if (!canBook) {
             showCustomSnackBar('Please select a vehicle', isError: true);
@@ -430,8 +431,8 @@ class _InitialWidgetState extends State<InitialWidget> {
             rideController.outstationVehicle = selectedOutstationVehicle!;
 
             final tariff = rideController.outstationTariffs.firstWhere(
-                  (e) =>
-              e.vehicleType!.toUpperCase() ==
+              (e) =>
+                  e.vehicleType!.toUpperCase() ==
                   selectedOutstationVehicle!.toUpperCase(),
             );
 
@@ -440,9 +441,9 @@ class _InitialWidgetState extends State<InitialWidget> {
 
             rideController.outstationFare =
                 rideController.calculateOutstationFare(
-                  tariff,
-                  distance,
-                );
+              tariff,
+              distance,
+            );
           } else if (rideController.isRentalRide) {
             rideController.rentalVehicle = selectedVehicle!;
             rideController.rentalHour = selectedHour;
@@ -458,7 +459,7 @@ class _InitialWidgetState extends State<InitialWidget> {
                     title: const Text('Thank You!'),
                     content: const Text(
                       'Thank you for choosing Seven Taxi.\n'
-                          'Our team will contact you shortly.',
+                      'Our team will contact you shortly.',
                     ),
                     actions: [
                       TextButton(
@@ -489,12 +490,12 @@ class _InitialWidgetState extends State<InitialWidget> {
   }
 
   Widget localCarCard(
-      String title,
-      double fare,
-      String categoryId,
-      String subtitle,
-      dynamic tariff,
-      ) {
+    String title,
+    double fare,
+    String categoryId,
+    String subtitle,
+    dynamic tariff,
+  ) {
     final bool selected = selectedLocalVehicle == title;
     return _PremiumVehicleFareCard(
       title: title,
@@ -511,9 +512,9 @@ class _InitialWidgetState extends State<InitialWidget> {
         rideController.selectedCategoryId = categoryId;
         rideController.localVehicleCategoryId = categoryId;
         rideController.selectedIdleFee = double.tryParse(
-          (tariff['idle_fee_per_min'] ?? tariff['waiting_fee_per_min'] ?? 0)
-              .toString(),
-        ) ??
+              (tariff['idle_fee_per_min'] ?? tariff['waiting_fee_per_min'] ?? 0)
+                  .toString(),
+            ) ??
             0;
       },
     );
@@ -543,10 +544,10 @@ class _InitialWidgetState extends State<InitialWidget> {
         decoration: BoxDecoration(
           gradient: selected
               ? const LinearGradient(
-            colors: [Color(0xFFE71921), Color(0xFFFF5A1F)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          )
+                  colors: [Color(0xFFE71921), Color(0xFFFF5A1F)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
               : null,
           color: selected ? null : Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -588,10 +589,10 @@ class _InitialWidgetState extends State<InitialWidget> {
   }
 
   Widget rentalCarCard(
-      String title,
-      int fare,
-      String categoryId,
-      ) {
+    String title,
+    int fare,
+    String categoryId,
+  ) {
     final bool isSelected = selectedVehicle == title;
     return _PremiumVehicleFareCard(
       title: title,
@@ -612,10 +613,10 @@ class _InitialWidgetState extends State<InitialWidget> {
   }
 
   Widget outstationCarCard(
-      String title,
-      double totalFare,
-      double distanceKm,
-      ) {
+    String title,
+    double totalFare,
+    double distanceKm,
+  ) {
     final bool selected = selectedOutstationVehicle == title;
 
     return _PremiumVehicleFareCard(
@@ -631,10 +632,9 @@ class _InitialWidgetState extends State<InitialWidget> {
     );
   }
 
-
   List<_LocalVehicleOption> _buildLocalVehicleOptions(
-      RideController rideController,
-      ) {
+    RideController rideController,
+  ) {
     final List<dynamic> tripFares = [];
 
     for (final zone in rideController.localTariffs) {
@@ -718,18 +718,17 @@ class _InitialWidgetState extends State<InitialWidget> {
     options.sort((a, b) {
       final aIndex = order.indexOf(_normalizeVehicleName(a.name));
       final bIndex = order.indexOf(_normalizeVehicleName(b.name));
-      return (aIndex == -1 ? 99 : aIndex)
-          .compareTo(bIndex == -1 ? 99 : bIndex);
+      return (aIndex == -1 ? 99 : aIndex).compareTo(bIndex == -1 ? 99 : bIndex);
     });
 
     return options;
   }
 
   double _calculateLocalFare(
-      dynamic tariff,
-      double distanceKm,
-      bool isNight,
-      ) {
+    dynamic tariff,
+    double distanceKm,
+    bool isNight,
+  ) {
     final minimumKm = _readTariffDouble(
       tariff,
       const ['minimum_km', 'min_km', 'base_km'],
@@ -786,8 +785,6 @@ class _InitialWidgetState extends State<InitialWidget> {
     super.dispose();
   }
 }
-
-
 
 class _LocalVehicleOption {
   final String name;
@@ -932,7 +929,7 @@ class _PremiumVehicleFareCard extends StatelessWidget {
                   ),
                   child: selected
                       ? const Icon(Icons.check_rounded,
-                      color: Colors.white, size: 18)
+                          color: Colors.white, size: 18)
                       : const SizedBox(),
                 ),
               ],
