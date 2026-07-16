@@ -62,12 +62,12 @@ class _RideExpendableBottomSheetState extends State<RideExpendableBottomSheet> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).highlightColor,
                     borderRadius:
-                    BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
+                        BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
                   )),
               const Padding(
                 padding: EdgeInsets.fromLTRB(
                   Dimensions.paddingSizeDefault,
-                  Dimensions.paddingSizeSmall,
+                  0,
                   Dimensions.paddingSizeDefault,
                   Dimensions.paddingSizeDefault,
                 ),
@@ -76,93 +76,118 @@ class _RideExpendableBottomSheetState extends State<RideExpendableBottomSheet> {
               GetBuilder<RideController>(builder: (rideController) {
                 return GetBuilder<LocationController>(
                     builder: (locationController) {
-                      String firstRoute = '';
-                      String secondRoute = '';
-                      List<dynamic> extraRoute = [];
-                      if (rideController.tripDetails?.intermediateAddresses !=
+                  String firstRoute = '';
+                  String secondRoute = '';
+                  List<dynamic> extraRoute = [];
+                  if (rideController.tripDetails?.intermediateAddresses !=
                           null &&
-                          rideController.tripDetails?.intermediateAddresses !=
-                              '["",""]') {
-                        extraRoute = jsonDecode(
-                            rideController.tripDetails!.intermediateAddresses!);
-                        if (extraRoute.isNotEmpty) {
-                          firstRoute = extraRoute[0].toString();
-                        }
-                        if (extraRoute.isNotEmpty && extraRoute.length > 1) {
-                          secondRoute = extraRoute[1].toString();
-                        }
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: Dimensions.paddingSizeDefault),
-                        child: Column(mainAxisSize: MainAxisSize.min, children: [
-                          (rideController.currentRideState == RideState.initial)
-                              ? InitialWidget(expandableKey: widget.expandableKey)
-                              : (rideController.currentRideState ==
-                              RideState.riseFare)
+                      rideController.tripDetails?.intermediateAddresses !=
+                          '["",""]') {
+                    extraRoute = jsonDecode(
+                        rideController.tripDetails!.intermediateAddresses!);
+                    if (extraRoute.isNotEmpty) {
+                      firstRoute = extraRoute[0].toString();
+                    }
+                    if (extraRoute.isNotEmpty && extraRoute.length > 1) {
+                      secondRoute = extraRoute[1].toString();
+                    }
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: Dimensions.paddingSizeDefault),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      (rideController.currentRideState == RideState.initial)
+                          ? InitialWidget(expandableKey: widget.expandableKey)
+                          : (rideController.currentRideState ==
+                                  RideState.riseFare)
                               ? RaiseFareBottomSheet(
-                              expandableKey: widget.expandableKey)
+                                  expandableKey: widget.expandableKey)
                               : (rideController.currentRideState ==
-                              RideState.findingRider)
-                              ? FindingRiderWidget(
-                              expandableKey: widget.expandableKey,
-                              fromPage: FindingRide.ride)
-                              : (rideController.currentRideState ==
-                              RideState.acceptingRider)
-                              ? AcceptingAndOngoingBottomSheet(
-                            firstRoute: firstRoute,
-                            secondRoute: secondRoute,
-                            expandableKey: widget.expandableKey,
-                          )
-                              : (rideController.currentRideState ==
-                              RideState.otpSent)
-                              ? OtpSentBottomSheet(
-                            firstRoute: firstRoute,
-                            secondRoute: secondRoute,
-                            expandableKey:
-                            widget.expandableKey,
-                          )
-                              : (rideController.currentRideState ==
-                              RideState.ongoingRide)
-                              ? Column(children: [
-                            TollTipWidget(
-                                showInsight: false,
-                                title:
-                                'trip_is_ongoing'.tr),
-                            Padding(
-                              padding: const EdgeInsets
-                                  .symmetric(
-                                  vertical: Dimensions
-                                      .paddingSizeDefault),
-                              child: Text.rich(TextSpan(
-                                style: textRegular.copyWith(
-                                    fontSize: Dimensions
-                                        .fontSizeLarge,
-                                    color:
-                                    Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .color!
-                                        .withValues(
-                                        alpha:
-                                        0.8)),
-                                children: [
-                                  TextSpan(
-                                      text:
-                                      'you_are_on_the_way_to_destination'
-                                          .tr)
-                                ],
-                              )),
-                            ),
-                            const ActivityScreenRiderDetails(),
-                            const SizedBox(
-                                height: Dimensions
-                                    .paddingSizeDefault),
-                          ])
-                              : const SizedBox(),
-                        ]),
-                      );
-                    });
+                                      RideState.findingRider)
+                                  ? FindingRiderWidget(
+                                      expandableKey: widget.expandableKey,
+                                      fromPage: FindingRide.ride)
+                                  : (rideController.currentRideState ==
+                                          RideState.acceptingRider)
+                                      ? AcceptingAndOngoingBottomSheet(
+                                          firstRoute: firstRoute,
+                                          secondRoute: secondRoute,
+                                          expandableKey: widget.expandableKey,
+                                        )
+                                      : (rideController.currentRideState ==
+                                              RideState.otpSent)
+                                          ? OtpSentBottomSheet(
+                                              firstRoute: firstRoute,
+                                              secondRoute: secondRoute,
+                                              expandableKey:
+                                                  widget.expandableKey,
+                                            )
+                                          : (rideController.currentRideState ==
+                                                  RideState.ongoingRide)
+                                              ? Column(children: [
+                                                  Chip(
+                                                    avatar: const Icon(
+                                                      Icons
+                                                          .directions_car_filled_rounded,
+                                                      size: 18,
+                                                      color: Color(0xFFE71921),
+                                                    ),
+                                                    label: Text(
+                                                      'trip_is_ongoing'.tr,
+                                                      style: const TextStyle(
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        color:
+                                                            Color(0xFFE71921),
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        const Color(0xFFFFF5F5),
+                                                    side: const BorderSide(
+                                                      color: Color(0xFFFFCDD2),
+                                                    ),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              30),
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: Dimensions
+                                                            .paddingSize),
+                                                    child: Text.rich(TextSpan(
+                                                      style: textRegular.copyWith(
+                                                          fontSize: Dimensions
+                                                              .fontSizeLarge,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .bodyMedium!
+                                                                  .color!
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.8)),
+                                                      children: [
+                                                        TextSpan(
+                                                            text:
+                                                                'you_are_on_the_way_to_destination'
+                                                                    .tr)
+                                                      ],
+                                                    )),
+                                                  ),
+                                                  const ActivityScreenRiderDetails(),
+                                                  const SizedBox(
+                                                      height: Dimensions
+                                                          .paddingSize),
+                                                ])
+                                              : const SizedBox(),
+                    ]),
+                  );
+                });
               }),
             ])),
       );

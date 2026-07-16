@@ -78,12 +78,15 @@ class RideBottomSheet extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF1F1),
                           borderRadius: BorderRadius.circular(999),
                         ),
-                        child: Text('SevenTaxi', style: textBold.copyWith(color: _brandRed, fontSize: 12)),
+                        child: Text('SevenTaxi',
+                            style: textBold.copyWith(
+                                color: _brandRed, fontSize: 12)),
                       ),
                     ],
                   ),
@@ -97,9 +100,21 @@ class RideBottomSheet extends StatelessWidget {
                     dividerColor: Colors.transparent,
                     overlayColor: WidgetStatePropertyAll(Colors.transparent),
                     tabs: [
-                      _PremiumVehicleTab(title: 'Local', subtitle: 'Within city', image: Images.car, index: 0),
-                      _PremiumVehicleTab(title: 'Rental', subtitle: 'By the hour', image: Images.car, index: 1),
-                      _PremiumVehicleTab(title: 'Outstation', subtitle: 'Out of city', image: Images.car, index: 2),
+                      _PremiumVehicleTab(
+                          title: 'Local',
+                          subtitle: 'Within city',
+                          image: Images.car,
+                          index: 0),
+                      _PremiumVehicleTab(
+                          title: 'Rental',
+                          subtitle: 'By the hour',
+                          image: Images.car,
+                          index: 1),
+                      _PremiumVehicleTab(
+                          title: 'Outstation',
+                          subtitle: 'Out of city',
+                          image: Images.car,
+                          index: 2),
                     ],
                   ),
                 ),
@@ -124,9 +139,10 @@ class RideBottomSheet extends StatelessWidget {
                     height: tabController.index == 0
                         ? 115
                         : tabController.index == 1
-                        ? 150
-                        : 135,
-                    child: const NotificationListener<OverscrollIndicatorNotification>(
+                            ? 150
+                            : 135,
+                    child: const NotificationListener<
+                        OverscrollIndicatorNotification>(
                       onNotification: _disableGlow,
                       child: TabBarView(
                         physics: NeverScrollableScrollPhysics(),
@@ -189,17 +205,20 @@ class _PremiumVehicleTab extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: selected
                 ? const LinearGradient(
-              colors: [Color(0xFFE71921), Color(0xFFFF4B2E)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            )
+                    colors: [Color(0xFFE71921), Color(0xFFFF4B2E)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
                 : null,
             color: selected ? null : Colors.white,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: selected ? Colors.transparent : const Color(0xFFE8EBF0)),
+            border: Border.all(
+                color: selected ? Colors.transparent : const Color(0xFFE8EBF0)),
             boxShadow: [
               BoxShadow(
-                color: selected ? _brandRed.withValues(alpha: 0.22) : Colors.black.withValues(alpha: 0.055),
+                color: selected
+                    ? _brandRed.withValues(alpha: 0.22)
+                    : Colors.black.withValues(alpha: 0.055),
                 blurRadius: selected ? 16 : 8,
                 offset: const Offset(0, 6),
               ),
@@ -211,7 +230,8 @@ class _PremiumVehicleTab extends StatelessWidget {
                 Positioned(
                   right: 0,
                   top: 6,
-                  child: Icon(Icons.directions_car_filled_rounded, size: 54, color: Colors.white.withValues(alpha: 0.12)),
+                  child: Icon(Icons.directions_car_filled_rounded,
+                      size: 54, color: Colors.white.withValues(alpha: 0.12)),
                 ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,9 +249,20 @@ class _PremiumVehicleTab extends StatelessWidget {
                   const Expanded(
                     child: SizedBox(),
                   ),
-                  Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textBold.copyWith(color: selected ? Colors.white : _ink, fontSize: 13)),
+                  Text(title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textBold.copyWith(
+                          color: selected ? Colors.white : _ink, fontSize: 13)),
                   const SizedBox(height: 2),
-                  Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: textMedium.copyWith(color: selected ? Colors.white.withValues(alpha: 0.85) : _muted, fontSize: 10)),
+                  Text(subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textMedium.copyWith(
+                          color: selected
+                              ? Colors.white.withValues(alpha: 0.85)
+                              : _muted,
+                          fontSize: 10)),
                 ],
               ),
               if (selected)
@@ -241,8 +272,10 @@ class _PremiumVehicleTab extends StatelessWidget {
                   child: Container(
                     width: 18,
                     height: 18,
-                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                    child: const Icon(Icons.check_rounded, color: _brandRed, size: 14),
+                    decoration: const BoxDecoration(
+                        color: Colors.white, shape: BoxShape.circle),
+                    child: const Icon(Icons.check_rounded,
+                        color: _brandRed, size: 14),
                   ),
                 ),
             ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
@@ -37,9 +36,12 @@ class OtpSentBottomSheet extends StatefulWidget {
 
 class _OtpSentBottomSheetState extends State<OtpSentBottomSheet> {
   int currentState = 0;
+  bool _isSubmittingCancellation = false;
 
   @override
   Widget build(BuildContext context) {
+    final double buttonHeight = MediaQuery.of(context).size.height * 0.055;
+
     return GetBuilder<RideController>(builder: (rideController) {
       return GetBuilder<LocationController>(builder: (locationController) {
         return currentState == 0
@@ -51,7 +53,7 @@ class _OtpSentBottomSheetState extends State<OtpSentBottomSheet> {
                 const ActivityScreenRiderDetails(),
                 const SizedBox(height: Dimensions.paddingSizeDefault),
                 Padding(
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                  padding: const EdgeInsets.all(Dimensions.paddingSize),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -77,44 +79,47 @@ class _OtpSentBottomSheetState extends State<OtpSentBottomSheet> {
                 const SizedBox(height: Dimensions.paddingSizeDefault),
                 Container(
                   decoration: BoxDecoration(
-                    border:
-                        Border.all(color: const Color.fromRGBO(0, 0, 0, 0.1)),
-                    borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
-                    color: const Color.fromRGBO(255, 255, 255, 1),
+                    color: const Color(0xFFFFFFFF),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFE8EAF0),
+                    ),
                   ),
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 14,
+                  ),
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(children: [
-                            Image.asset(
-                              Images.farePrice,
-                              height: 15,
-                              width: 15,
-                              color: const Color.fromRGBO(250, 173, 2, 1),
-                            ),
-                            const SizedBox(width: Dimensions.paddingSizeSmall),
-                            Text(
+                          Image.asset(
+                            Images.farePrice,
+                            height: 17,
+                            width: 17,
+                            color: const Color(0xFFFFA800),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
                               'fare_price'.tr,
                               style: textRegular.copyWith(
-                                color: const Color.fromRGBO(20, 20, 20, 1),
+                                color: const Color(0xFF1C1B1F),
                                 fontSize: Dimensions.fontSizeDefault,
                               ),
                             ),
-                          ]),
+                          ),
                           Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: const Color.fromRGBO(250, 173, 2, 1)),
-                              borderRadius:
-                                  BorderRadius.circular(Dimensions.radiusSmall),
-                              color: const Color.fromRGBO(255, 255, 255, 1),
-                            ),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: Dimensions.paddingSizeSmall,
-                              vertical: Dimensions.paddingSizeExtraSmall,
+                              horizontal: 11,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFFAEC),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: const Color(0xFFFFB000),
+                              ),
                             ),
                             child: Text(
                               PriceConverter.convertPrice(
@@ -124,42 +129,40 @@ class _OtpSentBottomSheetState extends State<OtpSentBottomSheet> {
                               ),
                               style: textBold.copyWith(
                                 fontSize: Dimensions.fontSizeSmall,
-                                color: const Color.fromRGBO(20, 20, 20, 1),
+                                color: const Color(0xFF1C1B1F),
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: Dimensions.paddingSizeSmall),
+                      const SizedBox(height: 8),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          Image.asset(
+                            Images.paymentTypeIcon,
+                            height: 17,
+                            width: 17,
+                            color: const Color(0xFFFFA800),
+                          ),
+                          const SizedBox(width: 12),
                           Expanded(
-                            child: Row(children: [
-                              Image.asset(
-                                Images.paymentTypeIcon,
-                                height: 15,
-                                width: 15,
-                                color: const Color.fromRGBO(250, 173, 2, 1),
+                            child: Text(
+                              'payment'.tr,
+                              style: textRegular.copyWith(
+                                color: const Color(0xFF1C1B1F),
+                                fontSize: Dimensions.fontSizeDefault,
                               ),
-                              const SizedBox(
-                                  width: Dimensions.paddingSizeSmall),
-                              Text(
-                                'payment'.tr,
-                                style: textRegular.copyWith(
-                                  color: const Color.fromRGBO(20, 20, 20, 1),
-                                  fontSize: Dimensions.fontSizeDefault,
-                                ),
-                              ),
-                            ]),
+                            ),
                           ),
                           Text(
                             rideController.tripDetails?.paymentMethod
                                     ?.replaceAll(RegExp('[\\W_]+'), ' ')
                                     .capitalize ??
                                 'cash'.tr,
-                            style: const TextStyle(
-                                color: Color.fromRGBO(20, 20, 20, 1)),
+                            style: textMedium.copyWith(
+                              color: const Color(0xFF1C1B1F),
+                              fontSize: Dimensions.fontSizeDefault,
+                            ),
                           ),
                         ],
                       ),
@@ -167,97 +170,117 @@ class _OtpSentBottomSheetState extends State<OtpSentBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeDefault),
-                SliderButton(
-                  key: const ValueKey('cancel_ride_slider'),
-                  action: () {
-                    currentState = 1;
-                    widget.expandableKey.currentState?.expand();
-                    setState(() {});
-                  },
-                  width: MediaQuery.sizeOf(context).width -
-                      (Dimensions.paddingSizeDefault * 2),
-                  height: 56,
-                  buttonSize: 46,
-                  radius: 18,
-                  dismissThresholds: 0.82,
-                  dismissible: false,
-                  shimmer: false,
-                  backgroundColor: const Color(0xFFFFF5F5),
-                  baseColor: const Color(0xFFE71921),
-                  buttonColor: Colors.white,
-                  label: Text(
-                    'cancel_ride'.tr,
-                    style: textSemiBold.copyWith(
-                      color: const Color(0xFFE71921),
-                      fontSize: Dimensions.fontSizeDefault,
+                SizedBox(
+                  width: double.infinity,
+                  height: buttonHeight.clamp(48.0, 50.0),
+                  child: FilledButton(
+                    onPressed: () {
+                      currentState = 1;
+                      widget.expandableKey.currentState?.expand();
+                      setState(() {});
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFFE71921),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: EdgeInsets.zero, // Remove default padding
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      minimumSize: Size.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      'Cancel Ride',
+                      style: textSemiBold.copyWith(
+                        fontSize: 15,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  icon: Icon(
-                    Get.find<LocalizationController>().isLtr
-                        ? Icons.chevron_right_rounded
-                        : Icons.chevron_left_rounded,
-                    color: const Color(0xFFE71921),
-                    size: 24,
-                  ),
-                  isLtr: Get.find<LocalizationController>().isLtr,
                 )
               ])
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(
-                    height: Dimensions.paddingSizeSmall,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF4E5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.location_on_rounded,
+                          size: 15,
+                          color: Color(0xFFFF9F0A),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'rider_arrived'.tr,
+                          style: textMedium.copyWith(
+                            color: const Color(0xFF6F4E00),
+                            fontSize: Dimensions.fontSizeSmall,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  Text(
-                    'rider_arrived'.tr,
-                    style: textSemiBold.copyWith(
-                        color: const Color.fromRGBO(20, 20, 20, 1),
-                        fontSize: Dimensions.fontSizeSmall),
-                  ),
-                  const SizedBox(
-                    height: Dimensions.paddingSizeSmall,
-                  ),
+                  const SizedBox(height: 8),
                   const CancellationRadioButton(
                     isOngoing: false,
                   ),
-                  const SizedBox(height: Dimensions.paddingSizeLarge),
-                  rideController.isLoading
-                      ? const SpinKitCircle(
-                          color: Color.fromRGBO(250, 173, 2, 1), size: 40.0)
-                      : Row(children: [
-                          Expanded(
-                              child: ButtonWidget(
-                                  fontSize: Dimensions.fontSizeDefault + 1,
-                                  textColor:
-                                      const Color.fromRGBO(255, 255, 255, 1),
-                                  borderColor:
-                                      const Color.fromRGBO(255, 128, 128, 0.2),
-                                  backgroundColor:
-                                      const Color.fromRGBO(250, 173, 2, 1),
-                                  buttonText: 'no_continue_trip'.tr,
-                                  showBorder: true,
-                                  transparent: true,
-                                  radius: Dimensions.paddingSizeSmall,
-                                  onPressed: () {
-                                    currentState = 0;
-                                    setState(() {});
-                                  })),
-                          const SizedBox(
-                            width: Dimensions.paddingSizeSmall,
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _isSubmittingCancellation
+                              ? null
+                              : () {
+                                  currentState = 0;
+                                  setState(() {});
+                                },
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(52),
+                            foregroundColor: const Color(0xFF121A2C),
+                            side: const BorderSide(
+                              color: Color(0xFFD9DDE7),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
-                          Expanded(
-                              child: ButtonWidget(
-                            buttonText: 'submit'.tr,
-                            showBorder: true,
-                            transparent: true,
-                            textColor:
-                                Get.isDarkMode ? Colors.white : Colors.black,
-                            borderColor: Theme.of(context).hintColor,
-                            radius: Dimensions.paddingSizeSmall,
-                            onPressed: () {
-                              Get.find<RideController>().stopLocationRecord();
-                              rideController
-                                  .tripStatusUpdate(
+                          child: Text(
+                            'Continue Ride',
+                            textAlign: TextAlign.center,
+                            style: textSemiBold.copyWith(
+                              fontSize: Dimensions.fontSizeDefault,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: _isSubmittingCancellation
+                              ? null
+                              : () async {
+                                  setState(() {
+                                    _isSubmittingCancellation = true;
+                                  });
+
+                                  Get.find<RideController>()
+                                      .stopLocationRecord();
+
+                                  try {
+                                    final value =
+                                        await rideController.tripStatusUpdate(
                                       rideController.tripDetails!.id!,
                                       'cancelled',
                                       'ride_request_cancelled_successfully',
@@ -266,18 +289,55 @@ class _OtpSentBottomSheetState extends State<OtpSentBottomSheet> {
                                           .data!
                                           .acceptedRide![Get.find<
                                               TripController>()
-                                          .tripCancellationCauseCurrentIndex])
-                                  .then((value) {
-                                if (value.statusCode == 200) {
-                                  Get.find<MapController>()
-                                      .notifyMapController();
-                                  Get.find<BottomMenuController>()
-                                      .navigateToDashboard();
-                                }
-                              });
-                            },
-                          )),
-                        ])
+                                          .tripCancellationCauseCurrentIndex],
+                                    );
+
+                                    if (value.statusCode == 200) {
+                                      Get.find<MapController>()
+                                          .notifyMapController();
+                                      Get.find<BottomMenuController>()
+                                          .navigateToDashboard();
+                                    }
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() {
+                                        _isSubmittingCancellation = false;
+                                      });
+                                    }
+                                  }
+                                },
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(52),
+                            backgroundColor: const Color(0xFFE71921),
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor:
+                                const Color(0xFFE71921).withValues(alpha: 0.65),
+                            disabledForegroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: _isSubmittingCancellation
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text(
+                                  'submit'.tr,
+                                  style: textSemiBold.copyWith(
+                                    fontSize: Dimensions.fontSizeDefault,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               );
       });

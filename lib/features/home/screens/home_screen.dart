@@ -1,21 +1,16 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/features/address/controllers/address_controller.dart';
 import 'package:ride_sharing_user_app/features/coupon/controllers/coupon_controller.dart';
 import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
 import 'package:ride_sharing_user_app/features/home/controllers/banner_controller.dart';
 import 'package:ride_sharing_user_app/features/home/controllers/category_controller.dart';
 import 'package:ride_sharing_user_app/features/home/screens/ride_bottom_sheet.dart';
-import 'package:ride_sharing_user_app/features/home/widgets/banner_view.dart';
-import 'package:ride_sharing_user_app/features/home/widgets/best_offers_widget.dart';
-import 'package:ride_sharing_user_app/features/home/widgets/coupon_home_widget.dart';
 import 'package:ride_sharing_user_app/features/home/widgets/home_map_view.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
-import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
+import 'package:ride_sharing_user_app/features/map/screens/map_screen.dart';
 import 'package:ride_sharing_user_app/features/my_offer/controller/offer_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/driver_request_dialog.dart';
@@ -24,7 +19,6 @@ import 'package:ride_sharing_user_app/features/notification/screens/notification
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/helper/home_screen_helper.dart';
 import 'package:ride_sharing_user_app/helper/pusher_helper.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
 
@@ -38,7 +32,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool clickedMenu = false;
+  bool _isOpeningOngoingRide = false;
+  DateTime? _lastOngoingRideClosedAt;
 
   static const Color _brandRed = Color(0xFFE71921);
   static const Color _brandGold = Color(0xFFFFB100);
@@ -113,6 +108,72 @@ class _HomeScreenState extends State<HomeScreen> {
     HomeScreenHelper().checkMaintanceMode();
   }
 
+  Future<void> _openOngoingRideSafely() async {
+    if (_isOpeningOngoingRide || !mounted) return;
+
+    _isOpeningOngoingRide = true;
+
+    try {
+      // After returning from MapScreen, Flutter may still be finishing the
+      // pop animation. Wait only for the remaining cooldown time.
+      final closedAt = _lastOngoingRideClosedAt;
+      if (closedAt != null) {
+        const cooldown = Duration(milliseconds: 450);
+        final elapsed = DateTime.now().difference(closedAt);
+
+        if (elapsed < cooldown) {
+          await Future<void>.delayed(cooldown - elapsed);
+        }
+      }
+
+      if (!mounted) return;
+
+      final rideController = Get.find<RideController>();
+      final currentRide = rideController.rideDetails;
+
+      if (currentRide == null) return;
+
+      final status = currentRide.currentStatus ?? '';
+
+      if (status != 'pending' &&
+          status != 'accepted' &&
+          status != 'ongoing') {
+        return;
+      }
+
+      // Use data already loaded on HomeScreen. Do not call the API here,
+      // because polling may be running at the same time.
+      rideController.tripDetails ??= currentRide;
+
+      if (status == 'pending') {
+        rideController.updateRideCurrentState(RideState.findingRider);
+      } else if (status == 'ongoing') {
+        rideController.updateRideCurrentState(RideState.ongoingRide);
+      } else {
+        rideController.updateRideCurrentState(RideState.acceptingRider);
+      }
+
+      // Schedule the push after the current frame has completed.
+      await WidgetsBinding.instance.endOfFrame;
+
+      if (!mounted) return;
+
+      final navigator = Navigator.of(context, rootNavigator: true);
+
+      await navigator.push(
+        MaterialPageRoute<void>(
+          builder: (_) => const MapScreen(
+            fromScreen: MapScreenType.splash,
+          ),
+        ),
+      );
+
+      _lastOngoingRideClosedAt = DateTime.now();
+    } finally {
+      _isOpeningOngoingRide = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -130,12 +191,18 @@ class _HomeScreenState extends State<HomeScreen> {
             final int rideCount = (rideController.rideDetails != null &&
                 rideController.rideDetails!.type == 'ride_request' &&
                 (rideController.rideDetails!.currentStatus == 'pending' ||
-                    rideController.rideDetails!.currentStatus == 'accepted' ||
-                    rideController.rideDetails!.currentStatus == 'ongoing' ||
-                    (rideController.rideDetails!.currentStatus == 'completed' &&
-                        rideController.rideDetails!.paymentStatus == 'unpaid') ||
-                    (rideController.rideDetails!.currentStatus == 'cancelled' &&
-                        rideController.rideDetails!.paymentStatus == 'unpaid')))
+                    rideController.rideDetails!.currentStatus ==
+                        'accepted' ||
+                    rideController.rideDetails!.currentStatus ==
+                        'ongoing' ||
+                    (rideController.rideDetails!.currentStatus ==
+                        'completed' &&
+                        rideController.rideDetails!.paymentStatus ==
+                            'unpaid') ||
+                    (rideController.rideDetails!.currentStatus ==
+                        'cancelled' &&
+                        rideController.rideDetails!.paymentStatus ==
+                            'unpaid')))
                 ? 1
                 : 0;
 
@@ -155,7 +222,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       onMenuTap: () {
                         Get.find<BottomMenuController>().setTabIndex(3);
                       },
-                      onNotificationTap: () => Get.to(() => const NotificationScreen()),
+                      onNotificationTap: () =>
+                          Get.to(() => const NotificationScreen()),
                     ),
                   ),
                   Positioned(
@@ -164,7 +232,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     right: 18,
                     child: _PickupLocationPill(),
                   ),
-
                   Positioned(
                     left: 0,
                     right: 0,
@@ -172,24 +239,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     top: MediaQuery.of(context).size.height * 0.52,
                     child: const RideBottomSheet(),
                   ),
-
                   if ((rideCount + parcelCount) != 0)
                     Positioned(
-                      right: clickedMenu ? 0 : -2,
-                      top: Get.height * 0.56,
+                      right: -2,
+                      top: Get.height * 0.32,
                       child: GestureDetector(
-                        onTap: () => setState(() => clickedMenu = !clickedMenu),
-                        onHorizontalDragEnd: _onHorizontalDrag,
-                        child: _OngoingRideFab(count: rideCount + parcelCount),
-                      ),
-                    ),
-                  if (clickedMenu)
-                    Positioned(
-                      right: 0,
-                      top: Get.height * 0.52,
-                      child: _OngoingRidePanel(
-                        rideCount: rideCount,
-                        onClose: () => setState(() => clickedMenu = false),
+                        onTap: _openOngoingRideSafely,
+                        child: _OngoingRideFab(
+                          count: rideCount + parcelCount,
+                        ),
                       ),
                     ),
                 ],
@@ -197,7 +255,8 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           });
         }),
-        floatingActionButton: GetBuilder<RideController>(builder: (rideController) {
+        floatingActionButton:
+        GetBuilder<RideController>(builder: (rideController) {
           return rideController.biddingList.isNotEmpty
               ? Padding(
             padding: EdgeInsets.only(bottom: Get.height * 0.10),
@@ -205,15 +264,19 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 if (!rideController.isLoading) {
                   rideController
-                      .getBiddingList(rideController.currentTripDetails!.id!, 1)
+                      .getBiddingList(
+                      rideController.currentTripDetails!.id!, 1)
                       .then((value) {
                     if (rideController.biddingList.isNotEmpty) {
                       Get.dialog(
                         barrierDismissible: true,
                         barrierColor: Colors.black.withValues(alpha: 0.5),
-                        transitionDuration: const Duration(milliseconds: 500),
+                        transitionDuration:
+                        const Duration(milliseconds: 500),
                         DriverRideRequestDialog(
-                          tripId: Get.find<RideController>().currentTripDetails!.id!,
+                          tripId: Get.find<RideController>()
+                              .currentTripDetails!
+                              .id!,
                         ),
                       );
                     }
@@ -229,13 +292,6 @@ class _HomeScreenState extends State<HomeScreen> {
         }),
       ),
     );
-  }
-
-  void _onHorizontalDrag(DragEndDetails details) {
-    if (details.primaryVelocity == 0) return;
-    debugPrint(details.primaryVelocity!.compareTo(0) == -1
-        ? 'dragged from left'
-        : 'dragged from right');
   }
 }
 
@@ -320,14 +376,17 @@ class _PremiumHomeHeader extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              _HeaderButton(icon: Icons.notifications_none_rounded, onTap: onNotificationTap),
+              _HeaderButton(
+                  icon: Icons.notifications_none_rounded,
+                  onTap: onNotificationTap),
               Positioned(
                 right: 8,
                 top: 8,
                 child: Container(
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(color: _brandRed, shape: BoxShape.circle),
+                  decoration: const BoxDecoration(
+                      color: _brandRed, shape: BoxShape.circle),
                 ),
               ),
             ],
@@ -391,7 +450,8 @@ class _PickupLocationPill extends StatelessWidget {
               Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(color: Color(0xFF16A34A), shape: BoxShape.circle),
+                decoration: const BoxDecoration(
+                    color: Color(0xFF16A34A), shape: BoxShape.circle),
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -399,7 +459,8 @@ class _PickupLocationPill extends StatelessWidget {
                   text,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: textMedium.copyWith(color: const Color(0xFF121A2C), fontSize: 12),
+                  style: textMedium.copyWith(
+                      color: const Color(0xFF121A2C), fontSize: 12),
                 ),
               ),
             ],
@@ -417,91 +478,106 @@ class _OngoingRideFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 62,
-          height: 62,
+    return Tooltip(
+      message: 'ongoing_ride'.tr,
+      child: Semantics(
+        button: true,
+        label: 'ongoing_ride'.tr,
+        child: Container(
+          width: 58,
+          height: 60,
           decoration: BoxDecoration(
             color: Colors.white,
-            shape: BoxShape.circle,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              bottomLeft: Radius.circular(20),
+              topRight: Radius.circular(10),
+              bottomRight: Radius.circular(10),
+            ),
+            border: Border.all(
+              color: const Color(0xFFFFD4D6),
+              width: 1,
+            ),
             boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.16), blurRadius: 22, offset: const Offset(0, 10)),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 16,
+                offset: const Offset(-2, 5),
+              ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(13),
-            child: Image.asset(Images.homeMapIcon, color: const Color(0xFFE71921)),
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 3),
+                child: _RoutePinIcon(),
+              ),
+              Positioned(
+                left: -7,
+                top: -7,
+                child: Container(
+                  width: 23,
+                  height: 23,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE71921),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '$count',
+                    style: textBold.copyWith(
+                      color: Colors.white,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        Positioned(
-          right: -2,
-          top: -2,
-          child: Container(
-            width: 22,
-            height: 22,
-            decoration: const BoxDecoration(color: Color(0xFFE71921), shape: BoxShape.circle),
-            child: Center(child: Text('$count', style: textBold.copyWith(color: Colors.white, fontSize: 11))),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-class _OngoingRidePanel extends StatelessWidget {
-  final int rideCount;
-  final VoidCallback onClose;
-
-  const _OngoingRidePanel({required this.rideCount, required this.onClose});
+class _RoutePinIcon extends StatelessWidget {
+  const _RoutePinIcon();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 210,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.horizontal(left: Radius.circular(22)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.14), blurRadius: 20, offset: const Offset(0, 10)),
-        ],
-      ),
-      child: Row(
+    return SizedBox(
+      width: 46,
+      height: 44,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
         children: [
-          InkWell(
-            onTap: onClose,
-            borderRadius: BorderRadius.circular(14),
-            child: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: Color(0xFF6F7787)),
-            ),
-          ),
-          Expanded(
-            child: InkWell(
-              onTap: () async {
-                await Get.find<RideController>().getCurrentRideStatus(fromRefresh: true);
-                onClose();
-              },
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF1F1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(child: Text('ongoing_ride'.tr, style: textBold.copyWith(fontSize: 13))),
-                    CircleAvatar(
-                      radius: 11,
-                      backgroundColor: const Color(0xFFE71921),
-                      child: Text('$rideCount', style: textBold.copyWith(color: Colors.white, fontSize: 10)),
-                    ),
-                  ],
+          Positioned(
+            left: 4,
+            right: 4,
+            bottom: 1,
+            child: Container(
+              height: 27,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F7F8),
+                borderRadius: BorderRadius.circular(9),
+                border: Border.all(
+                  color: const Color(0xFFE3E5EA),
                 ),
               ),
+              child: const CustomPaint(
+                painter: _DashedRoutePainter(),
+              ),
+            ),
+          ),
+          const Positioned(
+            top: -2,
+            child: Icon(
+              Icons.location_on_rounded,
+              size: 30,
+              color: Color(0xFFE71921),
             ),
           ),
         ],
@@ -510,3 +586,45 @@ class _OngoingRidePanel extends StatelessWidget {
   }
 }
 
+class _DashedRoutePainter extends CustomPainter {
+  const _DashedRoutePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFE71921)
+      ..strokeWidth = 1.8
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path()
+      ..moveTo(size.width * 0.18, size.height * 0.70)
+      ..cubicTo(
+        size.width * 0.30,
+        size.height * 0.20,
+        size.width * 0.62,
+        size.height * 1.00,
+        size.width * 0.82,
+        size.height * 0.38,
+      );
+
+    const dashLength = 3.0;
+    const gapLength = 2.2;
+
+    for (final metric in path.computeMetrics()) {
+      double distance = 0;
+
+      while (distance < metric.length) {
+        final end = (distance + dashLength).clamp(0.0, metric.length);
+        canvas.drawPath(
+          metric.extractPath(distance, end),
+          paint,
+        );
+        distance += dashLength + gapLength;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedRoutePainter oldDelegate) => false;
+}

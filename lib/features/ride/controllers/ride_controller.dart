@@ -89,7 +89,7 @@ class RideController extends GetxController implements GetxService {
   TripDetails? get currentTripDetails => tripDetails;
 
   TextEditingController inputFarePriceController =
-  TextEditingController(text: '0.00');
+      TextEditingController(text: '0.00');
   TextEditingController noteController = TextEditingController();
 
   void initData() {
@@ -100,6 +100,10 @@ class RideController extends GetxController implements GetxService {
   }
 
   void updateRideCurrentState(RideState newState) {
+    // Avoid rebuilding the complete map/bottom-sheet tree when the state
+    // received from polling is already the current state.
+    if (currentRideState == newState) return;
+
     currentRideState = newState;
     update();
   }
@@ -133,9 +137,7 @@ class RideController extends GetxController implements GetxService {
 
     if (isLocalRide) {
       // 1) Prefer ID already saved by local vehicle selection, if available.
-      if (localVehicleCategoryId
-          .trim()
-          .isNotEmpty) {
+      if (localVehicleCategoryId.trim().isNotEmpty) {
         finalVehicleCategoryId = localVehicleCategoryId.trim();
       }
 
@@ -143,13 +145,9 @@ class RideController extends GetxController implements GetxService {
       // map it dynamically from CategoryController categoryList.
       // This avoids hardcoding category IDs, so future new cars will work
       // as long as their name exists in vehicle category API response.
-      if (finalVehicleCategoryId.isEmpty && localVehicle
-          .trim()
-          .isNotEmpty) {
+      if (finalVehicleCategoryId.isEmpty && localVehicle.trim().isNotEmpty) {
         final localVehicleName = localVehicle.trim().toLowerCase();
-        final categories = Get
-            .find<CategoryController>()
-            .categoryList;
+        final categories = Get.find<CategoryController>().categoryList;
 
         if (categories != null && categories.isNotEmpty) {
           for (final category in categories) {
@@ -166,9 +164,7 @@ class RideController extends GetxController implements GetxService {
 
       // 3) Fallback for normal category selected earlier.
       if (finalVehicleCategoryId.isEmpty &&
-          selectedCategoryId
-              .trim()
-              .isNotEmpty) {
+          selectedCategoryId.trim().isNotEmpty) {
         finalVehicleCategoryId = selectedCategoryId.trim();
       }
     } else {
@@ -186,9 +182,7 @@ class RideController extends GetxController implements GetxService {
   }
 
   FareModel? _getFareByCategoryId(String vehicleCategoryId) {
-    if (vehicleCategoryId
-        .trim()
-        .isEmpty || fareList.isEmpty) {
+    if (vehicleCategoryId.trim().isEmpty || fareList.isEmpty) {
       return selectedType;
     }
 
@@ -204,9 +198,7 @@ class RideController extends GetxController implements GetxService {
   void setRideCategoryIndex(int newIndex) {
     rideCategoryIndex = newIndex;
     categoryName =
-    Get
-        .find<CategoryController>()
-        .categoryList![rideCategoryIndex].id!;
+        Get.find<CategoryController>().categoryList![rideCategoryIndex].id!;
 
     if (fareList.isNotEmpty) {
       for (int i = 0; i < fareList.length; i++) {
@@ -289,23 +281,20 @@ class RideController extends GetxController implements GetxService {
       extraTwo: locController.extraTwoRoute,
       extraOneLatLng: locController.extraRouteAddress != null
           ? LatLng(
-        locController.extraRouteAddress!.latitude!,
-        locController.extraRouteAddress!.longitude!,
-      )
+              locController.extraRouteAddress!.latitude!,
+              locController.extraRouteAddress!.longitude!,
+            )
           : null,
       extraTwoLatLng: locController.extraRouteTwoAddress != null
           ? LatLng(
-        locController.extraRouteTwoAddress!.latitude!,
-        locController.extraRouteTwoAddress!.longitude!,
-      )
+              locController.extraRouteTwoAddress!.latitude!,
+              locController.extraRouteTwoAddress!.longitude!,
+            )
           : null,
-      parcelWeight: Get
-          .find<ParcelController>()
-          .parcelWeightController
-          .text,
+      parcelWeight: Get.find<ParcelController>().parcelWeightController.text,
       parcelCategoryId: parcel
           ? parcelController
-          .parcelCategoryList![parcelController.selectedParcelCategory].id
+              .parcelCategoryList![parcelController.selectedParcelCategory].id
           : '',
     );
 
@@ -320,20 +309,14 @@ class RideController extends GetxController implements GetxService {
       if (parcel) {
         parcelEstimatedFare = ParcelEstimatedFare.fromJson(response.body);
         encodedPolyLine =
-        ParcelEstimatedFare
-            .fromJson(response.body)
-            .data!
-            .encodedPolyline!;
-        parcelFare = ParcelEstimatedFare
-            .fromJson(response.body)
+            ParcelEstimatedFare.fromJson(response.body).data!.encodedPolyline!;
+        parcelFare = ParcelEstimatedFare.fromJson(response.body)
             .data!
             .estimatedFare!
             .toString();
       } else {
         fareList = [];
-        fareList.addAll(EstimatedFareModel
-            .fromJson(response.body)
-            .data!);
+        fareList.addAll(EstimatedFareModel.fromJson(response.body).data!);
         setRideCategoryIndex(rideCategoryIndex != 0 ? rideCategoryIndex : 0);
         setRideCategoryIndex(rideCategoryIndex != 0 ? rideCategoryIndex : 0);
         encodedPolyLine = fareList[rideCategoryIndex].polyline!;
@@ -367,7 +350,7 @@ class RideController extends GetxController implements GetxService {
 
     if (isOutstationRide) {
       Response fareResponse =
-      await rideServiceInterface.calculateOutstationFare(
+          await rideServiceInterface.calculateOutstationFare(
         vehicleType: outstationVehicle,
         distanceKm: double.tryParse(estimatedDistance) ?? 0,
       );
@@ -387,13 +370,13 @@ class RideController extends GetxController implements GetxService {
     Address pickUpPosition = parcel
         ? locController.parcelSenderAddress!
         : tripDetails == null
-        ? locController.fromAddress!
-        : Address();
+            ? locController.fromAddress!
+            : Address();
     Address destinationPosition = parcel
         ? locController.parcelReceiverAddress!
         : tripDetails == null
-        ? locController.toAddress!
-        : Address();
+            ? locController.toAddress!
+            : Address();
 
     if (!parcel && finalVehicleCategoryId.isEmpty) {
       showCustomSnackBar('Please select a vehicle category', isError: true);
@@ -404,7 +387,7 @@ class RideController extends GetxController implements GetxService {
     }
 
     final FareModel? finalSelectedType =
-    _getFareByCategoryId(finalVehicleCategoryId);
+        _getFareByCategoryId(finalVehicleCategoryId);
 
     debugPrint('CREATE RIDE vehicle_category_id => $finalVehicleCategoryId');
     if (isLocalRide) {
@@ -423,13 +406,10 @@ class RideController extends GetxController implements GetxService {
     }
 
     debugPrint(
-        "ENTRANCE => ${locController.entranceControllers
-            .map((e) => e.text)
-            .toList()}");
+        "ENTRANCE => ${locController.entranceControllers.map((e) => e.text).toList()}");
 
     debugPrint(
-        "ENTRANCE STRING => ${locController.entranceControllers.map((e) =>
-            e.text.trim()).where((e) => e.isNotEmpty).join(", ")}");
+        "ENTRANCE STRING => ${locController.entranceControllers.map((e) => e.text.trim()).where((e) => e.isNotEmpty).join(", ")}");
 
     final entranceText = locController.entranceControllers
         .map((e) => e.text.trim())
@@ -448,61 +428,52 @@ class RideController extends GetxController implements GetxService {
         customerCurrentLng: locController.initialPosition.longitude.toString(),
         type: parcel ? 'parcel' : 'ride_request',
         pickupAddress: parcel
-            ? Get
-            .find<ParcelController>()
-            .senderAddressController
-            .text
+            ? Get.find<ParcelController>().senderAddressController.text
             : tripDetails == null
-            ? locController.fromAddress!.address.toString()
-            : tripDetails!.pickupAddress!,
+                ? locController.fromAddress!.address.toString()
+                : tripDetails!.pickupAddress!,
         destinationAddress: parcel
-            ? Get
-            .find<ParcelController>()
-            .receiverAddressController
-            .text
+            ? Get.find<ParcelController>().receiverAddressController.text
             : locController.toAddress?.address ??
-            tripDetails!.destinationAddress!,
+                tripDetails!.destinationAddress!,
         // vehicleCategoryId: parcel ? categoryId : selectedCategoryId,
         estimatedDistance: parcel
             ? parcelEstimatedFare!.data!.estimatedDistance!.toString()
             : estimatedDistance,
         estimatedTime: parcel
             ? parcelEstimatedFare!.data!.estimatedDuration!
-            .replaceFirst('min', '')
+                .replaceFirst('min', '')
             : estimatedDuration,
         estimatedFare: parcel
             ? parcelFare
             : isLocalRide
-            ? localFare.toString()
-            : isOutstationRide
-            ? outstationFare.toString()
-            : isRentalRide
-            ? rentalPackageFare.toString()
-            : estimatedFare.toString(),
+                ? localFare.toString()
+                : isOutstationRide
+                    ? outstationFare.toString()
+                    : isRentalRide
+                        ? rentalPackageFare.toString()
+                        : estimatedFare.toString(),
         actualFare: parcel
             ? parcelFare
             : isLocalRide
-            ? localFare.toString()
-            : isOutstationRide
-            ? outstationFare.toString()
-            : isRentalRide
-            ? rentalPackageFare.toString()
-            : estimatedFare != actualFare
-            ? actualFare.toString()
-            : estimatedFare.toString(),
+                ? localFare.toString()
+                : isOutstationRide
+                    ? outstationFare.toString()
+                    : isRentalRide
+                        ? rentalPackageFare.toString()
+                        : estimatedFare != actualFare
+                            ? actualFare.toString()
+                            : estimatedFare.toString(),
         bid: parcel ? false : estimatedFare != actualFare,
         note: note,
-        paymentMethod: Get
-            .find<PaymentController>()
-            .paymentTypeList[Get
-            .find<PaymentController>()
-            .paymentTypeIndex],
+        paymentMethod: Get.find<PaymentController>()
+            .paymentTypeList[Get.find<PaymentController>().paymentTypeIndex],
         encodedPolyline: parcel
             ? encodedPolyLine
             : finalSelectedType?.polyline ??
-            (fareList.isNotEmpty
-                ? fareList[rideCategoryIndex].polyline!
-                : ''),
+                (fareList.isNotEmpty
+                    ? fareList[rideCategoryIndex].polyline!
+                    : ''),
         middleAddress: [
           locController.extraRouteAddress?.address ?? '',
           locController.extraRouteTwoAddress?.address ?? ''
@@ -526,80 +497,40 @@ class RideController extends GetxController implements GetxService {
         areaId: parcel
             ? ''
             : finalSelectedType?.areaId ??
-            (fareList.isNotEmpty
-                ? fareList[rideCategoryIndex].areaId ?? ''
-                : ''),
-        senderName: Get
-            .find<ParcelController>()
-            .senderNameController
-            .text,
-        senderPhone: Get
-            .find<ParcelController>()
-            .senderContactController
-            .text,
+                (fareList.isNotEmpty
+                    ? fareList[rideCategoryIndex].areaId ?? ''
+                    : ''),
+        senderName: Get.find<ParcelController>().senderNameController.text,
+        senderPhone: Get.find<ParcelController>().senderContactController.text,
         senderAddress:
-        Get
-            .find<ParcelController>()
-            .senderAddressController
-            .text,
-        receiverName: Get
-            .find<ParcelController>()
-            .receiverNameController
-            .text,
+            Get.find<ParcelController>().senderAddressController.text,
+        receiverName: Get.find<ParcelController>().receiverNameController.text,
         receiverPhone:
-        Get
-            .find<ParcelController>()
-            .receiverContactController
-            .text,
+            Get.find<ParcelController>().receiverContactController.text,
         receiverAddress:
-        Get
-            .find<ParcelController>()
-            .receiverAddressController
-            .text,
+            Get.find<ParcelController>().receiverAddressController.text,
         parcelCategoryId: parcel
-            ? Get
-            .find<ParcelController>()
-            .parcelCategoryList![
-        Get
-            .find<ParcelController>()
-            .selectedParcelCategory]
-            .id
+            ? Get.find<ParcelController>()
+                .parcelCategoryList![
+                    Get.find<ParcelController>().selectedParcelCategory]
+                .id
             : '',
-        payer: Get
-            .find<ParcelController>()
-            .payReceiver ? 'receiver' : "sender",
-        weight: Get
-            .find<ParcelController>()
-            .parcelWeightController
-            .text,
+        payer: Get.find<ParcelController>().payReceiver ? 'receiver' : "sender",
+        weight: Get.find<ParcelController>().parcelWeightController.text,
         tripRequestId: parcel ? null : tripDetails?.id);
 
     if (response.statusCode == 200 && response.body['data'] != null) {
       biddingList = [];
-      tripDetails = TripDetailsModel
-          .fromJson(response.body)
-          .data!;
+      tripDetails = TripDetailsModel.fromJson(response.body).data!;
       tripDetails!.id = response.body['data']['id'];
       encodedPolyLine = tripDetails!.encodedPolyline!;
       if (encodedPolyLine != '' && encodedPolyLine.isNotEmpty) {
         //  Get.find<MapController>().getPolyline();
       }
-      Get
-          .find<ParcelController>()
-          .receiverNameController
-          .clear();
-      Get
-          .find<ParcelController>()
-          .receiverContactController
-          .clear();
-      Get
-          .find<ParcelController>()
-          .receiverAddressController
-          .clear();
-      Get
-          .find<ParcelController>()
-          .parcelWeightController
-          .clear();
+      Get.find<ParcelController>().receiverNameController.clear();
+      Get.find<ParcelController>().receiverContactController.clear();
+      Get.find<ParcelController>().receiverAddressController.clear();
+      Get.find<ParcelController>().parcelWeightController.clear();
       PusherHelper().pusherDriverStatus(response.body['data']['id']);
       startLocationRecord();
       isSubmit = false;
@@ -619,18 +550,10 @@ class RideController extends GetxController implements GetxService {
   }
 
   void clearExtraRoute() {
-    Get
-        .find<LocationController>()
-        .extraOneRoute = false;
-    Get
-        .find<LocationController>()
-        .extraTwoRoute = false;
-    Get
-        .find<LocationController>()
-        .extraRouteAddress = null;
-    Get
-        .find<LocationController>()
-        .extraRouteTwoAddress = null;
+    Get.find<LocationController>().extraOneRoute = false;
+    Get.find<LocationController>().extraTwoRoute = false;
+    Get.find<LocationController>().extraRouteAddress = null;
+    Get.find<LocationController>().extraRouteTwoAddress = null;
   }
 
   Future<Response> getRideDetails(String tripId) async {
@@ -642,9 +565,7 @@ class RideController extends GetxController implements GetxService {
     if (response.statusCode == 200) {
       Get.find<MapController>().notifyMapController();
 
-      tripDetails = TripDetailsModel
-          .fromJson(response.body)
-          .data!;
+      tripDetails = TripDetailsModel.fromJson(response.body).data!;
       print("TRIP ENTRANCE => ${tripDetails?.entrance}");
 
       estimatedDistance = tripDetails!.estimatedDistance!.toString();
@@ -697,9 +618,7 @@ class RideController extends GetxController implements GetxService {
       print(response.body);
       print("===========================================");
 
-      tripDetails = TripDetailsModel
-          .fromJson(response.body)
-          .data!;
+      tripDetails = TripDetailsModel.fromJson(response.body).data!;
 
       /// ===================== DRIVER JSON =====================
       print("========== DRIVER JSON FROM API ==========");
@@ -708,14 +627,12 @@ class RideController extends GetxController implements GetxService {
       if (response.body['data']['driver'] != null) {
         print("Driver ID      : ${response.body['data']['driver']['id']}");
         print(
-            "First Name     : ${response
-                .body['data']['driver']['first_name']}");
+            "First Name     : ${response.body['data']['driver']['first_name']}");
         print(
             "Last Name      : ${response.body['data']['driver']['last_name']}");
         print("Phone          : ${response.body['data']['driver']['phone']}");
         print(
-            "Profile Image  : ${response
-                .body['data']['driver']['profile_image']}");
+            "Profile Image  : ${response.body['data']['driver']['profile_image']}");
       } else {
         print("❌ DRIVER OBJECT IS NULL FROM API");
       }
@@ -751,11 +668,21 @@ class RideController extends GetxController implements GetxService {
 
       if (currentRideStatus == AppConstants.accepted ||
           currentRideStatus == AppConstants.ongoing) {
-        updateRideCurrentState(
-          currentRideStatus == AppConstants.accepted
-              ? RideState.acceptingRider
-              : RideState.ongoingRide,
-        );
+        // The API continues to return `accepted` after the driver reaches
+        // the pickup point. `remainingDistance()` changes the local UI to
+        // `otpSent`. Do not downgrade it to `acceptingRider` on every
+        // polling cycle, otherwise the cancel section alternates between
+        // two different bottom sheets.
+        final RideState nextRideState;
+        if (currentRideStatus == AppConstants.ongoing) {
+          nextRideState = RideState.ongoingRide;
+        } else if (currentRideState == RideState.otpSent) {
+          nextRideState = RideState.otpSent;
+        } else {
+          nextRideState = RideState.acceptingRider;
+        }
+
+        updateRideCurrentState(nextRideState);
 
         if (_timer == null || !_timer!.isActive) {
           startLocationRecord();
@@ -822,9 +749,7 @@ class RideController extends GetxController implements GetxService {
     Response response = await rideServiceInterface.currentRideStatus();
     if (response.statusCode == 200 && response.body['data'] != null) {
       tripDetails =
-          rideDetails = TripDetailsModel
-          .fromJson(response.body)
-          .data!;
+          rideDetails = TripDetailsModel.fromJson(response.body).data!;
       estimatedDistance = rideDetails!.estimatedDistance!.toString();
       encodedPolyLine = rideDetails!.encodedPolyline ?? '';
     } else if (response.statusCode == 403) {
@@ -850,19 +775,13 @@ class RideController extends GetxController implements GetxService {
         remainingDistanceModel!.add(RemainingDistanceModel.fromJson(distance));
       }
 
-      if (Get
-          .find<MapController>()
-          .isInside &&
+      if (Get.find<MapController>().isInside &&
           tripDetails != null &&
           currentRideState == RideState.acceptingRider) {
         currentRideState = RideState.otpSent;
       }
-      if (Get
-          .find<MapController>()
-          .isInside &&
-          Get
-              .find<ParcelController>()
-              .currentParcelState ==
+      if (Get.find<MapController>().isInside &&
+          Get.find<ParcelController>().currentParcelState ==
               ParcelDeliveryState.acceptRider) {
         Get.find<ParcelController>()
             .updateParcelState(ParcelDeliveryState.otpSent);
@@ -883,9 +802,7 @@ class RideController extends GetxController implements GetxService {
     Response response = await rideServiceInterface.biddingList(tripId, offset);
     if (response.statusCode == 200) {
       biddingList = [];
-      biddingList.addAll(BiddingModel
-          .fromJson(response.body)
-          .data!);
+      biddingList.addAll(BiddingModel.fromJson(response.body).data!);
       isLoading = false;
     } else {
       isLoading = false;
@@ -926,9 +843,7 @@ class RideController extends GetxController implements GetxService {
     if (response.statusCode == 200) {
       nearestDriverList = [];
       nearestDriverList
-          .addAll(NearestDriverModel
-          .fromJson(response.body)
-          .data!);
+          .addAll(NearestDriverModel.fromJson(response.body).data!);
       Get.find<MapController>().searchDeliveryMen();
     } else {
       ApiChecker.checkApi(response);
@@ -987,12 +902,12 @@ class RideController extends GetxController implements GetxService {
     _timer?.cancel();
   }
 
-  Future<Response> tripAcceptOrRejected(String tripId, String type,
-      String driverId) async {
+  Future<Response> tripAcceptOrRejected(
+      String tripId, String type, String driverId) async {
     isLoading = true;
     update();
     Response response =
-    await rideServiceInterface.tripAcceptOrReject(tripId, type, driverId);
+        await rideServiceInterface.tripAcceptOrReject(tripId, type, driverId);
     if (response.statusCode == 200) {
       biddingList = [];
       showCustomSnackBar('trip_is_accepted'.tr, isError: false);
@@ -1026,8 +941,8 @@ class RideController extends GetxController implements GetxService {
     update();
   }
 
-  Future<Response> tripStatusUpdate(String tripId, String status,
-      String message, String cancellationCause,
+  Future<Response> tripStatusUpdate(
+      String tripId, String status, String message, String cancellationCause,
       {bool afterAccept = false}) async {
     isLoading = true;
     update();
@@ -1055,9 +970,7 @@ class RideController extends GetxController implements GetxService {
 
     if (response.statusCode == 200) {
       if (response.body['data'] != null) {
-        finalFare = FinalFareModel
-            .fromJson(response.body)
-            .data!;
+        finalFare = FinalFareModel.fromJson(response.body).data!;
 
         print('FINAL FARE LOADED');
         print('actualFare = ${finalFare?.actualFare}');
@@ -1076,7 +989,8 @@ class RideController extends GetxController implements GetxService {
   Future<Response> arrivalPickupPoint(String tripId) async {
     isLoading = true;
     Response response = await rideServiceInterface.arrivalPickupPoint(tripId);
-    if (response.statusCode == 200) {} else {
+    if (response.statusCode == 200) {
+    } else {
       ApiChecker.checkApi(response);
     }
     isLoading = false;
@@ -1114,10 +1028,10 @@ class RideController extends GetxController implements GetxService {
 
       _findingStateAnimation =
           Timer.periodic(const Duration(minutes: 1), (time) {
-            firstCount = 1;
-            stateCount = 1;
-            countingTimeStates();
-          });
+        firstCount = 1;
+        stateCount = 1;
+        countingTimeStates();
+      });
     }
 
     if (stateCount == 1) {
@@ -1130,10 +1044,10 @@ class RideController extends GetxController implements GetxService {
 
       _findingStateAnimation =
           Timer.periodic(const Duration(minutes: 1), (time) {
-            secondCount = 1;
-            stateCount = 2;
-            countingTimeStates();
-          });
+        secondCount = 1;
+        stateCount = 2;
+        countingTimeStates();
+      });
     }
 
     if (stateCount == 2) {
@@ -1146,11 +1060,11 @@ class RideController extends GetxController implements GetxService {
 
       _findingStateAnimation =
           Timer.periodic(const Duration(minutes: 3), (time) {
-            thirdCount = 1;
-            stateCount = 3;
-            update();
-            _findingStateAnimation?.cancel();
-          });
+        thirdCount = 1;
+        stateCount = 3;
+        update();
+        _findingStateAnimation?.cancel();
+      });
     }
 
     if (stateCount == 3) {
@@ -1240,9 +1154,7 @@ class RideController extends GetxController implements GetxService {
 
     if (response.statusCode == 200) {
       outstationTariffs =
-          OutstationTariffModel
-              .fromJson(response.body)
-              .data ?? [];
+          OutstationTariffModel.fromJson(response.body).data ?? [];
 
       final double distanceKm = double.tryParse(estimatedDistance) ?? 0;
 
@@ -1269,8 +1181,10 @@ class RideController extends GetxController implements GetxService {
     update();
   }
 
-  double calculateOutstationFare(OutstationTariff tariff,
-      double distance,) {
+  double calculateOutstationFare(
+    OutstationTariff tariff,
+    double distance,
+  ) {
     final baseKm = tariff.baseKm ?? 0;
     final baseFare = double.tryParse(tariff.baseFare ?? '0') ?? 0;
     final extraPerKm = double.tryParse(tariff.extraPerKm ?? '0') ?? 0;
@@ -1285,9 +1199,7 @@ class RideController extends GetxController implements GetxService {
   Future<void> getLocalTariffs() async {
     Response response = await rideServiceInterface.getLocalTariffs();
     if (response.statusCode == 200) {
-      final currentZoneId = Get
-          .find<LocationController>()
-          .zoneID;
+      final currentZoneId = Get.find<LocationController>().zoneID;
       localTariffs = (response.body['data'] as List)
           .where((e) => e['zone_id'] == currentZoneId)
           .toList();
@@ -1309,7 +1221,7 @@ class RideController extends GetxController implements GetxService {
       rentalPackages = [];
       for (var item in hourlyTariffs) {
         if (!rentalPackages.any(
-              (e) => e['free_hours'] == item['free_hours'],
+          (e) => e['free_hours'] == item['free_hours'],
         )) {
           rentalPackages.add(item);
         }
