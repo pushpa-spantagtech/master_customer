@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/features/home/screens/home_screen.dart';
 import 'package:ride_sharing_user_app/features/notification/screens/notification_screen.dart';
 import 'package:ride_sharing_user_app/features/profile/screens/profile_screen.dart';
 import 'package:ride_sharing_user_app/features/trip/screens/trip_screen.dart';
+import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
 import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
@@ -18,6 +19,9 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final PageStorageBucket bucket = PageStorageBucket();
+
+  bool _isChangingTab = false;
+  bool _isHandlingBack = false;
 
   late final List<NavigationModel> _items = [
     NavigationModel(
@@ -46,17 +50,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ),
   ];
 
-  static const double _radius = 20;
+  Future<void> _changeTab(
+    BottomMenuController menuController,
+    int index,
+  ) async {
+    if (_isChangingTab || menuController.currentTab == index) {
+      return;
+    }
+
+    _isChangingTab = true;
+
+    menuController.setTabIndex(index);
+
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+
+    if (mounted) {
+      _isChangingTab = false;
+    }
+  }
+
+  Future<void> _handleBack() async {
+    if (_isHandlingBack) {
+      return;
+    }
+
+    _isHandlingBack = true;
+
+    final BottomMenuController menuController =
+        Get.find<BottomMenuController>();
+
+    if (menuController.currentTab != 0) {
+      menuController.setTabIndex(0);
+    } else {
+      menuController.exitApp();
+    }
+
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+
+    if (mounted) {
+      _isHandlingBack = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (val) async {
-        if (Get.find<BottomMenuController>().currentTab != 0) {
-          Get.find<BottomMenuController>().setTabIndex(0);
-        } else {
-          Get.find<BottomMenuController>().exitApp();
+      onPopInvoked: (didPop) async {
+        if (!didPop) {
+          await _handleBack();
         }
       },
       child: GetBuilder<BottomMenuController>(
@@ -69,27 +111,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
               bucket: bucket,
               child: IndexedStack(
                 index: menuController.currentTab,
-                children: _items.map((item) => item.screen).toList(growable: false),
+                children:
+                    _items.map((item) => item.screen).toList(growable: false),
               ),
             ),
             bottomNavigationBar: SafeArea(
-              minimum: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              minimum: const EdgeInsets.all(
+                Dimensions.paddingSizeDefault,
+              ),
               child: Container(
                 height: 68,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.96),
-                  borderRadius: BorderRadius.circular(_radius),
-                  boxShadow: [
+                  borderRadius: BorderRadius.circular(24),
+                  color: Colors.white,
+                  border: Border.all(
+                    color: const Color(0xFFE7E9EE),
+                  ),
+                  boxShadow: const [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.10),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+                      color: Color(0x17101828),
+                      blurRadius: 24,
+                      offset: Offset(0, 10),
                     ),
                   ],
                 ),
                 child: Row(
-                  children: generateBottomNavigationItems(menuController, _items),
+                  children: generateBottomNavigationItems(
+                    menuController,
+                    _items,
+                  ),
                 ),
               ),
             ),
@@ -100,17 +150,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   List<Widget> generateBottomNavigationItems(
-      BottomMenuController menuController,
-      List<NavigationModel> item,
-      ) {
-    return List.generate(item.length, (index) {
+    BottomMenuController menuController,
+    List<NavigationModel> items,
+  ) {
+    return List.generate(items.length, (index) {
       return Expanded(
         child: CustomMenuItem(
+          index: index,
           isSelected: menuController.currentTab == index,
-          name: item[index].name,
-          activeIcon: item[index].activeIcon,
-          inActiveIcon: item[index].inactiveIcon,
-          onTap: () => menuController.setTabIndex(index),
+          name: items[index].name,
+          onTap: () {
+            _changeTab(menuController, index);
+          },
         ),
       );
     });
@@ -118,59 +169,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 class CustomMenuItem extends StatelessWidget {
+  final int index;
   final bool isSelected;
   final String name;
-  final String activeIcon;
-  final String inActiveIcon;
   final VoidCallback onTap;
 
   const CustomMenuItem({
     super.key,
+    required this.index,
     required this.isSelected,
     required this.name,
-    required this.activeIcon,
-    required this.inActiveIcon,
     required this.onTap,
   });
 
-  static const double _radius = 20;
-  static const Color _brandRed = Color(0xFFE71921);
-  static const Color _ink = Color(0xFF1F2937);
+  static const Color _selectedColor = Color(0xFFE71921);
+  static const Color _unselectedColor = Color(0xFF98A2B3);
+
+  IconData get _activeIcon {
+    switch (index) {
+      case 0:
+        return Icons.home_rounded;
+      case 1:
+        return Icons.notifications_rounded;
+      case 2:
+        return Icons.receipt_long_rounded;
+      case 3:
+        return Icons.person_rounded;
+      default:
+        return Icons.circle;
+    }
+  }
+
+  IconData get _inactiveIcon {
+    switch (index) {
+      case 0:
+        return Icons.home_outlined;
+      case 1:
+        return Icons.notifications_none_rounded;
+      case 2:
+        return Icons.receipt_long_outlined;
+      case 3:
+        return Icons.person_outline_rounded;
+      default:
+        return Icons.circle_outlined;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(_radius),
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        margin: const EdgeInsets.symmetric(horizontal: 3),
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFFF1F1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(_radius),
-        ),
+      hoverColor: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              isSelected ? activeIcon : inActiveIcon,
-              color: isSelected ? _brandRed : _ink,
-              width: 26,
-              height: 26,
+            Icon(
+              isSelected ? _activeIcon : _inactiveIcon,
+              size: 24,
+              color: isSelected ? _selectedColor : _unselectedColor,
             ),
             const SizedBox(height: 3),
             Text(
               name.tr,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: textMedium.copyWith(
-                fontSize: 11.2,
-                height: 1.0,
-                color: isSelected ? _brandRed : _ink,
+              style: textRegular.copyWith(
+                color: isSelected ? _selectedColor : _unselectedColor,
+                fontSize: 11.5,
+                height: 1,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ],

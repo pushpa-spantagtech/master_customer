@@ -18,159 +18,39 @@ class NotificationCard extends StatelessWidget {
     final _NotificationStyle notificationStyle =
         _getNotificationStyle(notification.title ?? '');
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => _showNotificationDetails(
-          context,
-          notificationStyle,
-        ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: Get.isDarkMode
+            ? Theme.of(context).colorScheme.surface
+            : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        child: Ink(
-          decoration: BoxDecoration(
-            color: Get.isDarkMode
-                ? Theme.of(context).colorScheme.surface
-                : Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Get.isDarkMode
-                  ? Theme.of(context).dividerColor.withValues(alpha: 0.20)
-                  : const Color(0xFFF0F1F4),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.045),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 14,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _NotificationIcon(
-                  style: notificationStyle,
-                ),
-                const SizedBox(width: 13),
-                Expanded(
-                  child: _NotificationContent(
-                    notification: notification,
-                    style: notificationStyle,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        border: Border.all(
+          color: Get.isDarkMode
+              ? Theme.of(context).dividerColor.withValues(alpha: 0.20)
+              : const Color(0xFFF0F1F4),
         ),
       ),
-    );
-  }
-
-  void _showNotificationDetails(
-    BuildContext context,
-    _NotificationStyle notificationStyle,
-  ) {
-    Get.bottomSheet(
-      Material(
-        color: Colors.transparent,
-        child: Container(
-          width: Get.width,
-          padding: EdgeInsets.fromLTRB(
-            Dimensions.paddingSizeDefault,
-            10,
-            Dimensions.paddingSizeDefault,
-            MediaQuery.paddingOf(context).bottom + 24,
-          ),
-          decoration: BoxDecoration(
-            color: Get.isDarkMode
-                ? Theme.of(context).colorScheme.surface
-                : Colors.white,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(26),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.12),
-                blurRadius: 24,
-                offset: const Offset(0, -6),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 38,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor.withValues(alpha: 0.55),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              const SizedBox(height: 22),
-              _NotificationIcon(
-                style: notificationStyle,
-                size: 58,
-                iconSize: 28,
-              ),
-              const SizedBox(height: 14),
-              Text(
-                notification.title ?? '',
-                textAlign: TextAlign.center,
-                style: textBold.copyWith(
-                  fontSize: Dimensions.fontSizeLarge,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                notification.description ?? '',
-                textAlign: TextAlign.center,
-                style: textRegular.copyWith(
-                  fontSize: Dimensions.fontSizeDefault,
-                  height: 1.45,
-                  color: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.color
-                      ?.withValues(alpha: 0.68),
-                ),
-              ),
-              if (notification.createdAt != null) ...[
-                const SizedBox(height: 18),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.schedule_rounded,
-                      size: 16,
-                      color: Theme.of(context).hintColor,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      DateConverter.isoStringToLocalDateAndMonthOnly(
-                        notification.createdAt!,
-                      ),
-                      style: textRegular.copyWith(
-                        fontSize: Dimensions.fontSizeSmall,
-                        color: Theme.of(context).hintColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 14,
       ),
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.45),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _NotificationIcon(
+            style: notificationStyle,
+          ),
+          const SizedBox(width: 13),
+          Expanded(
+            child: _NotificationContent(
+              notification: notification,
+              style: notificationStyle,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -180,7 +60,6 @@ class NotificationCard extends StatelessWidget {
     if (normalizedTitle.contains('cancel')) {
       return const _NotificationStyle(
         foregroundColor: Color(0xFFEF4444),
-        backgroundColor: Color(0xFFFFECEC),
         icon: Icons.cancel_rounded,
       );
     }
@@ -188,7 +67,6 @@ class NotificationCard extends StatelessWidget {
     if (normalizedTitle.contains('complete')) {
       return const _NotificationStyle(
         foregroundColor: Color(0xFF16A34A),
-        backgroundColor: Color(0xFFEAF8EF),
         icon: Icons.task_alt_rounded,
       );
     }
@@ -196,7 +74,6 @@ class NotificationCard extends StatelessWidget {
     if (normalizedTitle.contains('message')) {
       return const _NotificationStyle(
         foregroundColor: Color(0xFF2563EB),
-        backgroundColor: Color(0xFFEAF2FF),
         icon: Icons.mark_chat_unread_rounded,
       );
     }
@@ -204,7 +81,6 @@ class NotificationCard extends StatelessWidget {
     if (normalizedTitle.contains('arrived')) {
       return const _NotificationStyle(
         foregroundColor: Color(0xFF7C3AED),
-        backgroundColor: Color(0xFFF2ECFF),
         icon: Icons.pin_drop_rounded,
       );
     }
@@ -212,7 +88,6 @@ class NotificationCard extends StatelessWidget {
     if (normalizedTitle.contains('started')) {
       return const _NotificationStyle(
         foregroundColor: Color(0xFF2563EB),
-        backgroundColor: Color(0xFFE8F0FF),
         icon: Icons.play_circle_fill_rounded,
       );
     }
@@ -221,7 +96,6 @@ class NotificationCard extends StatelessWidget {
         normalizedTitle.contains('pending')) {
       return const _NotificationStyle(
         foregroundColor: Color(0xFFF59E0B),
-        backgroundColor: Color(0xFFFFF7E4),
         icon: Icons.account_balance_wallet_rounded,
       );
     }
@@ -229,7 +103,6 @@ class NotificationCard extends StatelessWidget {
     if (normalizedTitle.contains('payment')) {
       return const _NotificationStyle(
         foregroundColor: Color(0xFF16A34A),
-        backgroundColor: Color(0xFFEAF8EF),
         icon: Icons.payments_rounded,
       );
     }
@@ -237,7 +110,6 @@ class NotificationCard extends StatelessWidget {
     if (normalizedTitle.contains('request')) {
       return const _NotificationStyle(
         foregroundColor: Color(0xFFF59E0B),
-        backgroundColor: Color(0xFFFFF7E4),
         icon: Icons.directions_car_filled_rounded,
       );
     }
@@ -246,14 +118,12 @@ class NotificationCard extends StatelessWidget {
         normalizedTitle.contains('accepted')) {
       return const _NotificationStyle(
         foregroundColor: Color(0xFFF59E0B),
-        backgroundColor: Color(0xFFFFF7E4),
         icon: Icons.local_taxi_rounded,
       );
     }
 
     return const _NotificationStyle(
       foregroundColor: Color(0xFF6D5EF5),
-      backgroundColor: Color(0xFFF0EEFF),
       icon: Icons.notifications_active_rounded,
     );
   }
@@ -357,29 +227,22 @@ class _NotificationContent extends StatelessWidget {
 
 class _NotificationIcon extends StatelessWidget {
   final _NotificationStyle style;
-  final double size;
-  final double iconSize;
 
   const _NotificationIcon({
     required this.style,
-    this.size = 48,
-    this.iconSize = 24,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: style.backgroundColor,
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Icon(
-        style.icon,
-        size: iconSize,
-        color: style.foregroundColor,
+    return SizedBox(
+      width: 42,
+      height: 42,
+      child: Center(
+        child: Icon(
+          style.icon,
+          size: 27,
+          color: style.foregroundColor,
+        ),
       ),
     );
   }
@@ -387,12 +250,10 @@ class _NotificationIcon extends StatelessWidget {
 
 class _NotificationStyle {
   final Color foregroundColor;
-  final Color backgroundColor;
   final IconData icon;
 
   const _NotificationStyle({
     required this.foregroundColor,
-    required this.backgroundColor,
     required this.icon,
   });
 }

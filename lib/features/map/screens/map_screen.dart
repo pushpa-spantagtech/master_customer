@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
 import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
@@ -37,8 +39,9 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   GoogleMapController? _mapController;
   LatLng? _lastCameraTarget;
+  bool _isMovingToCurrentLocation = false;
   final GlobalKey<ExpandableBottomSheetState> key =
-  GlobalKey<ExpandableBottomSheetState>();
+      GlobalKey<ExpandableBottomSheetState>();
 
   static const Color _brandRed = Color(0xFFE71921);
   static const Color _brandGold = Color(0xFFFFB100);
@@ -48,7 +51,7 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     // Keep existing sheet behavior, but let the map feel more immersive.
-    Get.find<MapController>().setContainerHeight(430.0, false);
+    Get.find<MapController>().setContainerHeight(390.0, false);
   }
 
   @override
@@ -72,6 +75,62 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  Future<void> _moveToCurrentLocation() async {
+    if (_isMovingToCurrentLocation) return;
+
+    _isMovingToCurrentLocation = true;
+
+    try {
+      final GoogleMapController? controller =
+          _mapController ?? Get.find<MapController>().mapController;
+
+      if (controller == null) return;
+
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+      if (!serviceEnabled) {
+        await Geolocator.openLocationSettings();
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        await Geolocator.openAppSettings();
+        return;
+      }
+
+      if (permission == LocationPermission.denied) return;
+
+      final Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.bestForNavigation,
+      ).timeout(const Duration(seconds: 15));
+
+      if (!mounted) return;
+
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 18,
+            bearing: 0,
+            tilt: 0,
+          ),
+        ),
+      );
+    } on TimeoutException {
+      debugPrint('Current GPS location timed out');
+    } catch (error) {
+      debugPrint('Move to current location error: $error');
+    } finally {
+      _isMovingToCurrentLocation = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -85,7 +144,7 @@ class _MapScreenState extends State<MapScreen> {
           if (Navigator.canPop(context)) {
             Future.delayed(const Duration(milliseconds: 500)).then((onValue) {
               if (Get.find<RideController>().currentRideState.name ==
-                  'findingRider' ||
+                      'findingRider' ||
                   Get.find<ParcelController>().currentParcelState.name ==
                       'findingRider') {
                 Get.offAll(() => const DashboardScreen());
@@ -105,7 +164,7 @@ class _MapScreenState extends State<MapScreen> {
                   child: ExpandableBottomSheet(
                     key: key,
                     background:
-                    GetBuilder<RideController>(builder: (rideController) {
+                        GetBuilder<RideController>(builder: (rideController) {
                       return Stack(
                         children: [
                           Padding(
@@ -125,16 +184,16 @@ class _MapScreenState extends State<MapScreen> {
                                   : Get.find<ThemeController>().lightMap,
                               initialCameraPosition: CameraPosition(
                                 target: rideController
-                                    .tripDetails?.pickupCoordinates !=
-                                    null
+                                            .tripDetails?.pickupCoordinates !=
+                                        null
                                     ? LatLng(
-                                  rideController.tripDetails!
-                                      .pickupCoordinates!.coordinates![1],
-                                  rideController.tripDetails!
-                                      .pickupCoordinates!.coordinates![0],
-                                )
+                                        rideController.tripDetails!
+                                            .pickupCoordinates!.coordinates![1],
+                                        rideController.tripDetails!
+                                            .pickupCoordinates!.coordinates![0],
+                                      )
                                     : Get.find<LocationController>()
-                                    .initialPosition,
+                                        .initialPosition,
                                 zoom: 16,
                               ),
                               onCameraMove: (CameraPosition position) {
@@ -147,30 +206,32 @@ class _MapScreenState extends State<MapScreen> {
                                 // Pickup must change only from search/current-location/confirm-location actions.
                                 if (_lastCameraTarget == null) return;
 
-                                print("MAP CAMERA IDLE LAT = ${_lastCameraTarget!.latitude}");
-                                print("MAP CAMERA IDLE LNG = ${_lastCameraTarget!.longitude}");
+                                print(
+                                    "MAP CAMERA IDLE LAT = ${_lastCameraTarget!.latitude}");
+                                print(
+                                    "MAP CAMERA IDLE LNG = ${_lastCameraTarget!.longitude}");
                               },
                               onMapCreated: (GoogleMapController controller) {
                                 mapController.mapController = controller;
                                 if (Get.find<RideController>()
-                                    .currentRideState
-                                    .name ==
-                                    'findingRider' ||
+                                            .currentRideState
+                                            .name ==
+                                        'findingRider' ||
                                     Get.find<RideController>()
-                                        .currentRideState
-                                        .name ==
+                                            .currentRideState
+                                            .name ==
                                         'riseFare') {
                                   Get.find<MapController>().initializeData();
                                   Get.find<MapController>()
                                       .setOwnCurrentLocation();
                                 } else if (Get.find<RideController>()
-                                    .currentRideState
-                                    .name ==
+                                        .currentRideState
+                                        .name ==
                                     'initial') {
                                   mapController.getPolyline();
                                 } else if (Get.find<RideController>()
-                                    .currentRideState
-                                    .name ==
+                                        .currentRideState
+                                        .name ==
                                     'completeRide') {
                                   Get.find<MapController>().initializeData();
                                 } else {
@@ -231,8 +292,8 @@ class _MapScreenState extends State<MapScreen> {
                             left: 18,
                             child: _LocationPill(
                               text: Get.find<LocationController>()
-                                  .fromAddress
-                                  ?.address ??
+                                      .fromAddress
+                                      ?.address ??
                                   'current_location'.tr,
                             ),
                           ),
@@ -246,21 +307,7 @@ class _MapScreenState extends State<MapScreen> {
                                   return _MapCircleButton(
                                     icon: Icons.my_location_rounded,
                                     color: _brandGold,
-                                    onTap: () async {
-                                      await locationController
-                                          .getCurrentLocation(
-                                          mapController: _mapController);
-                                      await _mapController?.moveCamera(
-                                        CameraUpdate.newCameraPosition(
-                                          CameraPosition(
-                                            target:
-                                            Get.find<LocationController>()
-                                                .initialPosition,
-                                            zoom: 16,
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                    onTap: _moveToCurrentLocation,
                                   );
                                 },
                               ),
@@ -302,20 +349,20 @@ class _MapScreenState extends State<MapScreen> {
                       children: [
                         widget.fromScreen == MapScreenType.parcel
                             ? GetBuilder<RideController>(
-                            builder: (parcelController) {
-                              return ParcelExpendableBottomSheet(
-                                expandableKey: key,
-                              );
-                            })
+                                builder: (parcelController) {
+                                return ParcelExpendableBottomSheet(
+                                  expandableKey: key,
+                                );
+                              })
                             : (widget.fromScreen == MapScreenType.ride ||
-                            widget.fromScreen == MapScreenType.splash)
-                            ? GetBuilder<RideController>(
-                            builder: (rideController) {
-                              return RideExpendableBottomSheet(
-                                expandableKey: key,
-                              );
-                            })
-                            : const SizedBox(),
+                                    widget.fromScreen == MapScreenType.splash)
+                                ? GetBuilder<RideController>(
+                                    builder: (rideController) {
+                                    return RideExpendableBottomSheet(
+                                      expandableKey: key,
+                                    );
+                                  })
+                                : const SizedBox(),
                         SizedBox(
                             height: MediaQuery.of(context).viewInsets.bottom),
                       ],
@@ -325,20 +372,20 @@ class _MapScreenState extends State<MapScreen> {
               }),
               widget.fromScreen == MapScreenType.location
                   ? Align(
-                alignment: Alignment.bottomCenter,
-                child: SizedBox(
-                  height: 70,
-                  child: Padding(
-                    padding: const EdgeInsets.all(
-                      Dimensions.paddingSizeDefault,
-                    ),
-                    child: ButtonWidget(
-                      buttonText: 'set_location'.tr,
-                      onPressed: () => Get.back(),
-                    ),
-                  ),
-                ),
-              )
+                      alignment: Alignment.bottomCenter,
+                      child: SizedBox(
+                        height: 70,
+                        child: Padding(
+                          padding: const EdgeInsets.all(
+                            Dimensions.paddingSizeDefault,
+                          ),
+                          child: ButtonWidget(
+                            buttonText: 'set_location'.tr,
+                            onPressed: () => Get.back(),
+                          ),
+                        ),
+                      ),
+                    )
                   : const SizedBox(),
             ],
           ),

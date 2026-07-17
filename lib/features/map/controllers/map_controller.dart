@@ -380,6 +380,18 @@ class MapController extends GetxController implements GetxService {
             Get.find<ConfigController>().config!.completionRadius!);
         _addPolyLine(polylineCoordinates);
         _polylineCoordinateList = polylineCoordinates;
+
+        // After OTP, the ride is ongoing. The old pickup marker is no longer
+        // needed; keep only the live car marker and destination marker.
+        if (Get.find<RideController>().currentRideState ==
+            RideState.ongoingRide) {
+          markers.removeWhere(
+            (marker) =>
+                marker.markerId.value == 'from' ||
+                marker.markerId.value == 'my_location',
+          );
+        }
+
         updateDriverMarker(_polylineCoordinateList);
 
         if (mapBound) {
@@ -461,16 +473,52 @@ class MapController extends GetxController implements GetxService {
   }
 
   void setMarkersInitialPosition() {
-    if (Get.find<RideController>().encodedPolyLine.isNotEmpty) {
-      List<LatLng> markers =
-          decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
-      setFromToMarker(
-          LatLng(markers[0].latitude, markers[0].longitude),
-          LatLng(markers[markers.length - 1].latitude,
-              markers[markers.length - 1].longitude),
-          isBound: false,
-          latLongList: markers);
+    if (Get.find<RideController>().encodedPolyLine.isEmpty) return;
+
+    final List<LatLng> routePoints =
+        decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
+
+    if (routePoints.isEmpty) return;
+
+    if (Get.find<RideController>().currentRideState == RideState.ongoingRide) {
+      _setOngoingDestinationMarker(routePoints.last);
+      return;
     }
+
+    setFromToMarker(
+      routePoints.first,
+      routePoints.last,
+      isBound: false,
+      latLongList: routePoints,
+    );
+  }
+
+  Future<void> _setOngoingDestinationMarker(LatLng destination) async {
+    markers.removeWhere(
+      (marker) =>
+          marker.markerId.value == 'from' ||
+          marker.markerId.value == 'to' ||
+          marker.markerId.value == 'my_location',
+    );
+
+    final Uint8List toMarker =
+        await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
+
+    markers.add(
+      Marker(
+        markerId: const MarkerId('to'),
+        position: destination,
+        anchor: const Offset(0.5, 0.5),
+        infoWindow: InfoWindow(
+          title:
+              Get.find<RideController>().tripDetails?.destinationAddress ?? '',
+          snippet: 'destination'.tr,
+        ),
+        icon: BitmapDescriptor.fromBytes(toMarker),
+      ),
+    );
+
+    update();
   }
 
   void boundMapScreen(LatLng startingPoint, LatLng endingPoint) async {

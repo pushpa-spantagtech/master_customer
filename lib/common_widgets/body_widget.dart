@@ -24,22 +24,22 @@ class _BodyWidgetState extends State<BodyWidget> {
     return Column(children: [
       widget.appBar,
       Expanded(
-          child: Container(
-        margin: EdgeInsets.only(top: widget.topMargin),
-        width: Dimensions.webMaxWidth,
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(20),
-            topLeft: Radius.circular(20),
+        child: Padding(
+          padding: EdgeInsets.only(top: widget.topMargin),
+          child: Material(
+            color: const Color.fromRGBO(255, 255, 255, 1),
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(20),
+              topLeft: Radius.circular(20),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              width: Dimensions.webMaxWidth,
+              child: widget.body,
+            ),
           ),
-          color: Color.fromRGBO(255, 255, 255, 1),
         ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(25), topLeft: Radius.circular(25)),
-          child: widget.body,
-        ),
-      )),
+      ),
     ]);
   }
 }

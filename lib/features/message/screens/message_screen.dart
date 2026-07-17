@@ -173,137 +173,127 @@ class _MessageScreenState extends State<MessageScreen> {
 
             ///Message send field here.
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
             messageController.channelRideStatus
-                ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Expanded(
-                        child: Container(
-                      margin: const EdgeInsets.only(
-                        left: Dimensions.paddingSizeSmall,
-                        right: Dimensions.paddingSizeSmall,
-                        bottom: Dimensions.paddingSizeSmall,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Theme.of(context).hintColor),
-                        color: Theme.of(context).cardColor,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(100)),
-                      ),
-                      child: Form(
-                        key: messageController.conversationKey,
-                        child: Row(children: [
-                          const SizedBox(width: Dimensions.paddingSizeDefault),
-                          Expanded(
-                              child: TextField(
-                            minLines: 1,
-                            controller:
-                                messageController.conversationController,
-                            textCapitalization: TextCapitalization.sentences,
-                            style: textMedium.copyWith(
-                              fontSize: Dimensions.fontSizeLarge,
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .color!
-                                  .withValues(alpha: 0.8),
-                            ),
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 2,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "type_here".tr,
-                              hintStyle: textRegular.copyWith(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .color!
-                                    .withValues(alpha: 0.8),
-                                fontSize: 16,
-                              ),
-                            ),
-                            onChanged: (String newText) {},
-                          )),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: Dimensions.paddingSizeSmall),
-                            child: InkWell(
-                              onTap: () =>
-                                  messageController.pickMultipleImage(false),
-                              child: Image.asset(
-                                Images.pickImage,
-                                color: Get.isDarkMode
-                                    ? Colors.white
-                                    : Colors.black,
-                              ),
-                            ),
+                ? SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                      child: Container(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(
+                            color: const Color(0xFFD9DEE8),
+                            width: 1.2,
                           ),
-                        ]),
-                      ),
-                    )),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Theme.of(context).hintColor),
-                        color: Colors.transparent,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(50)),
-                      ),
-                      margin: EdgeInsets.only(
-                        bottom: Dimensions.paddingSizeDefault,
-                        right: Get.find<LocalizationController>().isLtr
-                            ? Dimensions.paddingSizeDefault
-                            : 0,
-                        left: Get.find<LocalizationController>().isLtr
-                            ? 0
-                            : Dimensions.paddingSizeDefault,
-                      ),
-                      padding:
-                          const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                      child: messageController.isSending
-                          ? const SpinKitCircle(
-                              color: Color.fromRGBO(250, 173, 2, 1), size: 20)
-                          : messageController.isImagePicked
-                              ? const SpinKitCircle(
-                                  color: Color.fromRGBO(250, 173, 2, 1),
-                                  size: 20)
-                              : InkWell(
-                                  onTap: () {
-                                    if (messageController
-                                            .conversationController.text
-                                            .trim()
-                                            .isEmpty &&
-                                        messageController
-                                            .pickedImageFile!.isEmpty &&
-                                        messageController.otherFile == null) {
-                                      showCustomSnackBar('write_something'.tr,
-                                          isError: true);
-                                    } else if (messageController
-                                        .conversationKey.currentState!
-                                        .validate()) {
-                                      messageController
-                                          .sendMessage(
-                                              widget.channelId, widget.tripId)
-                                          .then((value) {});
-                                    }
-                                    messageController.conversationController
-                                        .clear();
-                                  },
-                                  child: Transform(
-                                    alignment: Alignment.center,
-                                    transform:
-                                        Get.find<LocalizationController>().isLtr
-                                            ? Matrix4.rotationY(0)
-                                            : Matrix4.rotationY(math.pi),
-                                    child: Image.asset(
-                                      Images.sendMessage,
-                                      width: Dimensions.iconSizeMedium,
-                                      height: Dimensions.iconSizeMedium,
-                                      color:
-                                          const Color.fromRGBO(250, 173, 2, 1),
+                        ),
+                        child: Form(
+                          key: messageController.conversationKey,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller:
+                                      messageController.conversationController,
+                                  minLines: 1,
+                                  maxLines: 4,
+                                  keyboardType: TextInputType.multiline,
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  textAlignVertical: TextAlignVertical.center,
+                                  style: textMedium.copyWith(
+                                    fontSize: 15,
+                                    height: 1.25,
+                                    color: const Color(0xFF121A2C),
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: "type_here".tr,
+                                    hintStyle: textRegular.copyWith(
+                                      color: const Color(0xFF8C95A3),
+                                      fontSize: 15,
+                                      height: 1.25,
+                                    ),
+                                    filled: false,
+                                    isDense: true,
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 16,
                                     ),
                                   ),
                                 ),
-                    )
-                  ])
+                              ),
+                              const SizedBox(width: 6),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 6),
+                                child: Material(
+                                  color: const Color(0xFFE71921),
+                                  shape: const CircleBorder(),
+                                  child: InkWell(
+                                    customBorder: const CircleBorder(),
+                                    onTap: () {
+                                      if (messageController
+                                              .conversationController.text
+                                              .trim()
+                                              .isEmpty &&
+                                          messageController
+                                              .pickedImageFile!.isEmpty &&
+                                          messageController.otherFile == null) {
+                                        showCustomSnackBar('write_something'.tr,
+                                            isError: true);
+                                      } else if (messageController
+                                          .conversationKey.currentState!
+                                          .validate()) {
+                                        messageController.sendMessage(
+                                            widget.channelId, widget.tripId);
+                                      }
+                                      messageController.conversationController
+                                          .clear();
+                                    },
+                                    child: SizedBox(
+                                      width: 44,
+                                      height: 44,
+                                      child: Center(
+                                        child: messageController.isSending ||
+                                                messageController.isImagePicked
+                                            ? const SizedBox(
+                                                width: 18,
+                                                height: 18,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: Colors.white,
+                                                ),
+                                              )
+                                            : Transform(
+                                                alignment: Alignment.center,
+                                                transform: Get.find<
+                                                            LocalizationController>()
+                                                        .isLtr
+                                                    ? Matrix4.identity()
+                                                    : Matrix4.rotationY(
+                                                        math.pi),
+                                                child: const Icon(
+                                                  Icons.send_rounded,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
                 : SizedBox(
                     height: 55,
                     child: Container(

@@ -39,9 +39,9 @@ class ButtonWidget extends StatelessWidget {
     this.backgroundColor,
     this.boldText = true,
   }) : assert(
-  !(icon != null && imageIcon != null),
-  'Provide either icon or imageIcon, not both',
-  );
+          !(icon != null && imageIcon != null),
+          'Provide either icon or imageIcon, not both',
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +49,8 @@ class ButtonWidget extends StatelessWidget {
         (onPressed == null
             ? Theme.of(context).disabledColor
             : transparent
-            ? Colors.transparent
-            : Theme.of(context).primaryColor);
+                ? Colors.transparent
+                : Theme.of(context).primaryColor);
 
     final Color foregroundColor = textColor ??
         (transparent ? Theme.of(context).primaryColor : Colors.white);
@@ -62,7 +62,7 @@ class ButtonWidget extends StatelessWidget {
       disabledForegroundColor: Colors.white.withOpacity(0.75),
       minimumSize: Size(width, height),
       padding: const EdgeInsets.symmetric(horizontal: 18),
-      elevation: transparent ? 0 : 1.5,
+      elevation: 0,
       shadowColor: transparent
           ? Colors.transparent
           : Theme.of(context).primaryColor.withOpacity(0.25),
@@ -71,9 +71,9 @@ class ButtonWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         side: showBorder
             ? BorderSide(
-          color: borderColor ?? Theme.of(context).primaryColor,
-          width: borderWidth,
-        )
+                color: borderColor ?? Theme.of(context).primaryColor,
+                width: borderWidth,
+              )
             : BorderSide.none,
       ),
     );

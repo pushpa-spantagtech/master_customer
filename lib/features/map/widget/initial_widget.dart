@@ -367,17 +367,10 @@ class _InitialWidgetState extends State<InitialWidget> {
                   top: 8,
                   left: 0,
                   right: 0,
-                  bottom: bottomSafe > 0 ? 8 : 8,
+                  bottom: bottomSafe > 0 ? 20 : 20,
                 ),
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  // boxShadow: [
-                  //   BoxShadow(
-                  //     color: Color.fromRGBO(18, 26, 44, 0.10),
-                  //     blurRadius: 18,
-                  //     offset: Offset(0, -8),
-                  //   ),
-                  // ],
                 ),
                 child: SizedBox(
                   height: 50,

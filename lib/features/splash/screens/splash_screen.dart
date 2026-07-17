@@ -1,20 +1,21 @@
 import 'dart:async';
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/features/maintainance_mode/maintainance_screen.dart';
-import 'package:ride_sharing_user_app/features/onboard/screens/onboarding_screen.dart';
-import 'package:ride_sharing_user_app/features/trip/controllers/trip_controller.dart';
-import 'package:ride_sharing_user_app/helper/pusher_helper.dart';
-import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/features/auth/controllers/auth_controller.dart';
 import 'package:ride_sharing_user_app/features/auth/screens/sign_in_screen.dart';
 import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/location/view/access_location_screen.dart';
+import 'package:ride_sharing_user_app/features/maintainance_mode/maintainance_screen.dart';
+import 'package:ride_sharing_user_app/features/onboard/screens/onboarding_screen.dart';
 import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 import 'package:ride_sharing_user_app/features/profile/screens/edit_profile_screen.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
+import 'package:ride_sharing_user_app/features/trip/controllers/trip_controller.dart';
+import 'package:ride_sharing_user_app/helper/pusher_helper.dart';
+import 'package:ride_sharing_user_app/util/images.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -23,130 +24,368 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  StreamSubscription<List<ConnectivityResult>>? _onConnectivityChanged;
-
-  late AnimationController _controller;
-  late Animation _animation;
+class _SplashScreenState extends State<SplashScreen> {
+  Timer? _snackBarGuardTimer;
+  bool _showOfflineScreen = false;
+  bool _isChecking = false;
+  bool _routeStarted = false;
 
   @override
   void initState() {
     super.initState();
 
-    if (!GetPlatform.isIOS) {
-      _checkConnectivity();
+    Get.find<ConfigController>().initSharedData();
+    _startSnackBarGuard();
+
+    // Same as driver app: start checking immediately after first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _clearSnackBars();
+      _startApplication();
+    });
+  }
+
+  void _startSnackBarGuard() {
+    _snackBarGuardTimer?.cancel();
+    _snackBarGuardTimer = Timer.periodic(
+      const Duration(milliseconds: 100),
+      (_) => _clearSnackBars(),
+    );
+  }
+
+  void _clearSnackBars() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..removeCurrentSnackBar();
+    if (Get.isSnackbarOpen) {
+      Get.closeCurrentSnackbar();
+    }
+  }
+
+  void _stopSnackBarGuard() {
+    _snackBarGuardTimer?.cancel();
+    _snackBarGuardTimer = null;
+    _clearSnackBars();
+  }
+
+  void _openScreen(Widget screen) {
+    _stopSnackBarGuard();
+    Get.offAll(() => screen);
+  }
+
+  Future<bool> _hasInternetConnection() async {
+    try {
+      final List<InternetAddress> result =
+          await InternetAddress.lookup('seventaxi.in').timeout(
+        const Duration(seconds: 5),
+      );
+      return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
+    } on SocketException {
+      return false;
+    } on TimeoutException {
+      return false;
+    } catch (error) {
+      debugPrint('Internet check error: $error');
+      return false;
+    }
+  }
+
+  // Called only after the launch animation is completed and by Try again.
+  Future<void> _startApplication() async {
+    if (_isChecking || _routeStarted || !mounted) return;
+
+    setState(() {
+      _isChecking = true;
+    });
+
+    final bool connected = await _hasInternetConnection();
+    if (!mounted) return;
+
+    if (!connected) {
+      _clearSnackBars();
+      setState(() {
+        _showOfflineScreen = true;
+        _isChecking = false;
+      });
+      return;
     }
 
-    Get.find<TripController>().getOngoingAndAcceptedCancellationCauseList();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1));
-    _animation = Tween(begin: 0.0, end: 1.0).animate(_controller)
-      ..addListener(() {
-        setState(() {});
-      });
-
-    _controller.repeat(max: 1);
-    _controller.forward();
-
-    Get.find<ConfigController>().initSharedData();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _checkConnectivity() {
-    bool isFirst = true;
-    _onConnectivityChanged = Connectivity()
-        .onConnectivityChanged
-        .listen((List<ConnectivityResult> result) {
-      bool isConnected = result.contains(ConnectivityResult.wifi) ||
-          result.contains(ConnectivityResult.mobile);
-      if ((isFirst && !isConnected) || !isFirst && context.mounted) {
-        ScaffoldMessenger.of(Get.context!).removeCurrentSnackBar();
-        ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: isConnected ? Colors.green : Colors.red,
-          duration: Duration(seconds: isConnected ? 3 : 6000),
-          content: Text(
-            isConnected ? 'connected'.tr : 'no_connection'.tr,
-            textAlign: TextAlign.center,
-          ),
-        ));
-        if (isConnected) {
-          _route();
-        }
-      }
-      isFirst = false;
+    setState(() {
+      _showOfflineScreen = false;
     });
+
+    await _route();
   }
 
-  void _route() async {
-    await Get.find<ConfigController>().getConfigData().then((value) {
-      if (value) {
-        if (Get.find<AuthController>().getUserToken().isNotEmpty) {
-          PusherHelper.initilizePusher();
-        }
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (Get.find<AuthController>().isLoggedIn()) {
-            if (Get.find<LocationController>().getUserAddress() != null &&
-                Get.find<LocationController>().getUserAddress()!.address !=
-                    null &&
-                Get.find<LocationController>()
-                    .getUserAddress()!
-                    .address!
-                    .isNotEmpty) {
-              Get.find<ProfileController>().getProfileInfo().then((value) {
-                if (value.statusCode == 200) {
-                  Get.find<AuthController>().updateToken();
-                  if (value.body['data']['is_profile_verified'] == 1) {
-                    Get.find<AuthController>().remainingFindingRideTime();
-                    Get.offAll(() => const DashboardScreen());
-                  } else {
-                    Get.offAll(() => const EditProfileScreen(fromLogin: true));
-                  }
-                }
-              });
-            } else {
-              Get.offAll(() => const AccessLocationScreen());
-            }
-          } else {
-            if (Get.find<ConfigController>().config!.maintenanceMode != null &&
-                Get.find<ConfigController>()
-                        .config!
-                        .maintenanceMode!
-                        .maintenanceStatus ==
-                    1 &&
-                Get.find<ConfigController>()
-                        .config!
-                        .maintenanceMode!
-                        .selectedMaintenanceSystem!
-                        .userApp ==
-                    1) {
-              Get.offAll(() => const MaintenanceScreen());
-            } else {
-              if (Get.find<ConfigController>().showIntro()) {
-                Get.offAll(() => const OnBoardingScreen());
-              } else {
-                Get.offAll(() => const SignInScreen());
-              }
-            }
-          }
+  Future<void> _route() async {
+    if (_routeStarted || !mounted) return;
+    _routeStarted = true;
+
+    try {
+      final bool configLoaded = await Get.find<ConfigController>()
+          .getConfigData(reload: false, showError: false)
+          .timeout(
+            const Duration(seconds: 20),
+            onTimeout: () => false,
+          );
+
+      if (!mounted) return;
+
+      if (!configLoaded) {
+        _routeStarted = false;
+        _clearSnackBars();
+        setState(() {
+          _showOfflineScreen = true;
+          _isChecking = false;
         });
+        return;
       }
-    });
+
+      unawaited(_loadCancellationReasonsSafely());
+
+      final AuthController authController = Get.find<AuthController>();
+      if (authController.getUserToken().isNotEmpty) {
+        PusherHelper.initilizePusher();
+      }
+
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (!mounted) return;
+
+      if (authController.isLoggedIn()) {
+        final userAddress = Get.find<LocationController>().getUserAddress();
+        final bool hasAddress = userAddress?.address?.isNotEmpty == true;
+
+        if (!hasAddress) {
+          _openScreen(const AccessLocationScreen());
+          return;
+        }
+
+        final profileResponse =
+            await Get.find<ProfileController>().getProfileInfo();
+        if (!mounted) return;
+
+        if (profileResponse.statusCode != 200) {
+          _openScreen(const SignInScreen());
+          return;
+        }
+
+        authController.updateToken();
+        final dynamic data = profileResponse.body?['data'];
+        final int isProfileVerified = data is Map
+            ? int.tryParse(data['is_profile_verified'].toString()) ?? 0
+            : 0;
+
+        if (isProfileVerified == 1) {
+          authController.remainingFindingRideTime();
+          _openScreen(const DashboardScreen());
+        } else {
+          _openScreen(const EditProfileScreen(fromLogin: true));
+        }
+      } else {
+        final config = Get.find<ConfigController>().config;
+        final maintenanceMode = config?.maintenanceMode;
+
+        if (maintenanceMode?.maintenanceStatus == 1 &&
+            maintenanceMode?.selectedMaintenanceSystem?.userApp == 1) {
+          _openScreen(const MaintenanceScreen());
+        } else if (Get.find<ConfigController>().showIntro()) {
+          _openScreen(const OnBoardingScreen());
+        } else {
+          _openScreen(const SignInScreen());
+        }
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Customer splash route error: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!mounted) return;
+      _routeStarted = false;
+      _clearSnackBars();
+      setState(() {
+        _showOfflineScreen = true;
+        _isChecking = false;
+      });
+    }
+  }
+
+  Future<void> _loadCancellationReasonsSafely() async {
+    try {
+      await Get.find<TripController>()
+          .getOngoingAndAcceptedCancellationCauseList();
+    } catch (error) {
+      debugPrint('Cancellation reason loading error: $error');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SevenTaxiSplashAnimation(
-        onCompleted: _route,
+      backgroundColor: Colors.white,
+      body: _showOfflineScreen
+          ? _buildOfflineScreen(context)
+          : SevenTaxiSplashAnimation(
+              onCompleted: () {},
+            ),
+    );
+  }
+
+  Widget _buildOfflineScreen(BuildContext context) {
+    const Color brandRed = Color(0xFFE71921);
+    const Color ink = Color(0xFF121A2C);
+    const Color muted = Color(0xFF6F7787);
+    const Color softRed = Color(0xFFFFECEE);
+
+    final Size screenSize = MediaQuery.sizeOf(context);
+    final bool isSmallScreen = screenSize.width < 360;
+    final bool isVerySmallScreen = screenSize.height < 650;
+
+    final double horizontalPadding = isSmallScreen ? 16 : 20;
+    final double cardPadding = isSmallScreen ? 18 : 22;
+    final double iconContainerSize = isSmallScreen ? 72 : 82;
+    final double iconSize = isSmallScreen ? 36 : 41;
+    final double titleFontSize = isSmallScreen ? 18 : 20;
+    final double descriptionFontSize = isSmallScreen ? 12 : 13;
+    final double buttonFontSize = isSmallScreen ? 14 : 15;
+    final double buttonHeight = isSmallScreen ? 48 : 52;
+
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: isVerySmallScreen ? 16 : 24,
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight:
+                    constraints.maxHeight - (isVerySmallScreen ? 32 : 48),
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 390,
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.fromLTRB(
+                      cardPadding,
+                      isSmallScreen ? 24 : 28,
+                      cardPadding,
+                      isSmallScreen ? 18 : 22,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(
+                        isSmallScreen ? 24 : 28,
+                      ),
+                      border: Border.all(
+                        color: const Color(0xFFF0F1F4),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: iconContainerSize,
+                          height: iconContainerSize,
+                          decoration: const BoxDecoration(
+                            color: softRed,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.wifi_off_rounded,
+                            size: iconSize,
+                            color: brandRed,
+                          ),
+                        ),
+                        SizedBox(height: isSmallScreen ? 18 : 22),
+                        Text(
+                          'No internet connection',
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textScaler: const TextScaler.linear(1),
+                          style: TextStyle(
+                            color: ink,
+                            fontSize: titleFontSize,
+                            height: 1.2,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                        SizedBox(height: isSmallScreen ? 8 : 10),
+                        Text(
+                          'Please turn on Wi-Fi or mobile data, then tap the button below.',
+                          textAlign: TextAlign.center,
+                          textScaler: const TextScaler.linear(1),
+                          style: TextStyle(
+                            color: muted,
+                            fontSize: descriptionFontSize,
+                            height: 1.45,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        SizedBox(height: isSmallScreen ? 22 : 26),
+                        SizedBox(
+                          width: double.infinity,
+                          height: buttonHeight,
+                          child: FilledButton.icon(
+                            onPressed: _isChecking ? null : _startApplication,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: brandRed,
+                              foregroundColor: Colors.white,
+                              disabledBackgroundColor: const Color(0xFFFFA6AA),
+                              disabledForegroundColor: Colors.white,
+                              elevation: 0,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  isSmallScreen ? 14 : 16,
+                                ),
+                              ),
+                            ),
+                            icon: _isChecking
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.refresh_rounded,
+                                    size: 20,
+                                  ),
+                            label: Text(
+                              _isChecking ? 'Checking...' : 'Try again',
+                              textScaler: const TextScaler.linear(1),
+                              style: TextStyle(
+                                fontSize: buttonFontSize,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _snackBarGuardTimer?.cancel();
+    super.dispose();
   }
 }
 

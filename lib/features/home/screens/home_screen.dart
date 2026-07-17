@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/features/address/controllers/address_controller.dart';
 import 'package:ride_sharing_user_app/features/coupon/controllers/coupon_controller.dart';
+import 'package:ride_sharing_user_app/common_widgets/image_widget.dart';
 import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
+import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:ride_sharing_user_app/features/home/controllers/banner_controller.dart';
 import 'package:ride_sharing_user_app/features/home/controllers/category_controller.dart';
 import 'package:ride_sharing_user_app/features/home/screens/ride_bottom_sheet.dart';
@@ -15,7 +17,6 @@ import 'package:ride_sharing_user_app/features/my_offer/controller/offer_control
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/driver_request_dialog.dart';
 import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
-import 'package:ride_sharing_user_app/features/notification/screens/notification_screen.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/helper/home_screen_helper.dart';
 import 'package:ride_sharing_user_app/helper/pusher_helper.dart';
@@ -135,9 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final status = currentRide.currentStatus ?? '';
 
-      if (status != 'pending' &&
-          status != 'accepted' &&
-          status != 'ongoing') {
+      if (status != 'pending' && status != 'accepted' && status != 'ongoing') {
         return;
       }
 
@@ -189,20 +188,20 @@ class _HomeScreenState extends State<HomeScreen> {
           return GetBuilder<ParcelController>(builder: (parcelController) {
             final int parcelCount = 0;
             final int rideCount = (rideController.rideDetails != null &&
-                rideController.rideDetails!.type == 'ride_request' &&
-                (rideController.rideDetails!.currentStatus == 'pending' ||
-                    rideController.rideDetails!.currentStatus ==
-                        'accepted' ||
-                    rideController.rideDetails!.currentStatus ==
-                        'ongoing' ||
-                    (rideController.rideDetails!.currentStatus ==
-                        'completed' &&
-                        rideController.rideDetails!.paymentStatus ==
-                            'unpaid') ||
-                    (rideController.rideDetails!.currentStatus ==
-                        'cancelled' &&
-                        rideController.rideDetails!.paymentStatus ==
-                            'unpaid')))
+                    rideController.rideDetails!.type == 'ride_request' &&
+                    (rideController.rideDetails!.currentStatus == 'pending' ||
+                        rideController.rideDetails!.currentStatus ==
+                            'accepted' ||
+                        rideController.rideDetails!.currentStatus ==
+                            'ongoing' ||
+                        (rideController.rideDetails!.currentStatus ==
+                                'completed' &&
+                            rideController.rideDetails!.paymentStatus ==
+                                'unpaid') ||
+                        (rideController.rideDetails!.currentStatus ==
+                                'cancelled' &&
+                            rideController.rideDetails!.paymentStatus ==
+                                'unpaid')))
                 ? 1
                 : 0;
 
@@ -222,8 +221,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       onMenuTap: () {
                         Get.find<BottomMenuController>().setTabIndex(3);
                       },
-                      onNotificationTap: () =>
-                          Get.to(() => const NotificationScreen()),
                     ),
                   ),
                   Positioned(
@@ -256,38 +253,38 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         }),
         floatingActionButton:
-        GetBuilder<RideController>(builder: (rideController) {
+            GetBuilder<RideController>(builder: (rideController) {
           return rideController.biddingList.isNotEmpty
               ? Padding(
-            padding: EdgeInsets.only(bottom: Get.height * 0.10),
-            child: FloatingActionButton(
-              onPressed: () {
-                if (!rideController.isLoading) {
-                  rideController
-                      .getBiddingList(
-                      rideController.currentTripDetails!.id!, 1)
-                      .then((value) {
-                    if (rideController.biddingList.isNotEmpty) {
-                      Get.dialog(
-                        barrierDismissible: true,
-                        barrierColor: Colors.black.withValues(alpha: 0.5),
-                        transitionDuration:
-                        const Duration(milliseconds: 500),
-                        DriverRideRequestDialog(
-                          tripId: Get.find<RideController>()
-                              .currentTripDetails!
-                              .id!,
-                        ),
-                      );
-                    }
-                  });
-                }
-              },
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              child: Image.asset(Images.biddingIcon),
-            ),
-          )
+                  padding: EdgeInsets.only(bottom: Get.height * 0.10),
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      if (!rideController.isLoading) {
+                        rideController
+                            .getBiddingList(
+                                rideController.currentTripDetails!.id!, 1)
+                            .then((value) {
+                          if (rideController.biddingList.isNotEmpty) {
+                            Get.dialog(
+                              barrierDismissible: true,
+                              barrierColor: Colors.black.withValues(alpha: 0.5),
+                              transitionDuration:
+                                  const Duration(milliseconds: 500),
+                              DriverRideRequestDialog(
+                                tripId: Get.find<RideController>()
+                                    .currentTripDetails!
+                                    .id!,
+                              ),
+                            );
+                          }
+                        });
+                      }
+                    },
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    child: Image.asset(Images.biddingIcon),
+                  ),
+                )
               : const SizedBox();
         }),
       ),
@@ -322,12 +319,10 @@ class _MapTopGradient extends StatelessWidget {
 class _PremiumHomeHeader extends StatelessWidget {
   final String greeting;
   final VoidCallback onMenuTap;
-  final VoidCallback onNotificationTap;
 
   const _PremiumHomeHeader({
     required this.greeting,
     required this.onMenuTap,
-    required this.onNotificationTap,
   });
 
   static const Color _brandRed = Color(0xFFE71921);
@@ -373,23 +368,56 @@ class _PremiumHomeHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              _HeaderButton(
-                  icon: Icons.notifications_none_rounded,
-                  onTap: onNotificationTap),
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                      color: _brandRed, shape: BoxShape.circle),
+          GetBuilder<ProfileController>(
+            builder: (profileController) {
+              final String profileImage =
+                  profileController.profileModel?.data?.profileImage ?? '';
+
+              final String imageUrl = profileImage.isNotEmpty &&
+                      Get.find<ConfigController>()
+                              .config
+                              ?.imageBaseUrl
+                              ?.profileImage !=
+                          null
+                  ? '${Get.find<ConfigController>().config!.imageBaseUrl!.profileImage}/$profileImage'
+                  : '';
+
+              return SizedBox(
+                width: 54,
+                height: 54,
+                child: Center(
+                  child: Container(
+                    width: 46,
+                    height: 46,
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(
+                        color: _brandRed.withValues(alpha: 0.28),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.10),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: ImageWidget(
+                        width: 42,
+                        height: 42,
+                        image: imageUrl,
+                        placeholder: Images.personPlaceholder,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ],
       ),
