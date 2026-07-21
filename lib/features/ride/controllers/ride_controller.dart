@@ -968,19 +968,22 @@ class RideController extends GetxController implements GetxService {
 
     Response response = await rideServiceInterface.getFinalFare(tripId);
 
+    print("========== FINAL FARE API ==========");
+    print(response.body);
+    print("===================================");
+
     if (response.statusCode == 200) {
       if (response.body['data'] != null) {
         finalFare = FinalFareModel.fromJson(response.body).data!;
 
-        print('FINAL FARE LOADED');
-        print('actualFare = ${finalFare?.actualFare}');
-        print('paidFare = ${finalFare?.paidFare}');
-        print('vatTax = ${finalFare?.vatTax}');
-        print('actualDistance = ${finalFare?.actualDistance}');
+        print("VAT TAX => ${finalFare?.vatTax}");
+        print("ACTUAL FARE => ${finalFare?.actualFare}");
+        print("PAID FARE => ${finalFare?.paidFare}");
       }
     } else {
       ApiChecker.checkApi(response);
     }
+
     isLoading = false;
     update();
     return response;
