@@ -43,7 +43,7 @@ enum RideType { car, bike, parcel, luxury }
 
 class RideController extends GetxController implements GetxService {
   final RideServiceInterface rideServiceInterface;
-
+  bool _arrivalSent = false;
   RideController({required this.rideServiceInterface});
 
   RideState currentRideState = RideState.initial;
@@ -557,9 +557,14 @@ class RideController extends GetxController implements GetxService {
   }
 
   Future<Response> getRideDetails(String tripId) async {
-    isLoading = true;
-    tripDetails = null;
-    update();
+    // Keep the already loaded trip visible while refreshing its details.
+    // Only show the main loader when there is no trip data yet.
+    final bool isInitialLoad = tripDetails == null;
+    if (isInitialLoad) {
+      isLoading = true;
+      update();
+    }
+
     Response response = await rideServiceInterface.getRideDetails(tripId);
 
     if (response.statusCode == 200) {
@@ -691,9 +696,13 @@ class RideController extends GetxController implements GetxService {
         Get.find<MapController>().notifyMapController();
 
         if (navigateToMap) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.to(() => const MapScreen(fromScreen: MapScreenType.splash));
-          });
+          final current = Get.currentRoute;
+
+          if (!current.contains('MapScreen')) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Get.off(() => const MapScreen(fromScreen: MapScreenType.splash));
+            });
+          }
         }
       } else if (currentRideStatus == AppConstants.pending) {
         Get.find<RideController>()
@@ -761,7 +770,7 @@ class RideController extends GetxController implements GetxService {
 
   Future<Response> remainingDistance(String requestID,
       {bool mapBound = false}) async {
-    isLoading = true;
+    // Background polling: do not enable the shared page loading state.
     Response response = await rideServiceInterface.remainDistance(requestID);
     print("========== CUSTOMER REMAIN DISTANCE ==========");
     print(response.body);
@@ -786,10 +795,12 @@ class RideController extends GetxController implements GetxService {
         Get.find<ParcelController>()
             .updateParcelState(ParcelDeliveryState.otpSent);
       }
-      arrivalPickupPoint(tripDetails!.id!);
-      isLoading = false;
+      if (!_arrivalSent &&
+          Get.find<MapController>().isInside) {
+        _arrivalSent = true;
+        arrivalPickupPoint(tripDetails!.id!);
+      }
     } else {
-      isLoading = false;
       ApiChecker.checkApi(response);
     }
     update();
@@ -887,8 +898,8 @@ class RideController extends GetxController implements GetxService {
       );
 
       if (tripDetails != null &&
-          (tripDetails?.currentStatus == 'accepted' ||
-              tripDetails?.currentStatus == 'ongoing')) {
+          tripDetails?.currentStatus == 'accepted' &&
+          currentRideState != RideState.otpSent) {
         await remainingDistance(tripDetails!.id!);
       } else if (tripDetails == null ||
           tripDetails?.currentStatus == 'completed' ||
@@ -990,13 +1001,12 @@ class RideController extends GetxController implements GetxService {
   }
 
   Future<Response> arrivalPickupPoint(String tripId) async {
-    isLoading = true;
+    // Background call: keep the ongoing ride sheet visible.
     Response response = await rideServiceInterface.arrivalPickupPoint(tripId);
     if (response.statusCode == 200) {
     } else {
       ApiChecker.checkApi(response);
     }
-    isLoading = false;
     update();
     return response;
   }

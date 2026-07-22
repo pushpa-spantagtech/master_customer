@@ -18,6 +18,8 @@ class MapController extends GetxController implements GetxService {
   Map<PolylineId, Polyline> polylines = {};
   Set<Marker> markers = HashSet<Marker>();
   GoogleMapController? mapController;
+  Uint8List? _cachedCarIcon;
+  Uint8List? _cachedBikeIcon;
   List<LatLng> _polylineCoordinateList = [];
   bool isTrafficEnable = false;
 
@@ -67,7 +69,7 @@ class MapController extends GetxController implements GetxService {
     if (Get.find<RideController>().encodedPolyLine.isNotEmpty) {
       List<LatLng> polylineCoordinates = [];
       List<LatLng> result =
-          decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
+      decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
       if (result.isNotEmpty) {
         for (var point in result) {
           polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -114,27 +116,25 @@ class MapController extends GetxController implements GetxService {
     return poly;
   }
 
-  _addPolyLine(List<LatLng> polylineCoordinates) {
-    PolylineId id = const PolylineId("poly");
-    Polyline polyline = Polyline(
+  void _addPolyLine(List<LatLng> polylineCoordinates) {
+    const PolylineId id = PolylineId('poly');
+    polylines[id] = Polyline(
       polylineId: id,
       points: polylineCoordinates,
       width: 4,
       color: const Color(0xB2FF0000),
     );
-    polylines[id] = polyline;
-    update();
   }
 
   Future<void> searchDeliveryMen() async {
     final Uint8List carMarkerIcon =
-        await convertAssetToUnit8List(Images.carTop, width: 40);
+    await convertAssetToUnit8List(Images.carTop, width: 40);
     final Uint8List bikeMarkerIcon =
-        await convertAssetToUnit8List(Images.bikeTop, width: 40);
+    await convertAssetToUnit8List(Images.bikeTop, width: 40);
     nearestDeliveryManMarkers = {};
     for (int i = 0;
-        i < Get.find<RideController>().nearestDriverList.length;
-        i++) {
+    i < Get.find<RideController>().nearestDriverList.length;
+    i++) {
       MarkerId markerId = MarkerId('rider_$i');
       nearestDeliveryManMarkers!.add(Marker(
         markerId: markerId,
@@ -150,7 +150,7 @@ class MapController extends GetxController implements GetxService {
                 Get.find<RideController>().nearestDriverList[i].longitude!)),
         icon: BitmapDescriptor.fromBytes(
             Get.find<RideController>().nearestDriverList[i].category ==
-                    'motor_bike'
+                'motor_bike'
                 ? bikeMarkerIcon
                 : carMarkerIcon),
       ));
@@ -168,17 +168,17 @@ class MapController extends GetxController implements GetxService {
   }
 
   void setFromToMarker(
-    LatLng from,
-    LatLng to, {
-    bool isBound = true,
-    required List<LatLng> latLongList,
-  }) async {
+      LatLng from,
+      LatLng to, {
+        bool isBound = true,
+        required List<LatLng> latLongList,
+      }) async {
     markers = HashSet();
 
     Uint8List fromMarker =
-        await convertAssetToUnit8List(Images.mapIcon, width: 50);
+    await convertAssetToUnit8List(Images.mapIcon, width: 50);
     Uint8List toMarker =
-        await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
+    await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
 
     markers.add(Marker(
       markerId: const MarkerId('from'),
@@ -327,7 +327,7 @@ class MapController extends GetxController implements GetxService {
 
   void setOwnCurrentLocation() async {
     markers.removeWhere(
-      (marker) => marker.markerId.value == "my_location",
+          (marker) => marker.markerId.value == "my_location",
     );
 
     update();
@@ -363,94 +363,111 @@ class MapController extends GetxController implements GetxService {
   //   update();
   // }
 
-  Future<void> getDriverToPickupOrDestinationPolyline(String lines,
-      {bool mapBound = false}) async {
-    if (lines.isNotEmpty) {
-      List<LatLng> polylineCoordinates = [];
-      List<LatLng> result = decodeEncodedPolyline(lines);
-      if (result.isNotEmpty) {
-        for (var point in result) {
-          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-        }
-        isInsideCircle(
-            result[0].latitude,
-            result[0].longitude,
-            result[result.length - 1].latitude,
-            result[result.length - 1].longitude,
-            Get.find<ConfigController>().config!.completionRadius!);
-        _addPolyLine(polylineCoordinates);
-        _polylineCoordinateList = polylineCoordinates;
+  Future<void> getDriverToPickupOrDestinationPolyline(
+      String lines, {
+        bool mapBound = false,
+      }) async {
+    if (lines.isEmpty) return;
 
-        // After OTP, the ride is ongoing. The old pickup marker is no longer
-        // needed; keep only the live car marker and destination marker.
-        if (Get.find<RideController>().currentRideState ==
-            RideState.ongoingRide) {
-          markers.removeWhere(
+    final List<LatLng> result = decodeEncodedPolyline(lines);
+    if (result.isEmpty) return;
+
+    final List<LatLng> polylineCoordinates = result
+        .map((point) => LatLng(point.latitude, point.longitude))
+        .toList();
+
+    final RideController rideController = Get.find<RideController>();
+
+    isInsideCircle(
+      result.first.latitude,
+      result.first.longitude,
+      result.last.latitude,
+      result.last.longitude,
+      Get.find<ConfigController>().config!.completionRadius!,
+    );
+
+    _polylineCoordinateList = polylineCoordinates;
+    _addPolyLine(polylineCoordinates);
+
+    if (rideController.currentRideState == RideState.ongoingRide) {
+      markers.removeWhere(
             (marker) =>
-                marker.markerId.value == 'from' ||
-                marker.markerId.value == 'my_location',
-          );
-        }
+        marker.markerId.value == 'from' ||
+            marker.markerId.value == 'my_location',
+      );
+    }
 
-        updateDriverMarker(_polylineCoordinateList);
+    await updateDriverMarker(polylineCoordinates);
 
-        if (mapBound) {
-          boundMapScreen(
-              LatLng(result[0].latitude, result[0].longitude),
-              LatLng(result[result.length - 1].latitude,
-                  result[result.length - 1].longitude));
-        }
-      }
+    // Rebuild map only once after polyline and marker are ready.
+    update();
+
+    if (mapBound) {
+      await boundMapScreen(result.first, result.last);
     }
   }
 
-  void updateDriverMarker(List<LatLng> latLngList) async {
-    markers.removeWhere((marker) => marker.markerId.value == "driverPosition");
+  Future<void> updateDriverMarker(List<LatLng> latLngList) async {
+    final RideController rideController = Get.find<RideController>();
 
-    Uint8List car = await convertAssetToUnit8List(
-        Get.find<RideController>().tripDetails!.vehicleCategory!.type == 'car'
-            ? Images.carTop
-            : Images.bike,
-        width: 55);
-
-    if (Get.find<RideController>().tripDetails != null &&
-        latLngList.isNotEmpty) {
-      // ===== LIVE DRIVER LOCATION =====
-      LatLng driverPosition = latLngList.first;
-
-      final liveLocation =
-          Get.find<RideController>().tripDetails?.driverLastLocation;
-      if (liveLocation != null &&
-          liveLocation.latitude != null &&
-          liveLocation.longitude != null) {
-        driverPosition = LatLng(
-          double.parse(liveLocation.latitude!),
-          double.parse(liveLocation.longitude!),
-        );
-      }
-
-      print(
-          "LIVE DRIVER = ${driverPosition.latitude}, ${driverPosition.longitude}");
-      print("MARKER UPDATED");
-
-      markers.add(
-        Marker(
-          markerId: const MarkerId('driverPosition'),
-          position: driverPosition,
-          rotation: _calculateBearing(
-            driverPosition,
-            latLngList.length > 1 ? latLngList[1] : driverPosition,
-          ),
-          draggable: false,
-          zIndex: 2,
-          flat: true,
-          anchor: const Offset(0.5, 0.5),
-          icon: BitmapDescriptor.fromBytes(car),
-        ),
-      );
-
-      update();
+    if (rideController.tripDetails == null || latLngList.isEmpty) {
+      return;
     }
+
+    LatLng driverPosition = latLngList.first;
+    final liveLocation = rideController.tripDetails?.driverLastLocation;
+
+    if (liveLocation?.latitude != null && liveLocation?.longitude != null) {
+      final double? latitude =
+      double.tryParse(liveLocation!.latitude.toString());
+      final double? longitude =
+      double.tryParse(liveLocation.longitude.toString());
+
+      if (latitude != null && longitude != null) {
+        driverPosition = LatLng(latitude, longitude);
+      }
+    }
+
+    final bool isCar =
+        rideController.tripDetails?.vehicleCategory?.type == 'car';
+
+    if (isCar) {
+      _cachedCarIcon ??=
+      await convertAssetToUnit8List(Images.carTop, width: 55);
+    } else {
+      _cachedBikeIcon ??=
+      await convertAssetToUnit8List(Images.bike, width: 55);
+    }
+
+    final BitmapDescriptor icon = BitmapDescriptor.fromBytes(
+      isCar ? _cachedCarIcon! : _cachedBikeIcon!,
+    );
+
+    markers.removeWhere(
+          (marker) => marker.markerId.value == 'driverPosition',
+    );
+
+    final LatLng bearingTarget =
+    latLngList.length > 1 ? latLngList[1] : driverPosition;
+
+    markers.add(
+      Marker(
+        markerId: const MarkerId('driverPosition'),
+        position: driverPosition,
+        rotation: _calculateBearing(driverPosition, bearingTarget),
+        draggable: false,
+        zIndex: 2,
+        flat: true,
+        anchor: const Offset(0.5, 0.5),
+        icon: icon,
+      ),
+    );
+
+    print(
+      'LIVE DRIVER = '
+          '${driverPosition.latitude}, ${driverPosition.longitude}',
+    );
+    print('MARKER UPDATED');
   }
 
   bool _isInside = false;
@@ -476,7 +493,7 @@ class MapController extends GetxController implements GetxService {
     if (Get.find<RideController>().encodedPolyLine.isEmpty) return;
 
     final List<LatLng> routePoints =
-        decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
+    decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
 
     if (routePoints.isEmpty) return;
 
@@ -495,14 +512,14 @@ class MapController extends GetxController implements GetxService {
 
   Future<void> _setOngoingDestinationMarker(LatLng destination) async {
     markers.removeWhere(
-      (marker) =>
-          marker.markerId.value == 'from' ||
+          (marker) =>
+      marker.markerId.value == 'from' ||
           marker.markerId.value == 'to' ||
           marker.markerId.value == 'my_location',
     );
 
     final Uint8List toMarker =
-        await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
+    await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
 
     markers.add(
       Marker(
@@ -511,7 +528,7 @@ class MapController extends GetxController implements GetxService {
         anchor: const Offset(0.5, 0.5),
         infoWindow: InfoWindow(
           title:
-              Get.find<RideController>().tripDetails?.destinationAddress ?? '',
+          Get.find<RideController>().tripDetails?.destinationAddress ?? '',
           snippet: 'destination'.tr,
         ),
         icon: BitmapDescriptor.fromBytes(toMarker),
@@ -521,7 +538,10 @@ class MapController extends GetxController implements GetxService {
     update();
   }
 
-  void boundMapScreen(LatLng startingPoint, LatLng endingPoint) async {
+  Future<void> boundMapScreen(
+      LatLng startingPoint,
+      LatLng endingPoint,
+      ) async {
     await fitRouteToScreen([startingPoint, endingPoint]);
   }
 

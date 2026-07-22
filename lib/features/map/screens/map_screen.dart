@@ -39,6 +39,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   GoogleMapController? _mapController;
   LatLng? _lastCameraTarget;
+  late final RideController _rideController;
   bool _isMovingToCurrentLocation = false;
   final GlobalKey<ExpandableBottomSheetState> key =
       GlobalKey<ExpandableBottomSheetState>();
@@ -50,14 +51,23 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    // Keep existing sheet behavior, but let the map feel more immersive.
+
+    _rideController = Get.find<RideController>();
+
     Get.find<MapController>().setContainerHeight(390.0, false);
   }
 
   @override
   void dispose() {
+    final mapController = Get.find<MapController>();
+
+    if (identical(mapController.mapController, _mapController)) {
+      mapController.mapController = null;
+    }
+
     _mapController?.dispose();
-    Get.find<MapController>().mapController?.dispose();
+    _mapController = null;
+
     super.dispose();
   }
 
@@ -163,10 +173,8 @@ class _MapScreenState extends State<MapScreen> {
                 return Flexible(
                   child: ExpandableBottomSheet(
                     key: key,
-                    background:
-                        GetBuilder<RideController>(builder: (rideController) {
-                      return Stack(
-                        children: [
+                    background: Stack(
+                    children: [
                           Padding(
                             padding: EdgeInsets.only(
                               bottom: 0,
@@ -183,13 +191,13 @@ class _MapScreenState extends State<MapScreen> {
                                   ? Get.find<ThemeController>().darkMap
                                   : Get.find<ThemeController>().lightMap,
                               initialCameraPosition: CameraPosition(
-                                target: rideController
+                                target: _rideController
                                             .tripDetails?.pickupCoordinates !=
                                         null
                                     ? LatLng(
-                                        rideController.tripDetails!
+                                            _rideController.tripDetails!
                                             .pickupCoordinates!.coordinates![1],
-                                        rideController.tripDetails!
+                                            _rideController.tripDetails!
                                             .pickupCoordinates!.coordinates![0],
                                       )
                                     : Get.find<LocationController>()
@@ -238,8 +246,6 @@ class _MapScreenState extends State<MapScreen> {
                                   Get.find<MapController>().initializeData();
                                   Get.find<MapController>()
                                       .setMarkersInitialPosition();
-                                  Get.find<RideController>()
-                                      .startLocationRecord();
                                 }
                                 _mapController = controller;
                               },
@@ -341,8 +347,7 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                           ),
                         ],
-                      );
-                    }),
+                     ),
                     persistentContentHeight: mapController.sheetHeight,
                     expandableContent: Column(
                       mainAxisSize: MainAxisSize.min,
