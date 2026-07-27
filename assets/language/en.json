@@ -1,5 +1,5 @@
 {
-  "connection_to_api_server_failed": "Connection to api server failed due to internet connection",
+  "connection_to_api_server_failed": "Unable to connect. Please check your internet and try again.",
 
   "on_boarding_4_title": "Enjoy Your\nRide !\n& travel\nyour destination\neveryday",
   "yes": "Yes",
