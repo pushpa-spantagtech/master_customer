@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/features/auth/widgets/test_field_title.dart';
-import 'package:ride_sharing_user_app/features/auth/screens/forgot_password_screen.dart';
-import 'package:ride_sharing_user_app/helper/display_helper.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/util/images.dart';
-import 'package:ride_sharing_user_app/features/auth/controllers/auth_controller.dart';
 import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/custom_text_field.dart';
+import 'package:ride_sharing_user_app/features/auth/controllers/auth_controller.dart';
+import 'package:ride_sharing_user_app/features/auth/screens/forgot_password_screen.dart';
+import 'package:ride_sharing_user_app/features/auth/widgets/test_field_title.dart';
+import 'package:ride_sharing_user_app/helper/display_helper.dart';
+import 'package:ride_sharing_user_app/util/dimensions.dart';
+import 'package:ride_sharing_user_app/util/images.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final bool fromChangePassword;

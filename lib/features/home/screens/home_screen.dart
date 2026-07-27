@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -23,8 +24,6 @@ import 'package:ride_sharing_user_app/helper/pusher_helper.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
 
-import '../../auth/controllers/auth_controller.dart';
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -43,7 +42,47 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    unawaited(_loadInitialMapData());
     loadData();
+  }
+
+  Future<void> _loadInitialMapData() async {
+    final locationController = Get.find<LocationController>();
+    final rideController = Get.find<RideController>();
+
+    // LocationController already starts GPS lookup during its initialization.
+    // Wait briefly for that result instead of starting a second competing GPS request.
+    for (int attempt = 0; attempt < 30; attempt++) {
+      final position = locationController.position;
+      if (position.latitude != 0 && position.longitude != 0) {
+        break;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+
+    var latitude = locationController.position.latitude;
+    var longitude = locationController.position.longitude;
+
+    // Fallback when the controller's first automatic lookup has not completed.
+    if (latitude == 0 || longitude == 0) {
+      final address = await locationController.getCurrentLocation(
+        isAnimate: false,
+      );
+      latitude = address?.latitude ?? locationController.position.latitude;
+      longitude = address?.longitude ?? locationController.position.longitude;
+    }
+
+    if (latitude == 0 || longitude == 0) return;
+
+    // The map is created directly at this fresh GPS position. Do not animate
+    // from the saved address, because that causes the visible initial jump.
+
+    // Fetch cars immediately using the same fresh GPS coordinates shown by
+    // Google's blue current-location dot.
+    await rideController.getNearestDriverList(
+      latitude.toString(),
+      longitude.toString(),
+    );
   }
 
   String greetingMessage() {
@@ -96,14 +135,6 @@ class _HomeScreenState extends State<HomeScreen> {
       for (final element in ongoingParcels!) {
         PusherHelper().pusherDriverStatus(element.id!);
       }
-    }
-
-    final userAddress = Get.find<LocationController>().getUserAddress();
-    if (userAddress?.latitude != null && userAddress?.longitude != null) {
-      rideController.getNearestDriverList(
-        userAddress!.latitude!.toString(),
-        userAddress.longitude!.toString(),
-      );
     }
 
     HomeScreenHelper().checkMaintanceMode();
@@ -186,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
         extendBodyBehindAppBar: true,
         body: GetBuilder<RideController>(builder: (rideController) {
           return GetBuilder<ParcelController>(builder: (parcelController) {
-            final int parcelCount = 0;
+            const int parcelCount = 0;
             final int rideCount = (rideController.rideDetails != null &&
                     rideController.rideDetails!.type == 'ride_request' &&
                     (rideController.rideDetails!.currentStatus == 'pending' ||
@@ -528,7 +559,7 @@ class _OngoingRideFab extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 16,
                 offset: const Offset(-2, 5),
               ),

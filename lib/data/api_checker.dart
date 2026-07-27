@@ -6,9 +6,10 @@ import 'package:ride_sharing_user_app/helper/display_helper.dart';
 
 class ApiChecker {
   static void checkApi(Response response) {
-    final String message = response.body is Map && response.body['message'] != null
-        ? response.body['message'].toString()
-        : (response.statusText ?? 'Something went wrong');
+    final String message =
+        response.body is Map && response.body['message'] != null
+            ? response.body['message'].toString()
+            : (response.statusText ?? 'Something went wrong');
 
     if (response.statusCode == 401) {
       Get.find<ConfigController>().removeSharedData();

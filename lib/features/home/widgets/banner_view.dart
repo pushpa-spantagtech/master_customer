@@ -1,11 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/common_widgets/image_widget.dart';
 import 'package:ride_sharing_user_app/features/home/controllers/banner_controller.dart';
 import 'package:ride_sharing_user_app/features/home/widgets/banner_shimmer.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
-import 'package:ride_sharing_user_app/common_widgets/image_widget.dart';
+import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BannerView extends StatefulWidget {

@@ -4,10 +4,10 @@ import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/data/api_client.dart';
+import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';
 import 'package:ride_sharing_user_app/features/auth/domain/models/sign_up_body.dart';
 import 'package:ride_sharing_user_app/features/auth/domain/repositories/auth_repository_interface.dart';
 import 'package:ride_sharing_user_app/util/app_constants.dart';
-import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRepository implements AuthRepositoryInterface {
@@ -83,7 +83,7 @@ class AuthRepository implements AuthRepositoryInterface {
       FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
           alert: true, badge: true, sound: true);
       NotificationSettings settings =
-      await FirebaseMessaging.instance.requestPermission(
+          await FirebaseMessaging.instance.requestPermission(
         alert: true,
         announcement: false,
         badge: true,
@@ -177,8 +177,8 @@ class AuthRepository implements AuthRepositoryInterface {
   }
 
   @override
-  Future<void> saveUserNumberAndPassword(String code, String number,
-      String password) async {
+  Future<void> saveUserNumberAndPassword(
+      String code, String number, String password) async {
     try {
       await sharedPreferences.setString(AppConstants.userPassword, password);
       await sharedPreferences.setString(AppConstants.userNumber, number);

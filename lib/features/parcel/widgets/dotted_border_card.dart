@@ -2,11 +2,11 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/features/map/screens/map_screen.dart';
+import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 
 class DottedBorderCard extends StatelessWidget {
   const DottedBorderCard({super.key});
@@ -35,7 +35,7 @@ class DottedBorderCard extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                   borderRadius:
-                  BorderRadius.circular(Dimensions.paddingSizeDefault)),
+                      BorderRadius.circular(Dimensions.paddingSizeDefault)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                     horizontal: Dimensions.paddingSizeExtraLarge,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/features/settings/screens/policy_screen.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/settings/screens/policy_screen.dart';
 
 class TollTipWidget extends StatefulWidget {
   final String title;

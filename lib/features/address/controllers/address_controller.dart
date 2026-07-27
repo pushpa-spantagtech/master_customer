@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/data/api_checker.dart';
+import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';
 import 'package:ride_sharing_user_app/features/address/domain/services/address_service_interface.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
-import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';
 
 class AddressController extends GetxController implements GetxService {
   final AddressServiceInterface addressServiceInterface;

@@ -54,45 +54,46 @@ class _RentalTabState extends State<RentalTab> {
               width: double.infinity,
               child: packages.isEmpty
                   ? const Center(
-                child: CircularProgressIndicator(
-                  color: Color(0xFFFFB100),
-                ),
-              )
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFFB100),
+                      ),
+                    )
                   : ListView.separated(
-                scrollDirection: Axis.horizontal,
-                primary: false,
-                shrinkWrap: false,
-                physics: const ClampingScrollPhysics(),
-                itemCount: packages.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, index) {
-                  final package = packages[index];
-                  final int hour = _readInt(package['free_hours']);
-                  final int km = _readInt(
-                    package['free_km'] ??
-                        package['free_distance'] ??
-                        package['distance'],
-                  );
-                  final bool isSelected = rideController.rentalHour == hour;
+                      scrollDirection: Axis.horizontal,
+                      primary: false,
+                      shrinkWrap: false,
+                      physics: const ClampingScrollPhysics(),
+                      itemCount: packages.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      itemBuilder: (context, index) {
+                        final package = packages[index];
+                        final int hour = _readInt(package['free_hours']);
+                        final int km = _readInt(
+                          package['free_km'] ??
+                              package['free_distance'] ??
+                              package['distance'],
+                        );
+                        final bool isSelected =
+                            rideController.rentalHour == hour;
 
-                  return _PackageCard(
-                    hour: hour,
-                    km: km,
-                    selected: isSelected,
-                    onTap: () {
-                      rideController.rentalHour = hour;
-                      rideController.setRentalRide(true);
-                      rideController.setLocalRide(false);
-                      rideController.setOutstationRide(false);
-                      rideController.update();
+                        return _PackageCard(
+                          hour: hour,
+                          km: km,
+                          selected: isSelected,
+                          onTap: () {
+                            rideController.rentalHour = hour;
+                            rideController.setRentalRide(true);
+                            rideController.setLocalRide(false);
+                            rideController.setOutstationRide(false);
+                            rideController.update();
 
-                      Get.to(
-                            () => const SetDestinationScreen(isRental: true),
-                      );
-                    },
-                  );
-                },
-              ),
+                            Get.to(
+                              () => const SetDestinationScreen(isRental: true),
+                            );
+                          },
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -126,10 +127,10 @@ class _PackageCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: selected
               ? const LinearGradient(
-            colors: [Color(0xFFE71921), Color(0xFFFF4B2E)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          )
+                  colors: [Color(0xFFE71921), Color(0xFFFF4B2E)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
               : null,
           color: selected ? null : Colors.white,
           borderRadius: BorderRadius.circular(18),

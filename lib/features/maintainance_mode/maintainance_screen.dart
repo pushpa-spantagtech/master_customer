@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
+import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:ride_sharing_user_app/features/splash/domain/models/config_model.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
-import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MaintenanceScreen extends StatefulWidget {

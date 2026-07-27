@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
+import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/loader_widget.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
+import 'package:ride_sharing_user_app/features/trip/controllers/trip_controller.dart';
 import 'package:ride_sharing_user_app/features/trip/widgets/rider_info.dart';
 import 'package:ride_sharing_user_app/features/trip/widgets/trip_details.dart';
 import 'package:ride_sharing_user_app/features/trip/widgets/trip_item_view.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
-import 'package:ride_sharing_user_app/features/trip/controllers/trip_controller.dart';
-import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
-import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 
 class TripDetailsScreen extends StatefulWidget {
   final String tripId;

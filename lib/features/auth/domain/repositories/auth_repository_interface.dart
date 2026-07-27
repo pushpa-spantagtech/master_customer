@@ -38,8 +38,8 @@ abstract class AuthRepositoryInterface implements RepositoryInterface {
 
   bool clearSharedData();
 
-  Future<void> saveUserNumberAndPassword(String code, String number,
-      String password);
+  Future<void> saveUserNumberAndPassword(
+      String code, String number, String password);
 
   String getUserNumber();
 

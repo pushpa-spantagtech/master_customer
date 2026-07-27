@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/features/parcel/widgets/driver_request_dialog.dart';
-import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
+import 'package:ride_sharing_user_app/features/parcel/widgets/driver_request_dialog.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 
 class BiddingListScreen extends StatelessWidget {
   final String tripId;

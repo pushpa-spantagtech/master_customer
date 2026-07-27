@@ -27,7 +27,7 @@ class HomeSearchWidget extends StatelessWidget {
 
     return InkWell(
       onTap: () => Get.to(
-            () => SetDestinationScreen(
+        () => SetDestinationScreen(
           isLocal: isLocal,
           isRental: isRental,
           isOutstation: isOutstation,
@@ -39,7 +39,6 @@ class HomeSearchWidget extends StatelessWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-
             Container(
               height: 76,
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -60,7 +59,6 @@ class HomeSearchWidget extends StatelessWidget {
               ),
               child: Row(
                 children: [
-
                   Container(
                     width: 38,
                     height: 38,
@@ -74,9 +72,7 @@ class HomeSearchWidget extends StatelessWidget {
                       size: 23,
                     ),
                   ),
-
                   const SizedBox(width: 12),
-
                   Expanded(
                     child: Text(
                       'where_to_go'.tr,
@@ -91,7 +87,6 @@ class HomeSearchWidget extends StatelessWidget {
                 ],
               ),
             ),
-
             Positioned(
               left: 18,
               top: -9,

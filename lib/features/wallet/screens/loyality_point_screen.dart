@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
+import 'package:ride_sharing_user_app/common_widgets/paginated_list_widget.dart';
+import 'package:ride_sharing_user_app/features/notification/widgets/notification_shimmer.dart';
 import 'package:ride_sharing_user_app/features/wallet/controllers/wallet_controller.dart';
+import 'package:ride_sharing_user_app/features/wallet/widget/custom_title.dart';
 import 'package:ride_sharing_user_app/features/wallet/widget/loyalty_point_card.dart';
 import 'package:ride_sharing_user_app/features/wallet/widget/loyalty_point_help_widget.dart';
 import 'package:ride_sharing_user_app/features/wallet/widget/wallet_money_amount_widget.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/notification/widgets/notification_shimmer.dart';
-import 'package:ride_sharing_user_app/features/wallet/widget/custom_title.dart';
-import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
-import 'package:ride_sharing_user_app/common_widgets/paginated_list_widget.dart';
 
 class LoyaltyPointScreen extends StatefulWidget {
   const LoyaltyPointScreen({super.key});

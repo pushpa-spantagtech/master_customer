@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ride_sharing_user_app/common_widgets/image_widget.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
-import 'package:ride_sharing_user_app/common_widgets/image_widget.dart';
 import 'package:shimmer/shimmer.dart';
 
 class AddressShimmer extends StatelessWidget {

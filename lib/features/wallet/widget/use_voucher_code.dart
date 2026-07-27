@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
+import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
+import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/features/payment/controllers/payment_controller.dart';
 import 'package:ride_sharing_user_app/features/wallet/widget/coupon_use_result_dialog.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
-import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
-import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 
 class UseCouponScreen extends StatefulWidget {
   const UseCouponScreen({super.key});

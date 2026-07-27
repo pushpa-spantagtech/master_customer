@@ -59,13 +59,13 @@ class ButtonWidget extends StatelessWidget {
       backgroundColor: buttonColor,
       foregroundColor: foregroundColor,
       disabledBackgroundColor: Theme.of(context).disabledColor,
-      disabledForegroundColor: Colors.white.withOpacity(0.75),
+      disabledForegroundColor: Colors.white.withValues(alpha: 0.75),
       minimumSize: Size(width, height),
       padding: const EdgeInsets.symmetric(horizontal: 18),
       elevation: 0,
       shadowColor: transparent
           ? Colors.transparent
-          : Theme.of(context).primaryColor.withOpacity(0.25),
+          : Theme.of(context).primaryColor.withValues(alpha: 0.25),
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
 import 'package:ride_sharing_user_app/features/dashboard/domain/models/navigation_model.dart';
 import 'package:ride_sharing_user_app/features/home/screens/home_screen.dart';
 import 'package:ride_sharing_user_app/features/notification/screens/notification_screen.dart';
@@ -8,7 +9,6 @@ import 'package:ride_sharing_user_app/features/trip/screens/trip_screen.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

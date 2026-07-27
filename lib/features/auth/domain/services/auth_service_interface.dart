@@ -37,8 +37,8 @@ abstract class AuthServiceInterface {
 
   bool clearSharedData();
 
-  Future<void> saveUserNumberAndPassword(String code, String number,
-      String password);
+  Future<void> saveUserNumberAndPassword(
+      String code, String number, String password);
 
   String getUserNumber();
 

@@ -2,15 +2,15 @@ import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/data/api_checker.dart';
 import 'package:ride_sharing_user_app/features/auth/domain/models/sign_up_body.dart';
 import 'package:ride_sharing_user_app/features/auth/domain/services/auth_service_interface.dart';
-import 'package:ride_sharing_user_app/features/auth/screens/sign_in_screen.dart';
-import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
 import 'package:ride_sharing_user_app/features/auth/screens/reset_password_screen.dart';
+import 'package:ride_sharing_user_app/features/auth/screens/sign_in_screen.dart';
 import 'package:ride_sharing_user_app/features/auth/screens/verification_screen.dart';
+import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
+import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 import 'package:ride_sharing_user_app/features/profile/screens/edit_profile_screen.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
-import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 import 'package:ride_sharing_user_app/helper/pusher_helper.dart';
 
 class AuthController extends GetxController implements GetxService {

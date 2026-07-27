@@ -1,22 +1,22 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:dart_pusher_channels/dart_pusher_channels.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ride_sharing_user_app/data/api_checker.dart';
 import 'package:ride_sharing_user_app/data/api_client.dart';
 import 'package:ride_sharing_user_app/features/auth/controllers/auth_controller.dart';
-import 'package:ride_sharing_user_app/features/message/domain/services/message_service_interface.dart';
-import 'package:ride_sharing_user_app/features/message/screens/message_screen.dart';
 import 'package:ride_sharing_user_app/features/message/domain/models/channel_model.dart';
 import 'package:ride_sharing_user_app/features/message/domain/models/message_model.dart';
-import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/features/message/domain/services/message_service_interface.dart';
+import 'package:ride_sharing_user_app/features/message/screens/message_screen.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/helper/pusher_helper.dart';
-
 
 class MessageController extends GetxController implements GetxService {
   final MessageServiceInterface messageServiceInterface;

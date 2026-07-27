@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/data/api_checker.dart';
+import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 import 'package:ride_sharing_user_app/features/wallet/domain/models/loyalty_point_model.dart';
 import 'package:ride_sharing_user_app/features/wallet/domain/models/transaction_model.dart';
 import 'package:ride_sharing_user_app/features/wallet/domain/repositories/wallet_repository.dart';
-import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 
 class WalletController extends GetxController implements GetxService {
   final WalletRepository walletRepo;

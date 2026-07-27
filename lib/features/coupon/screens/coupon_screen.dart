@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
+import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
+import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/paginated_list_widget.dart';
 import 'package:ride_sharing_user_app/features/coupon/controllers/coupon_controller.dart';
 import 'package:ride_sharing_user_app/features/coupon/widget/coupon_widget.dart';
 import 'package:ride_sharing_user_app/features/notification/widgets/notification_shimmer.dart';
-import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
-import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
-import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
 
 class CouponScreen extends StatefulWidget {
   const CouponScreen({super.key});

@@ -3,13 +3,13 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/common_widgets/confirmation_dialog_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
-import 'package:ride_sharing_user_app/features/address/screens/add_new_address.dart';
 import 'package:ride_sharing_user_app/features/address/controllers/address_controller.dart';
+import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';
+import 'package:ride_sharing_user_app/features/address/screens/add_new_address.dart';
 import 'package:ride_sharing_user_app/theme/theme_controller.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';
 
 class MyAddressScreen extends StatefulWidget {
   const MyAddressScreen({super.key});

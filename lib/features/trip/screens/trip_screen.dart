@@ -81,9 +81,9 @@ class _TripScreenState extends State<TripScreen> {
   }
 
   Future<void> _showFilterBottomSheet(
-      BuildContext context,
-      TripController tripController,
-      ) async {
+    BuildContext context,
+    TripController tripController,
+  ) async {
     final int? selectedIndex = await showModalBottomSheet<int>(
       context: context,
       isScrollControlled: true,
@@ -161,7 +161,7 @@ class _TripHeader extends StatelessWidget {
     }
 
     final int safeIndex =
-    controller.filterIndex.clamp(0, controller.filterList.length - 1);
+        controller.filterIndex.clamp(0, controller.filterList.length - 1);
 
     return _filterDisplayName(controller.filterList[safeIndex]);
   }
@@ -311,7 +311,7 @@ class _TripFilterBottomSheet extends StatelessWidget {
           const SizedBox(height: 12),
           ...List.generate(
             filterList.length,
-                (index) {
+            (index) {
               final bool isSelected = index == selectedIndex;
 
               return Padding(
@@ -361,9 +361,7 @@ class _FilterOptionTile extends StatelessWidget {
             vertical: 10,
           ),
           decoration: BoxDecoration(
-            color: isSelected
-                ? const Color(0xFFFFF7E5)
-                : Colors.transparent,
+            color: isSelected ? const Color(0xFFFFF7E5) : Colors.transparent,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Row(
@@ -377,22 +375,20 @@ class _FilterOptionTile extends StatelessWidget {
                   border: Border.all(
                     color: isSelected
                         ? selectedColor
-                        : Theme.of(context)
-                        .hintColor
-                        .withValues(alpha: 0.65),
+                        : Theme.of(context).hintColor.withValues(alpha: 0.65),
                     width: 1.6,
                   ),
                 ),
                 alignment: Alignment.center,
                 child: isSelected
                     ? Container(
-                  width: 5,
-                  height: 5,
-                  decoration: const BoxDecoration(
-                    color: selectedColor,
-                    shape: BoxShape.circle,
-                  ),
-                )
+                        width: 5,
+                        height: 5,
+                        decoration: const BoxDecoration(
+                          color: selectedColor,
+                          shape: BoxShape.circle,
+                        ),
+                      )
                     : null,
               ),
               const SizedBox(width: 11),
@@ -453,8 +449,8 @@ class _TripList extends StatelessWidget {
           totalSize: tripController.tripModel!.totalSize,
           offset: tripController.tripModel!.offset != null
               ? int.tryParse(
-            tripController.tripModel!.offset.toString(),
-          )
+                  tripController.tripModel!.offset.toString(),
+                )
               : null,
           onPaginate: (int? offset) async {
             if (offset != null) {

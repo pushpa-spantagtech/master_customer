@@ -63,57 +63,58 @@ class TripDetails {
   bool? isLoading;
   bool? isReviewed;
 
-  TripDetails({this.id,
-    this.refId,
-    this.driver,
-    this.driverLastLocation,
-    this.vehicle,
-    this.vehicleCategory,
-    this.estimatedFare,
-    this.orgEstFare,
-    this.estimatedTime,
-    this.estimatedDistance,
-    this.actualFare,
-    this.actualTime,
-    this.actualDistance,
-    this.waitingTime,
-    this.idleTime,
-    this.waitingFare,
-    this.idleFee,
-    this.delayFee,
-    this.cancellationFee,
-    this.distanceWiseFare,
-    this.cancelledBy,
-    this.vatTax,
-    this.tips,
-    this.additionalCharge,
-    this.pickupCoordinates,
-    this.pickupAddress,
-    this.destinationCoordinates,
-    this.destinationAddress,
-    this.customerRequestCoordinates,
-    this.paymentMethod,
-    this.couponAmount,
-    this.discountAmount,
-    this.discountActualFare,
-    this.note,
-    this.totalFare,
-    this.otp,
-    this.riseRequestCount,
-    this.type,
-    this.createdAt,
-    this.entrance,
-    this.intermediateAddresses,
-    this.encodedPolyline,
-    this.customerAvgRating,
-    this.driverAvgRating,
-    this.currentStatus,
-    this.paidFare,
-    this.isPaused,
-    this.parcelInformation,
-    this.paymentStatus,
-    this.isLoading,
-    this.isReviewed});
+  TripDetails(
+      {this.id,
+      this.refId,
+      this.driver,
+      this.driverLastLocation,
+      this.vehicle,
+      this.vehicleCategory,
+      this.estimatedFare,
+      this.orgEstFare,
+      this.estimatedTime,
+      this.estimatedDistance,
+      this.actualFare,
+      this.actualTime,
+      this.actualDistance,
+      this.waitingTime,
+      this.idleTime,
+      this.waitingFare,
+      this.idleFee,
+      this.delayFee,
+      this.cancellationFee,
+      this.distanceWiseFare,
+      this.cancelledBy,
+      this.vatTax,
+      this.tips,
+      this.additionalCharge,
+      this.pickupCoordinates,
+      this.pickupAddress,
+      this.destinationCoordinates,
+      this.destinationAddress,
+      this.customerRequestCoordinates,
+      this.paymentMethod,
+      this.couponAmount,
+      this.discountAmount,
+      this.discountActualFare,
+      this.note,
+      this.totalFare,
+      this.otp,
+      this.riseRequestCount,
+      this.type,
+      this.createdAt,
+      this.entrance,
+      this.intermediateAddresses,
+      this.encodedPolyline,
+      this.customerAvgRating,
+      this.driverAvgRating,
+      this.currentStatus,
+      this.paidFare,
+      this.isPaused,
+      this.parcelInformation,
+      this.paymentStatus,
+      this.isLoading,
+      this.isReviewed});
 
   TripDetails.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -123,7 +124,7 @@ class TripDetails {
         ? DriverLastLocation.fromJson(json['driver_last_location'])
         : null;
     vehicle =
-    json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null;
+        json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null;
     vehicleCategory = json['vehicle_category'] != null
         ? VehicleCategory.fromJson(json['vehicle_category'])
         : null;
@@ -225,15 +226,16 @@ class Driver {
   String? profileImage;
   Vehicle? vehicle;
 
-  Driver({this.id,
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.phone,
-    this.identificationNumber,
-    this.identificationType,
-    this.profileImage,
-    this.vehicle});
+  Driver(
+      {this.id,
+      this.firstName,
+      this.lastName,
+      this.email,
+      this.phone,
+      this.identificationNumber,
+      this.identificationType,
+      this.profileImage,
+      this.vehicle});
 
   Driver.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -245,7 +247,7 @@ class Driver {
     identificationType = json['identification_type'];
     profileImage = json['profile_image'];
     vehicle =
-    json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null;
+        json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null;
   }
 }
 
@@ -282,16 +284,17 @@ class Vehicle {
   int? isActive;
   String? createdAt;
 
-  Vehicle({this.model,
-    this.licencePlateNumber,
-    this.licenceExpireDate,
-    this.vinNumber,
-    this.transmission,
-    this.fuelType,
-    this.ownership,
-    this.documents,
-    this.isActive,
-    this.createdAt});
+  Vehicle(
+      {this.model,
+      this.licencePlateNumber,
+      this.licenceExpireDate,
+      this.vinNumber,
+      this.transmission,
+      this.fuelType,
+      this.ownership,
+      this.documents,
+      this.isActive,
+      this.createdAt});
 
   Vehicle.fromJson(Map<String, dynamic> json) {
     model = json['model'] != null ? Model.fromJson(json['model']) : null;
@@ -336,16 +339,17 @@ class Model {
   int? isActive;
   String? createdAt;
 
-  Model({this.id,
-    this.name,
-    this.seatCapacity,
-    this.maximumWeight,
-    this.hatchBagCapacity,
-    this.engine,
-    this.description,
-    this.image,
-    this.isActive,
-    this.createdAt});
+  Model(
+      {this.id,
+      this.name,
+      this.seatCapacity,
+      this.maximumWeight,
+      this.hatchBagCapacity,
+      this.engine,
+      this.description,
+      this.image,
+      this.isActive,
+      this.createdAt});
 
   Model.fromJson(Map<String, dynamic> json) {
     id = json['id'];

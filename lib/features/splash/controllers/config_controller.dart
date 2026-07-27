@@ -9,6 +9,7 @@ class ConfigController extends GetxController implements GetxService {
   ConfigController({required this.configServiceInterface});
 
   ConfigModel? _config;
+
   ConfigModel? get config => _config;
 
   bool loading = false;
@@ -76,6 +77,7 @@ class ConfigController extends GetxController implements GetxService {
   }
 
   String? _pusherConnectionStatus;
+
   String? get pusherConnectionStatus => _pusherConnectionStatus;
 
   void setPusherStatus(String? connection) {

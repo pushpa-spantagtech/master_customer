@@ -15,9 +15,7 @@ class ImageDialogWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       elevation: 0,
-      backgroundColor: Theme
-          .of(context)
-          .cardColor,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10.0))),
       titlePadding: const EdgeInsets.all(0),
@@ -39,14 +37,13 @@ class ImageDialogWidget extends StatelessWidget {
               child: Column(children: [
                 title != null
                     ? Text(title!,
-                    style: textMedium.copyWith(
-                        color: Theme
-                            .of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .color!
-                            .withValues(alpha: 0.7),
-                        fontSize: Dimensions.fontSizeDefault))
+                        style: textMedium.copyWith(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .color!
+                                .withValues(alpha: 0.7),
+                            fontSize: Dimensions.fontSizeDefault))
                     : const SizedBox.shrink(),
                 SizedBox(
                   height: title != null ? Dimensions.paddingSizeDefault : 0,
@@ -55,10 +52,7 @@ class ImageDialogWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     color:
-                    Theme
-                        .of(context)
-                        .primaryColor
-                        .withValues(alpha: 0.20),
+                        Theme.of(context).primaryColor.withValues(alpha: 0.20),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
@@ -66,19 +60,12 @@ class ImageDialogWidget extends StatelessWidget {
                       placeholder: Images.placeholder,
                       image: imageUrl,
                       fit: BoxFit.contain,
-                      imageErrorBuilder: (c, o, s) =>
-                          Image.asset(
-                            Images.placeholder,
-                            height: MediaQuery
-                                .of(context)
-                                .size
-                                .width - 130,
-                            width: MediaQuery
-                                .of(context)
-                                .size
-                                .width,
-                            fit: BoxFit.cover,
-                          ),
+                      imageErrorBuilder: (c, o, s) => Image.asset(
+                        Images.placeholder,
+                        height: MediaQuery.of(context).size.width - 130,
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
@@ -87,18 +74,17 @@ class ImageDialogWidget extends StatelessWidget {
                 ),
                 subTitle != null
                     ? Text(
-                  subTitle!,
-                  style: textMedium.copyWith(
-                    color: Theme
-                        .of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .color!
-                        .withValues(alpha: 0.5),
-                    fontSize: Dimensions.fontSizeDefault,
-                  ),
-                  textAlign: TextAlign.justify,
-                )
+                        subTitle!,
+                        style: textMedium.copyWith(
+                          color: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .color!
+                              .withValues(alpha: 0.5),
+                          fontSize: Dimensions.fontSizeDefault,
+                        ),
+                        textAlign: TextAlign.justify,
+                      )
                     : const SizedBox.shrink(),
                 const SizedBox(height: Dimensions.paddingSizeDefault),
               ]),

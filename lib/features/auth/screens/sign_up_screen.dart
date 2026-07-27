@@ -48,7 +48,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
 
     Get.find<AuthController>().countryDialCode = CountryCode.fromCountryCode(
-        Get.find<ConfigController>().config!.countryCode!)
+            Get.find<ConfigController>().config!.countryCode!)
         .dialCode!;
   }
 
@@ -148,7 +148,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             inputAction: TextInputAction.next,
                             onCountryChanged: (CountryCode countryCode) {
                               authController.countryDialCode =
-                              countryCode.dialCode!;
+                                  countryCode.dialCode!;
                               authController
                                   .setCountryCode(countryCode.dialCode!);
                             },
@@ -189,7 +189,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     scale: 1,
                                     child: Checkbox(
                                       materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
+                                          MaterialTapTargetSize.shrinkWrap,
                                       visualDensity: VisualDensity.compact,
                                       checkColor: const Color.fromRGBO(
                                           255, 255, 255, 1),
@@ -200,7 +200,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         color: Theme.of(context).hintColor,
                                       ),
                                       activeColor:
-                                      const Color.fromRGBO(250, 173, 2, 1),
+                                          const Color.fromRGBO(250, 173, 2, 1),
                                       value: authController.isTermsAccepted,
                                       onChanged: (value) {
                                         authController.toggleTermsAccepted(
@@ -216,7 +216,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   style: textMedium.copyWith(
                                     fontSize: Dimensions.fontSizeDefault,
                                     color:
-                                    const Color.fromRGBO(20, 20, 20, 0.7),
+                                        const Color.fromRGBO(20, 20, 20, 0.7),
                                   ),
                                 ),
                                 GestureDetector(
@@ -229,7 +229,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     style: textMedium.copyWith(
                                       fontSize: Dimensions.fontSizeDefault,
                                       color:
-                                      const Color.fromRGBO(250, 173, 2, 1),
+                                          const Color.fromRGBO(250, 173, 2, 1),
                                       letterSpacing: 0,
                                     ),
                                   ),
@@ -240,93 +240,93 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           const SizedBox(height: Dimensions.paddingSizeSmall),
                           authController.isLoading
                               ? const Center(
-                              child: SpinKitCircle(
-                                  color: Color.fromRGBO(250, 173, 2, 1),
-                                  size: 40.0))
+                                  child: SpinKitCircle(
+                                      color: Color.fromRGBO(250, 173, 2, 1),
+                                      size: 40.0))
                               : ButtonWidget(
-                            buttonText: 'register'.tr,
-                            textColor:
-                            const Color.fromRGBO(255, 255, 255, 1),
-                            borderColor:
-                            const Color.fromRGBO(255, 128, 128, 0.2),
-                            backgroundColor:
-                            const Color.fromRGBO(250, 173, 2, 1),
-                            fontSize: 18.0,
-                            onPressed: () {
-                              String fName = fNameController.text.trim();
-                              String lName = lNameController.text.trim();
-                              String phone = phoneController.text.trim();
-                              String password =
-                              passwordController.text.trim();
-                              String confirmPassword =
-                              confirmPasswordController.text.trim();
+                                  buttonText: 'register'.tr,
+                                  textColor:
+                                      const Color.fromRGBO(255, 255, 255, 1),
+                                  borderColor:
+                                      const Color.fromRGBO(255, 128, 128, 0.2),
+                                  backgroundColor:
+                                      const Color.fromRGBO(250, 173, 2, 1),
+                                  fontSize: 18.0,
+                                  onPressed: () {
+                                    String fName = fNameController.text.trim();
+                                    String lName = lNameController.text.trim();
+                                    String phone = phoneController.text.trim();
+                                    String password =
+                                        passwordController.text.trim();
+                                    String confirmPassword =
+                                        confirmPasswordController.text.trim();
 
-                              if (fName.isEmpty) {
-                                showCustomSnackBar(
-                                    'first_name_is_required'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(fNameNode);
-                              } else if (lName.isEmpty) {
-                                showCustomSnackBar(
-                                    'last_name_is_required'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(lNameNode);
-                              } else if (phone.isEmpty) {
-                                showCustomSnackBar(
-                                    'Please enter your mobile number'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(phoneNode);
-                              } else if (phone.length != 10) {
-                                showCustomSnackBar(
-                                    'Please enter a valid 10-digit mobile number.');
-                                FocusScope.of(context)
-                                    .requestFocus(phoneNode);
-                              } else if (!GetUtils.isPhoneNumber(
-                                  authController.countryDialCode +
-                                      phone)) {
-                                showCustomSnackBar(
-                                    'Please enter a valid mobile number.');
-                                FocusScope.of(context)
-                                    .requestFocus(phoneNode);
-                              } else if (password.isEmpty) {
-                                showCustomSnackBar(
-                                    'password_is_required'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(passwordNode);
-                              } else if (password.length < 8) {
-                                showCustomSnackBar(
-                                    'minimum_password_length_is_8'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(passwordNode);
-                              } else if (confirmPassword.isEmpty) {
-                                showCustomSnackBar(
-                                    'confirm_password_is_required'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(confirmPasswordNode);
-                              } else if (password != confirmPassword) {
-                                showCustomSnackBar(
-                                    'password_is_mismatch'.tr);
-                                FocusScope.of(context)
-                                    .requestFocus(confirmPasswordNode);
-                              } else if (!authController
-                                  .isTermsAccepted) {
-                                showCustomSnackBar(
-                                  'Please read and accept the Terms & Conditions before registering.',
-                                );
-                                return;
-                              } else {
-                                authController.register(SignUpBody(
-                                    fName: fName,
-                                    lName: lName,
-                                    phone:
-                                    authController.countryDialCode +
-                                        phone,
-                                    password: password,
-                                    confirmPassword: confirmPassword,
-                                    userType: AppConstants.customerType));
-                              }
-                            },
-                          ),
+                                    if (fName.isEmpty) {
+                                      showCustomSnackBar(
+                                          'first_name_is_required'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(fNameNode);
+                                    } else if (lName.isEmpty) {
+                                      showCustomSnackBar(
+                                          'last_name_is_required'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(lNameNode);
+                                    } else if (phone.isEmpty) {
+                                      showCustomSnackBar(
+                                          'Please enter your mobile number'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(phoneNode);
+                                    } else if (phone.length != 10) {
+                                      showCustomSnackBar(
+                                          'Please enter a valid 10-digit mobile number.');
+                                      FocusScope.of(context)
+                                          .requestFocus(phoneNode);
+                                    } else if (!GetUtils.isPhoneNumber(
+                                        authController.countryDialCode +
+                                            phone)) {
+                                      showCustomSnackBar(
+                                          'Please enter a valid mobile number.');
+                                      FocusScope.of(context)
+                                          .requestFocus(phoneNode);
+                                    } else if (password.isEmpty) {
+                                      showCustomSnackBar(
+                                          'password_is_required'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(passwordNode);
+                                    } else if (password.length < 8) {
+                                      showCustomSnackBar(
+                                          'minimum_password_length_is_8'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(passwordNode);
+                                    } else if (confirmPassword.isEmpty) {
+                                      showCustomSnackBar(
+                                          'confirm_password_is_required'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(confirmPasswordNode);
+                                    } else if (password != confirmPassword) {
+                                      showCustomSnackBar(
+                                          'password_is_mismatch'.tr);
+                                      FocusScope.of(context)
+                                          .requestFocus(confirmPasswordNode);
+                                    } else if (!authController
+                                        .isTermsAccepted) {
+                                      showCustomSnackBar(
+                                        'Please read and accept the Terms & Conditions before registering.',
+                                      );
+                                      return;
+                                    } else {
+                                      authController.register(SignUpBody(
+                                          fName: fName,
+                                          lName: lName,
+                                          phone:
+                                              authController.countryDialCode +
+                                                  phone,
+                                          password: password,
+                                          confirmPassword: confirmPassword,
+                                          userType: AppConstants.customerType));
+                                    }
+                                  },
+                                ),
                           const SizedBox(height: Dimensions.paddingSizeSmall),
                         ],
                       ),

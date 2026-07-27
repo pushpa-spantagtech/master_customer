@@ -19,26 +19,28 @@ class ProfileMenuItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(children: [
       SizedBox(
-          child: ListTile(
-            minTileHeight: 52, // default is around 72
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
+        child: ListTile(
+          minTileHeight: 52,
+          // default is around 72
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+          ),
+          leading: Image.asset(
+            icon,
+            width: 20,
+            height: 20,
+            fit: BoxFit.cover,
+            color: const Color.fromRGBO(250, 173, 2, 1),
+          ),
+          title: Text(
+            title.tr,
+            style: textMedium.copyWith(
+              color: Theme.of(context).textTheme.bodyLarge!.color,
             ),
-            leading: Image.asset(
-              icon,
-              width: 20,
-              height: 20,
-              fit: BoxFit.cover,
-              color: const Color.fromRGBO(250, 173, 2, 1),
-            ),
-            title: Text(
-              title.tr,
-              style: textMedium.copyWith(
-                color: Theme.of(context).textTheme.bodyLarge!.color,
-              ),
-            ),
-            onTap: onTap,
-          ),),
+          ),
+          onTap: onTap,
+        ),
+      ),
       divider
           ? const Divider(color: Color.fromRGBO(0, 0, 0, 0.2), thickness: 1)
           : const SizedBox(),

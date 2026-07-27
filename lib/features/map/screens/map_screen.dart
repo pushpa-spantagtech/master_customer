@@ -1,9 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
 import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
@@ -174,180 +175,180 @@ class _MapScreenState extends State<MapScreen> {
                   child: ExpandableBottomSheet(
                     key: key,
                     background: Stack(
-                    children: [
-                          Padding(
-                            padding: EdgeInsets.only(
-                              bottom: 0,
-                            ),
-                            child: GoogleMap(
-                              zoomGesturesEnabled: true,
-                              scrollGesturesEnabled: true,
-                              rotateGesturesEnabled: false,
-                              tiltGesturesEnabled: false,
-                              compassEnabled: false,
-                              myLocationEnabled: true,
-                              myLocationButtonEnabled: false,
-                              style: Get.isDarkMode
-                                  ? Get.find<ThemeController>().darkMap
-                                  : Get.find<ThemeController>().lightMap,
-                              initialCameraPosition: CameraPosition(
-                                target: _rideController
-                                            .tripDetails?.pickupCoordinates !=
-                                        null
-                                    ? LatLng(
-                                            _rideController.tripDetails!
-                                            .pickupCoordinates!.coordinates![1],
-                                            _rideController.tripDetails!
-                                            .pickupCoordinates!.coordinates![0],
-                                      )
-                                    : Get.find<LocationController>()
-                                        .initialPosition,
-                                zoom: 16,
-                              ),
-                              onCameraMove: (CameraPosition position) {
-                                _lastCameraTarget = position.target;
-                              },
-                              onCameraIdle: () async {
-                                // IMPORTANT:
-                                // Do not update pickup/source location here.
-                                // Camera movement should only store the last visible map center.
-                                // Pickup must change only from search/current-location/confirm-location actions.
-                                if (_lastCameraTarget == null) return;
-
-                                print(
-                                    "MAP CAMERA IDLE LAT = ${_lastCameraTarget!.latitude}");
-                                print(
-                                    "MAP CAMERA IDLE LNG = ${_lastCameraTarget!.longitude}");
-                              },
-                              onMapCreated: (GoogleMapController controller) {
-                                mapController.mapController = controller;
-                                if (Get.find<RideController>()
-                                            .currentRideState
-                                            .name ==
-                                        'findingRider' ||
-                                    Get.find<RideController>()
-                                            .currentRideState
-                                            .name ==
-                                        'riseFare') {
-                                  Get.find<MapController>().initializeData();
-                                  Get.find<MapController>()
-                                      .setOwnCurrentLocation();
-                                } else if (Get.find<RideController>()
-                                        .currentRideState
-                                        .name ==
-                                    'initial') {
-                                  mapController.getPolyline();
-                                } else if (Get.find<RideController>()
-                                        .currentRideState
-                                        .name ==
-                                    'completeRide') {
-                                  Get.find<MapController>().initializeData();
-                                } else {
-                                  Get.find<MapController>().initializeData();
-                                  Get.find<MapController>()
-                                      .setMarkersInitialPosition();
-                                }
-                                _mapController = controller;
-                              },
-                              minMaxZoomPreference: const MinMaxZoomPreference(
-                                0,
-                                AppConstants.mapZoom,
-                              ),
-                              markers: Set<Marker>.of(mapController.markers),
-                              polylines: Set<Polyline>.of(
-                                  mapController.polylines.values),
-                              zoomControlsEnabled: false,
-                              trafficEnabled: mapController.isTrafficEnable,
-                              indoorViewEnabled: true,
-                              mapToolbarEnabled: true,
-                            ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: 0,
                           ),
+                          child: GoogleMap(
+                            zoomGesturesEnabled: true,
+                            scrollGesturesEnabled: true,
+                            rotateGesturesEnabled: false,
+                            tiltGesturesEnabled: false,
+                            compassEnabled: false,
+                            myLocationEnabled: true,
+                            myLocationButtonEnabled: false,
+                            style: Get.isDarkMode
+                                ? Get.find<ThemeController>().darkMap
+                                : Get.find<ThemeController>().lightMap,
+                            initialCameraPosition: CameraPosition(
+                              target: _rideController
+                                          .tripDetails?.pickupCoordinates !=
+                                      null
+                                  ? LatLng(
+                                      _rideController.tripDetails!
+                                          .pickupCoordinates!.coordinates![1],
+                                      _rideController.tripDetails!
+                                          .pickupCoordinates!.coordinates![0],
+                                    )
+                                  : Get.find<LocationController>()
+                                      .initialPosition,
+                              zoom: 16,
+                            ),
+                            onCameraMove: (CameraPosition position) {
+                              _lastCameraTarget = position.target;
+                            },
+                            onCameraIdle: () async {
+                              // IMPORTANT:
+                              // Do not update pickup/source location here.
+                              // Camera movement should only store the last visible map center.
+                              // Pickup must change only from search/current-location/confirm-location actions.
+                              if (_lastCameraTarget == null) return;
 
-                          // A subtle map shade makes the floating header readable
-                          // without hiding the map.
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: 150,
-                            child: IgnorePointer(
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.white.withOpacity(0.92),
-                                      Colors.white.withOpacity(0.0),
-                                    ],
-                                  ),
+                              print(
+                                  "MAP CAMERA IDLE LAT = ${_lastCameraTarget!.latitude}");
+                              print(
+                                  "MAP CAMERA IDLE LNG = ${_lastCameraTarget!.longitude}");
+                            },
+                            onMapCreated: (GoogleMapController controller) {
+                              mapController.mapController = controller;
+                              if (Get.find<RideController>()
+                                          .currentRideState
+                                          .name ==
+                                      'findingRider' ||
+                                  Get.find<RideController>()
+                                          .currentRideState
+                                          .name ==
+                                      'riseFare') {
+                                Get.find<MapController>().initializeData();
+                                Get.find<MapController>()
+                                    .setOwnCurrentLocation();
+                              } else if (Get.find<RideController>()
+                                      .currentRideState
+                                      .name ==
+                                  'initial') {
+                                mapController.getPolyline();
+                              } else if (Get.find<RideController>()
+                                      .currentRideState
+                                      .name ==
+                                  'completeRide') {
+                                Get.find<MapController>().initializeData();
+                              } else {
+                                Get.find<MapController>().initializeData();
+                                Get.find<MapController>()
+                                    .setMarkersInitialPosition();
+                              }
+                              _mapController = controller;
+                            },
+                            minMaxZoomPreference: const MinMaxZoomPreference(
+                              0,
+                              AppConstants.mapZoom,
+                            ),
+                            markers: Set<Marker>.of(mapController.markers),
+                            polylines: Set<Polyline>.of(
+                                mapController.polylines.values),
+                            zoomControlsEnabled: false,
+                            trafficEnabled: mapController.isTrafficEnable,
+                            indoorViewEnabled: true,
+                            mapToolbarEnabled: true,
+                          ),
+                        ),
+
+                        // A subtle map shade makes the floating header readable
+                        // without hiding the map.
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: 150,
+                          child: IgnorePointer(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.white.withValues(alpha: 0.92),
+                                    Colors.white.withValues(alpha: 0.0),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
+                        ),
 
-                          Positioned(
-                            top: MediaQuery.of(context).padding.top + 10,
-                            left: 16,
-                            right: 16,
-                            child: _PremiumMapHeader(onBack: _handleBack),
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top + 10,
+                          left: 16,
+                          right: 16,
+                          child: _PremiumMapHeader(onBack: _handleBack),
+                        ),
+
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top + 84,
+                          left: 18,
+                          child: _LocationPill(
+                            text: Get.find<LocationController>()
+                                    .fromAddress
+                                    ?.address ??
+                                'current_location'.tr,
                           ),
+                        ),
 
+                        if (widget.isShowCurrentPosition)
                           Positioned(
-                            top: MediaQuery.of(context).padding.top + 84,
-                            left: 18,
-                            child: _LocationPill(
-                              text: Get.find<LocationController>()
-                                      .fromAddress
-                                      ?.address ??
-                                  'current_location'.tr,
-                            ),
-                          ),
-
-                          if (widget.isShowCurrentPosition)
-                            Positioned(
-                              bottom: mapController.sheetHeight + 18,
-                              right: 18,
-                              child: GetBuilder<LocationController>(
-                                builder: (locationController) {
-                                  return _MapCircleButton(
-                                    icon: Icons.my_location_rounded,
-                                    color: _brandGold,
-                                    onTap: _moveToCurrentLocation,
-                                  );
-                                },
-                              ),
-                            ),
-                          Positioned(
-                            bottom: mapController.sheetHeight + 76,
+                            bottom: mapController.sheetHeight + 18,
                             right: 18,
-                            child: _MapCircleButton(
-                              icon: mapController.isTrafficEnable
-                                  ? Icons.traffic_rounded
-                                  : Icons.traffic_outlined,
-                              color: mapController.isTrafficEnable
-                                  ? _brandRed
-                                  : Colors.black54,
-                              onTap: () => mapController.toggleTrafficView(),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: mapController.sheetHeight + 134,
-                            right: 18,
-                            child: _MapCircleButton(
-                              icon: Icons.local_offer_outlined,
-                              color: _brandRed,
-                              onTap: () {
-                                Get.bottomSheet(
-                                  const DiscountAndCouponBottomSheet(),
-                                  backgroundColor: Theme.of(context).cardColor,
-                                  isDismissible: false,
+                            child: GetBuilder<LocationController>(
+                              builder: (locationController) {
+                                return _MapCircleButton(
+                                  icon: Icons.my_location_rounded,
+                                  color: _brandGold,
+                                  onTap: _moveToCurrentLocation,
                                 );
                               },
                             ),
                           ),
-                        ],
-                     ),
+                        Positioned(
+                          bottom: mapController.sheetHeight + 76,
+                          right: 18,
+                          child: _MapCircleButton(
+                            icon: mapController.isTrafficEnable
+                                ? Icons.traffic_rounded
+                                : Icons.traffic_outlined,
+                            color: mapController.isTrafficEnable
+                                ? _brandRed
+                                : Colors.black54,
+                            onTap: () => mapController.toggleTrafficView(),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: mapController.sheetHeight + 134,
+                          right: 18,
+                          child: _MapCircleButton(
+                            icon: Icons.local_offer_outlined,
+                            color: _brandRed,
+                            onTap: () {
+                              Get.bottomSheet(
+                                const DiscountAndCouponBottomSheet(),
+                                backgroundColor: Theme.of(context).cardColor,
+                                isDismissible: false,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                     persistentContentHeight: mapController.sheetHeight,
                     expandableContent: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -414,12 +415,12 @@ class _PremiumMapHeader extends StatelessWidget {
       height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.94),
+        color: Colors.white.withValues(alpha: 0.94),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.white),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -519,7 +520,7 @@ class _MapCircleButton extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.14),
+                color: Colors.black.withValues(alpha: 0.14),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -543,11 +544,11 @@ class _LocationPill extends StatelessWidget {
       constraints: BoxConstraints(maxWidth: Get.width * 0.74),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.92),
+        color: Colors.white.withValues(alpha: 0.92),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),

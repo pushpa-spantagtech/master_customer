@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
+import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
-import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 
 class ProductDetailsWidget extends StatefulWidget {
   const ProductDetailsWidget({super.key});

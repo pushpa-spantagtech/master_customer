@@ -1,16 +1,17 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
-import 'dart:async';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:ride_sharing_user_app/helper/di_container.dart' as di;
 import 'package:ride_sharing_user_app/helper/notification_helper.dart';
 import 'package:ride_sharing_user_app/helper/responsive_helper.dart';
-import 'package:ride_sharing_user_app/helper/di_container.dart' as di;
 import 'package:ride_sharing_user_app/helper/route_helper.dart';
 import 'package:ride_sharing_user_app/localization/localization_controller.dart';
 import 'package:ride_sharing_user_app/localization/messages.dart';

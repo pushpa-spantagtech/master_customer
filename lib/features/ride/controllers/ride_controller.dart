@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/data/api_checker.dart';
-import 'package:ride_sharing_user_app/data/api_client.dart';
 import 'package:ride_sharing_user_app/features/map/screens/map_screen.dart';
 import 'package:ride_sharing_user_app/features/parcel/domain/models/parcel_estimated_fare_model.dart';
 import 'package:ride_sharing_user_app/features/payment/screens/payment_screen.dart';
@@ -44,6 +43,7 @@ enum RideType { car, bike, parcel, luxury }
 class RideController extends GetxController implements GetxService {
   final RideServiceInterface rideServiceInterface;
   bool _arrivalSent = false;
+
   RideController({required this.rideServiceInterface});
 
   RideState currentRideState = RideState.initial;
@@ -89,7 +89,7 @@ class RideController extends GetxController implements GetxService {
   TripDetails? get currentTripDetails => tripDetails;
 
   TextEditingController inputFarePriceController =
-  TextEditingController(text: '0.00');
+      TextEditingController(text: '0.00');
   TextEditingController noteController = TextEditingController();
 
   void initData() {
@@ -198,7 +198,7 @@ class RideController extends GetxController implements GetxService {
   void setRideCategoryIndex(int newIndex) {
     rideCategoryIndex = newIndex;
     categoryName =
-    Get.find<CategoryController>().categoryList![rideCategoryIndex].id!;
+        Get.find<CategoryController>().categoryList![rideCategoryIndex].id!;
 
     if (fareList.isNotEmpty) {
       for (int i = 0; i < fareList.length; i++) {
@@ -281,20 +281,20 @@ class RideController extends GetxController implements GetxService {
       extraTwo: locController.extraTwoRoute,
       extraOneLatLng: locController.extraRouteAddress != null
           ? LatLng(
-        locController.extraRouteAddress!.latitude!,
-        locController.extraRouteAddress!.longitude!,
-      )
+              locController.extraRouteAddress!.latitude!,
+              locController.extraRouteAddress!.longitude!,
+            )
           : null,
       extraTwoLatLng: locController.extraRouteTwoAddress != null
           ? LatLng(
-        locController.extraRouteTwoAddress!.latitude!,
-        locController.extraRouteTwoAddress!.longitude!,
-      )
+              locController.extraRouteTwoAddress!.latitude!,
+              locController.extraRouteTwoAddress!.longitude!,
+            )
           : null,
       parcelWeight: Get.find<ParcelController>().parcelWeightController.text,
       parcelCategoryId: parcel
           ? parcelController
-          .parcelCategoryList![parcelController.selectedParcelCategory].id
+              .parcelCategoryList![parcelController.selectedParcelCategory].id
           : '',
     );
 
@@ -309,7 +309,7 @@ class RideController extends GetxController implements GetxService {
       if (parcel) {
         parcelEstimatedFare = ParcelEstimatedFare.fromJson(response.body);
         encodedPolyLine =
-        ParcelEstimatedFare.fromJson(response.body).data!.encodedPolyline!;
+            ParcelEstimatedFare.fromJson(response.body).data!.encodedPolyline!;
         parcelFare = ParcelEstimatedFare.fromJson(response.body)
             .data!
             .estimatedFare!
@@ -319,7 +319,7 @@ class RideController extends GetxController implements GetxService {
         fareList.addAll(EstimatedFareModel.fromJson(response.body).data!);
         setRideCategoryIndex(rideCategoryIndex != 0 ? rideCategoryIndex : 0);
         setRideCategoryIndex(rideCategoryIndex != 0 ? rideCategoryIndex : 0);
-        encodedPolyLine = fareList[rideCategoryIndex].polyline!;
+        encodedPolyLine = fareList[rideCategoryIndex].polyline ?? '';
         if (encodedPolyLine != '' && encodedPolyLine.isNotEmpty) {
           //   Get.find<MapController>().getPolyline();
         }
@@ -350,7 +350,7 @@ class RideController extends GetxController implements GetxService {
 
     if (isOutstationRide) {
       Response fareResponse =
-      await rideServiceInterface.calculateOutstationFare(
+          await rideServiceInterface.calculateOutstationFare(
         vehicleType: outstationVehicle,
         distanceKm: double.tryParse(estimatedDistance) ?? 0,
       );
@@ -370,13 +370,13 @@ class RideController extends GetxController implements GetxService {
     Address pickUpPosition = parcel
         ? locController.parcelSenderAddress!
         : tripDetails == null
-        ? locController.fromAddress!
-        : Address();
+            ? locController.fromAddress!
+            : Address();
     Address destinationPosition = parcel
         ? locController.parcelReceiverAddress!
         : tripDetails == null
-        ? locController.toAddress!
-        : Address();
+            ? locController.toAddress!
+            : Address();
 
     if (!parcel && finalVehicleCategoryId.isEmpty) {
       showCustomSnackBar('Please select a vehicle category', isError: true);
@@ -387,7 +387,7 @@ class RideController extends GetxController implements GetxService {
     }
 
     final FareModel? finalSelectedType =
-    _getFareByCategoryId(finalVehicleCategoryId);
+        _getFareByCategoryId(finalVehicleCategoryId);
 
     debugPrint('CREATE RIDE vehicle_category_id => $finalVehicleCategoryId');
     if (isLocalRide) {
@@ -397,6 +397,7 @@ class RideController extends GetxController implements GetxService {
         waitingMinutes: 0,
         tripTime: DateTime.now().toString(),
       );
+      debugPrint("LOCAL FARE RESPONSE => ${fareResponse.body}");
       if (fareResponse.statusCode == 200 &&
           fareResponse.body['status'] == true) {
         localFare = double.parse(
@@ -429,41 +430,42 @@ class RideController extends GetxController implements GetxService {
         type: parcel ? 'parcel' : 'ride_request',
         pickupAddress: parcel
             ? Get.find<ParcelController>().senderAddressController.text
-            : tripDetails == null
-            ? locController.fromAddress!.address.toString()
-            : tripDetails!.pickupAddress!,
+            : tripDetails?.pickupAddress ??
+                locController.fromAddress?.address ??
+                '',
         destinationAddress: parcel
             ? Get.find<ParcelController>().receiverAddressController.text
             : locController.toAddress?.address ??
-            tripDetails!.destinationAddress!,
+                tripDetails?.destinationAddress ??
+                '',
         // vehicleCategoryId: parcel ? categoryId : selectedCategoryId,
         estimatedDistance: parcel
             ? parcelEstimatedFare!.data!.estimatedDistance!.toString()
             : estimatedDistance,
         estimatedTime: parcel
             ? parcelEstimatedFare!.data!.estimatedDuration!
-            .replaceFirst('min', '')
+                .replaceFirst('min', '')
             : estimatedDuration,
         estimatedFare: parcel
             ? parcelFare
             : isLocalRide
-            ? localFare.toString()
-            : isOutstationRide
-            ? outstationFare.toString()
-            : isRentalRide
-            ? rentalPackageFare.toString()
-            : estimatedFare.toString(),
+                ? localFare.toString()
+                : isOutstationRide
+                    ? outstationFare.toString()
+                    : isRentalRide
+                        ? rentalPackageFare.toString()
+                        : estimatedFare.toString(),
         actualFare: parcel
             ? parcelFare
             : isLocalRide
-            ? localFare.toString()
-            : isOutstationRide
-            ? outstationFare.toString()
-            : isRentalRide
-            ? rentalPackageFare.toString()
-            : estimatedFare != actualFare
-            ? actualFare.toString()
-            : estimatedFare.toString(),
+                ? localFare.toString()
+                : isOutstationRide
+                    ? outstationFare.toString()
+                    : isRentalRide
+                        ? rentalPackageFare.toString()
+                        : estimatedFare != actualFare
+                            ? actualFare.toString()
+                            : estimatedFare.toString(),
         bid: parcel ? false : estimatedFare != actualFare,
         note: note,
         paymentMethod: Get.find<PaymentController>()
@@ -471,9 +473,11 @@ class RideController extends GetxController implements GetxService {
         encodedPolyline: parcel
             ? encodedPolyLine
             : finalSelectedType?.polyline ??
-            (fareList.isNotEmpty
-                ? fareList[rideCategoryIndex].polyline!
-                : ''),
+                (fareList.isNotEmpty &&
+                        rideCategoryIndex >= 0 &&
+                        rideCategoryIndex < fareList.length
+                    ? fareList[rideCategoryIndex].polyline ?? ''
+                    : ''),
         middleAddress: [
           locController.extraRouteAddress?.address ?? '',
           locController.extraRouteTwoAddress?.address ?? ''
@@ -497,24 +501,20 @@ class RideController extends GetxController implements GetxService {
         areaId: parcel
             ? ''
             : finalSelectedType?.areaId ??
-            (fareList.isNotEmpty
-                ? fareList[rideCategoryIndex].areaId ?? ''
-                : ''),
+                (fareList.isNotEmpty
+                    ? fareList[rideCategoryIndex].areaId ?? ''
+                    : ''),
         senderName: Get.find<ParcelController>().senderNameController.text,
         senderPhone: Get.find<ParcelController>().senderContactController.text,
         senderAddress:
-        Get.find<ParcelController>().senderAddressController.text,
+            Get.find<ParcelController>().senderAddressController.text,
         receiverName: Get.find<ParcelController>().receiverNameController.text,
         receiverPhone:
-        Get.find<ParcelController>().receiverContactController.text,
+            Get.find<ParcelController>().receiverContactController.text,
         receiverAddress:
-        Get.find<ParcelController>().receiverAddressController.text,
-        parcelCategoryId: parcel
-            ? Get.find<ParcelController>()
-            .parcelCategoryList![
-        Get.find<ParcelController>().selectedParcelCategory]
-            .id
-            : '',
+            Get.find<ParcelController>().receiverAddressController.text,
+        parcelCategoryId:
+            parcel ? Get.find<ParcelController>().parcelCategoryList![Get.find<ParcelController>().selectedParcelCategory].id : '',
         payer: Get.find<ParcelController>().payReceiver ? 'receiver' : "sender",
         weight: Get.find<ParcelController>().parcelWeightController.text,
         tripRequestId: parcel ? null : tripDetails?.id);
@@ -523,7 +523,7 @@ class RideController extends GetxController implements GetxService {
       biddingList = [];
       tripDetails = TripDetailsModel.fromJson(response.body).data!;
       tripDetails!.id = response.body['data']['id'];
-      encodedPolyLine = tripDetails!.encodedPolyline!;
+      encodedPolyLine = tripDetails?.encodedPolyline ?? '';
       if (encodedPolyLine != '' && encodedPolyLine.isNotEmpty) {
         //  Get.find<MapController>().getPolyline();
       }
@@ -575,7 +575,7 @@ class RideController extends GetxController implements GetxService {
 
       estimatedDistance = tripDetails!.estimatedDistance!.toString();
       isLoading = false;
-      encodedPolyLine = tripDetails!.encodedPolyline!;
+      encodedPolyLine = tripDetails?.encodedPolyline ?? '';
     } else {
       print("❌ GET RIDE DETAILS FAILED");
       print(response.statusCode);
@@ -667,8 +667,11 @@ class RideController extends GetxController implements GetxService {
       String currentRideStatus = tripDetails!.currentStatus!;
       encodedPolyLine = tripDetails!.encodedPolyline ?? '';
 
+      // Draw the saved pickup-to-destination route immediately from the
+      // current-ride response. Previously this call was commented out, so the
+      // API returned encoded_polyline but the customer map never rendered it.
       if (encodedPolyLine.isNotEmpty) {
-        // Get.find<MapController>().getPolyline();
+        await Get.find<MapController>().getPolyline();
       }
 
       if (currentRideStatus == AppConstants.accepted ||
@@ -749,7 +752,16 @@ class RideController extends GetxController implements GetxService {
       }
     }
 
-    update();
+    // During the 5-second background poll, the map and driver marker are
+    // updated separately by MapController. Rebuilding every RideController
+    // listener here refreshes the complete map/bottom-sheet screen.
+    //
+    // Ride-state changes are still rebuilt by updateRideCurrentState(), and
+    // completion/cancellation still navigate normally.
+    if (!fromRefresh) {
+      update();
+    }
+
     return response;
   }
 
@@ -776,29 +788,77 @@ class RideController extends GetxController implements GetxService {
     print(response.body);
     print("=============================================");
     if (response.statusCode == 200) {
-      Get.find<MapController>().getDriverToPickupOrDestinationPolyline(
-          response.body[0]["encoded_polyline"],
-          mapBound: mapBound);
+      final dynamic responseData = response.body;
+
       remainingDistanceModel = [];
-      for (var distance in response.body) {
-        remainingDistanceModel!.add(RemainingDistanceModel.fromJson(distance));
+
+      if (responseData is List && responseData.isNotEmpty) {
+        for (final item in responseData) {
+          if (item is Map<String, dynamic>) {
+            remainingDistanceModel!.add(
+              RemainingDistanceModel.fromJson(item),
+            );
+          }
+        }
+
+        final dynamic driveRoute = responseData.firstWhere(
+          (item) =>
+              item is Map &&
+              item['drive_mode']?.toString().toUpperCase() == 'DRIVE',
+          orElse: () => responseData.first,
+        );
+
+        final String routePolyline =
+            driveRoute['encoded_polyline']?.toString() ?? '';
+
+        if (routePolyline.isNotEmpty) {
+          await Get.find<MapController>()
+              .getDriverToPickupOrDestinationPolyline(
+            routePolyline,
+            mapBound: mapBound,
+          );
+        } else {
+          debugPrint(
+            'REMAINING DISTANCE: API returned empty route polyline',
+          );
+        }
+
+        final double routeDistance =
+            (driveRoute['distance'] as num?)?.toDouble() ?? 0;
+
+        if (routeDistance > 0) {
+          estimatedDistance = routeDistance.toStringAsFixed(2);
+        }
       }
 
       if (Get.find<MapController>().isInside &&
           tripDetails != null &&
           currentRideState == RideState.acceptingRider) {
-        currentRideState = RideState.otpSent;
+        updateRideCurrentState(RideState.otpSent);
       }
+
       if (Get.find<MapController>().isInside &&
           Get.find<ParcelController>().currentParcelState ==
               ParcelDeliveryState.acceptRider) {
-        Get.find<ParcelController>()
-            .updateParcelState(ParcelDeliveryState.otpSent);
+        Get.find<ParcelController>().updateParcelState(
+          ParcelDeliveryState.otpSent,
+        );
       }
+
+      final String tripId = tripDetails?.id?.toString() ?? '';
+
       if (!_arrivalSent &&
-          Get.find<MapController>().isInside) {
+          Get.find<MapController>().isInside &&
+          tripId.isNotEmpty) {
         _arrivalSent = true;
-        arrivalPickupPoint(tripDetails!.id!);
+
+        try {
+          await arrivalPickupPoint(tripId);
+        } catch (e, stackTrace) {
+          _arrivalSent = false;
+          debugPrint('ARRIVAL PICKUP ERROR => $e');
+          debugPrintStack(stackTrace: stackTrace);
+        }
       }
     } else {
       ApiChecker.checkApi(response);
@@ -879,7 +939,10 @@ class RideController extends GetxController implements GetxService {
         if (tripDetails != null &&
             (tripDetails?.currentStatus == 'accepted' ||
                 tripDetails?.currentStatus == 'ongoing')) {
-          await remainingDistance(tripDetails!.id!, mapBound: true);
+          await remainingDistance(
+            tripDetails!.id!,
+            mapBound: Get.find<MapController>().polylines.isEmpty,
+          );
         }
       }
     });
@@ -898,7 +961,8 @@ class RideController extends GetxController implements GetxService {
       );
 
       if (tripDetails != null &&
-          tripDetails?.currentStatus == 'accepted' &&
+          (tripDetails?.currentStatus == 'accepted' ||
+              tripDetails?.currentStatus == 'ongoing') &&
           currentRideState != RideState.otpSent) {
         await remainingDistance(tripDetails!.id!);
       } else if (tripDetails == null ||
@@ -918,7 +982,7 @@ class RideController extends GetxController implements GetxService {
     isLoading = true;
     update();
     Response response =
-    await rideServiceInterface.tripAcceptOrReject(tripId, type, driverId);
+        await rideServiceInterface.tripAcceptOrReject(tripId, type, driverId);
     if (response.statusCode == 200) {
       biddingList = [];
       showCustomSnackBar('trip_is_accepted'.tr, isError: false);
@@ -1041,10 +1105,10 @@ class RideController extends GetxController implements GetxService {
 
       _findingStateAnimation =
           Timer.periodic(const Duration(minutes: 1), (time) {
-            firstCount = 1;
-            stateCount = 1;
-            countingTimeStates();
-          });
+        firstCount = 1;
+        stateCount = 1;
+        countingTimeStates();
+      });
     }
 
     if (stateCount == 1) {
@@ -1057,10 +1121,10 @@ class RideController extends GetxController implements GetxService {
 
       _findingStateAnimation =
           Timer.periodic(const Duration(minutes: 1), (time) {
-            secondCount = 1;
-            stateCount = 2;
-            countingTimeStates();
-          });
+        secondCount = 1;
+        stateCount = 2;
+        countingTimeStates();
+      });
     }
 
     if (stateCount == 2) {
@@ -1073,11 +1137,11 @@ class RideController extends GetxController implements GetxService {
 
       _findingStateAnimation =
           Timer.periodic(const Duration(minutes: 3), (time) {
-            thirdCount = 1;
-            stateCount = 3;
-            update();
-            _findingStateAnimation?.cancel();
-          });
+        thirdCount = 1;
+        stateCount = 3;
+        update();
+        _findingStateAnimation?.cancel();
+      });
     }
 
     if (stateCount == 3) {
@@ -1195,9 +1259,9 @@ class RideController extends GetxController implements GetxService {
   }
 
   double calculateOutstationFare(
-      OutstationTariff tariff,
-      double distance,
-      ) {
+    OutstationTariff tariff,
+    double distance,
+  ) {
     final baseKm = tariff.baseKm ?? 0;
     final baseFare = double.tryParse(tariff.baseFare ?? '0') ?? 0;
     final extraPerKm = double.tryParse(tariff.extraPerKm ?? '0') ?? 0;
@@ -1234,7 +1298,7 @@ class RideController extends GetxController implements GetxService {
       rentalPackages = [];
       for (var item in hourlyTariffs) {
         if (!rentalPackages.any(
-              (e) => e['free_hours'] == item['free_hours'],
+          (e) => e['free_hours'] == item['free_hours'],
         )) {
           rentalPackages.add(item);
         }

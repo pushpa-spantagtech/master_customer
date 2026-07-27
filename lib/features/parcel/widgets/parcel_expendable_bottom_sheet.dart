@@ -5,14 +5,14 @@ import 'package:ride_sharing_user_app/features/map/widget/parcel_accept_rider_wi
 import 'package:ride_sharing_user_app/features/map/widget/parcel_info_details_widget.dart';
 import 'package:ride_sharing_user_app/features/map/widget/parcel_ongoing_bottomsheet_widget.dart';
 import 'package:ride_sharing_user_app/features/map/widget/parcel_otp_bottomsheet_widget.dart';
+import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/choose_effificent_vehicle_widget.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/finding_rider_widget.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/parcel_details_input_view.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/sender_receiver_info_widget.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/features/ride/widgets/rise_fare_widget.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
-import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 
 class ParcelExpendableBottomSheet extends StatefulWidget {
   final GlobalKey<ExpandableBottomSheetState> expandableKey;

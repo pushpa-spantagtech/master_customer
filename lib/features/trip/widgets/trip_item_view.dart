@@ -235,16 +235,16 @@ class _TripRoute extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
+        const SizedBox(
           width: 20,
           child: Column(
             children: [
-              const SizedBox(height: 2),
-              const _PickupPointIcon(),
-              const SizedBox(height: 3),
-              const _RouteLine(),
-              const SizedBox(height: 3),
-              const Icon(
+              SizedBox(height: 2),
+              _PickupPointIcon(),
+              SizedBox(height: 3),
+              _RouteLine(),
+              SizedBox(height: 3),
+              Icon(
                 Icons.location_on_rounded,
                 size: 18,
                 color: Color(0xFFE74C3C),

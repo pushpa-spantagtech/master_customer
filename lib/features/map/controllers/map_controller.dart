@@ -6,14 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'dart:math' as math;
 
 class MapController extends GetxController implements GetxService {
-  Set<Marker>? nearestDeliveryManMarkers;
+  Set<Marker>? nearestDeliveryManMarkers = <Marker>{};
   bool _isLoading = false;
   Map<PolylineId, Polyline> polylines = {};
   Set<Marker> markers = HashSet<Marker>();
@@ -21,6 +20,11 @@ class MapController extends GetxController implements GetxService {
   Uint8List? _cachedCarIcon;
   Uint8List? _cachedBikeIcon;
   List<LatLng> _polylineCoordinateList = [];
+
+  // Prevent the same pickup-to-destination route from being rebuilt and
+  // rebound every 5 seconds when ride status polling returns unchanged data.
+  String _lastMainRoutePolyline = '';
+
   bool isTrafficEnable = false;
 
   bool get isLoading => _isLoading;
@@ -34,6 +38,7 @@ class MapController extends GetxController implements GetxService {
   void initializeData() {
     markers = {};
     polylines = {};
+    _lastMainRoutePolyline = '';
     _isLoading = false;
   }
 
@@ -66,24 +71,31 @@ class MapController extends GetxController implements GetxService {
   }
 
   Future<void> getPolyline() async {
-    if (Get.find<RideController>().encodedPolyLine.isNotEmpty) {
-      List<LatLng> polylineCoordinates = [];
-      List<LatLng> result =
-      decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
-      if (result.isNotEmpty) {
-        for (var point in result) {
-          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-        }
-        _addPolyLine(polylineCoordinates);
-        _polylineCoordinateList = polylineCoordinates;
+    final String encoded = Get.find<RideController>().encodedPolyLine.trim();
 
-        setFromToMarker(
-            LatLng(result[0].latitude, result[0].longitude),
-            LatLng(result[result.length - 1].latitude,
-                result[result.length - 1].longitude),
-            latLongList: _polylineCoordinateList);
-      }
+    if (encoded.isEmpty) return;
+
+    // ride-resume-status is called every 5 seconds. Do not rebuild the same
+    // route, clear markers, or refit the camera when nothing changed.
+    if (_lastMainRoutePolyline == encoded && polylines.isNotEmpty) {
+      return;
     }
+
+    final List<LatLng> result = decodeEncodedPolyline(encoded);
+    if (result.isEmpty) return;
+
+    final List<LatLng> polylineCoordinates =
+        result.map((point) => LatLng(point.latitude, point.longitude)).toList();
+
+    _lastMainRoutePolyline = encoded;
+    _polylineCoordinateList = polylineCoordinates;
+    _addPolyLine(polylineCoordinates);
+
+    await setFromToMarker(
+      polylineCoordinates.first,
+      polylineCoordinates.last,
+      latLongList: polylineCoordinates,
+    );
   }
 
   List<LatLng> decodeEncodedPolyline(String encoded) {
@@ -116,25 +128,68 @@ class MapController extends GetxController implements GetxService {
     return poly;
   }
 
-  void _addPolyLine(List<LatLng> polylineCoordinates) {
-    const PolylineId id = PolylineId('poly');
-    polylines[id] = Polyline(
-      polylineId: id,
-      points: polylineCoordinates,
-      width: 4,
-      color: const Color(0xB2FF0000),
-    );
+  void _addPolyLine(List<LatLng> coordinates) {
+    if (coordinates.length < 2) {
+      polylines = {};
+      return;
+    }
+
+    // Same three-color route format used in the driver app.
+    final List<Color> routeColors = [
+      const Color(0xFFE71921),
+      const Color(0xFFFF9800),
+      const Color(0xFFFFC107),
+    ];
+
+    final Map<PolylineId, Polyline> updatedPolylines = {};
+    final int sectionSize =
+        math.max(2, (coordinates.length / routeColors.length).ceil());
+
+    for (int index = 0; index < routeColors.length; index++) {
+      final int startIndex = index * sectionSize;
+
+      if (startIndex >= coordinates.length - 1) {
+        break;
+      }
+
+      final int endIndex = math.min(
+        startIndex + sectionSize,
+        coordinates.length - 1,
+      );
+
+      final List<LatLng> sectionPoints = coordinates.sublist(
+        startIndex,
+        endIndex + 1,
+      );
+
+      final PolylineId id = PolylineId('route_section_$index');
+
+      updatedPolylines[id] = Polyline(
+        polylineId: id,
+        points: sectionPoints,
+        width: 5,
+        color: routeColors[index],
+        geodesic: true,
+        startCap: index == 0 ? Cap.roundCap : Cap.buttCap,
+        endCap: index == routeColors.length - 1 ? Cap.roundCap : Cap.buttCap,
+        jointType: JointType.round,
+        zIndex: 20,
+      );
+    }
+
+    // Assign once so GoogleMap receives one clean polyline update.
+    polylines = updatedPolylines;
   }
 
   Future<void> searchDeliveryMen() async {
     final Uint8List carMarkerIcon =
-    await convertAssetToUnit8List(Images.carTop, width: 40);
+        await convertAssetToUnit8List(Images.carTop, width: 40);
     final Uint8List bikeMarkerIcon =
-    await convertAssetToUnit8List(Images.bikeTop, width: 40);
+        await convertAssetToUnit8List(Images.bikeTop, width: 40);
     nearestDeliveryManMarkers = {};
     for (int i = 0;
-    i < Get.find<RideController>().nearestDriverList.length;
-    i++) {
+        i < Get.find<RideController>().nearestDriverList.length;
+        i++) {
       MarkerId markerId = MarkerId('rider_$i');
       nearestDeliveryManMarkers!.add(Marker(
         markerId: markerId,
@@ -150,7 +205,7 @@ class MapController extends GetxController implements GetxService {
                 Get.find<RideController>().nearestDriverList[i].longitude!)),
         icon: BitmapDescriptor.fromBytes(
             Get.find<RideController>().nearestDriverList[i].category ==
-                'motor_bike'
+                    'motor_bike'
                 ? bikeMarkerIcon
                 : carMarkerIcon),
       ));
@@ -167,18 +222,18 @@ class MapController extends GetxController implements GetxService {
     }
   }
 
-  void setFromToMarker(
-      LatLng from,
-      LatLng to, {
-        bool isBound = true,
-        required List<LatLng> latLongList,
-      }) async {
+  Future<void> setFromToMarker(
+    LatLng from,
+    LatLng to, {
+    bool isBound = true,
+    required List<LatLng> latLongList,
+  }) async {
     markers = HashSet();
 
     Uint8List fromMarker =
-    await convertAssetToUnit8List(Images.mapIcon, width: 50);
+        await convertAssetToUnit8List(Images.mapIcon, width: 50);
     Uint8List toMarker =
-    await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
+        await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
 
     markers.add(Marker(
       markerId: const MarkerId('from'),
@@ -327,7 +382,7 @@ class MapController extends GetxController implements GetxService {
 
   void setOwnCurrentLocation() async {
     markers.removeWhere(
-          (marker) => marker.markerId.value == "my_location",
+      (marker) => marker.markerId.value == "my_location",
     );
 
     update();
@@ -364,17 +419,16 @@ class MapController extends GetxController implements GetxService {
   // }
 
   Future<void> getDriverToPickupOrDestinationPolyline(
-      String lines, {
-        bool mapBound = false,
-      }) async {
+    String lines, {
+    bool mapBound = false,
+  }) async {
     if (lines.isEmpty) return;
 
     final List<LatLng> result = decodeEncodedPolyline(lines);
     if (result.isEmpty) return;
 
-    final List<LatLng> polylineCoordinates = result
-        .map((point) => LatLng(point.latitude, point.longitude))
-        .toList();
+    final List<LatLng> polylineCoordinates =
+        result.map((point) => LatLng(point.latitude, point.longitude)).toList();
 
     final RideController rideController = Get.find<RideController>();
 
@@ -391,8 +445,8 @@ class MapController extends GetxController implements GetxService {
 
     if (rideController.currentRideState == RideState.ongoingRide) {
       markers.removeWhere(
-            (marker) =>
-        marker.markerId.value == 'from' ||
+        (marker) =>
+            marker.markerId.value == 'from' ||
             marker.markerId.value == 'my_location',
       );
     }
@@ -419,9 +473,9 @@ class MapController extends GetxController implements GetxService {
 
     if (liveLocation?.latitude != null && liveLocation?.longitude != null) {
       final double? latitude =
-      double.tryParse(liveLocation!.latitude.toString());
+          double.tryParse(liveLocation!.latitude.toString());
       final double? longitude =
-      double.tryParse(liveLocation.longitude.toString());
+          double.tryParse(liveLocation.longitude.toString());
 
       if (latitude != null && longitude != null) {
         driverPosition = LatLng(latitude, longitude);
@@ -433,10 +487,9 @@ class MapController extends GetxController implements GetxService {
 
     if (isCar) {
       _cachedCarIcon ??=
-      await convertAssetToUnit8List(Images.carTop, width: 55);
+          await convertAssetToUnit8List(Images.carTop, width: 55);
     } else {
-      _cachedBikeIcon ??=
-      await convertAssetToUnit8List(Images.bike, width: 55);
+      _cachedBikeIcon ??= await convertAssetToUnit8List(Images.bike, width: 55);
     }
 
     final BitmapDescriptor icon = BitmapDescriptor.fromBytes(
@@ -444,11 +497,11 @@ class MapController extends GetxController implements GetxService {
     );
 
     markers.removeWhere(
-          (marker) => marker.markerId.value == 'driverPosition',
+      (marker) => marker.markerId.value == 'driverPosition',
     );
 
     final LatLng bearingTarget =
-    latLngList.length > 1 ? latLngList[1] : driverPosition;
+        latLngList.length > 1 ? latLngList[1] : driverPosition;
 
     markers.add(
       Marker(
@@ -465,7 +518,7 @@ class MapController extends GetxController implements GetxService {
 
     print(
       'LIVE DRIVER = '
-          '${driverPosition.latitude}, ${driverPosition.longitude}',
+      '${driverPosition.latitude}, ${driverPosition.longitude}',
     );
     print('MARKER UPDATED');
   }
@@ -493,7 +546,7 @@ class MapController extends GetxController implements GetxService {
     if (Get.find<RideController>().encodedPolyLine.isEmpty) return;
 
     final List<LatLng> routePoints =
-    decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
+        decodeEncodedPolyline(Get.find<RideController>().encodedPolyLine);
 
     if (routePoints.isEmpty) return;
 
@@ -512,14 +565,14 @@ class MapController extends GetxController implements GetxService {
 
   Future<void> _setOngoingDestinationMarker(LatLng destination) async {
     markers.removeWhere(
-          (marker) =>
-      marker.markerId.value == 'from' ||
+      (marker) =>
+          marker.markerId.value == 'from' ||
           marker.markerId.value == 'to' ||
           marker.markerId.value == 'my_location',
     );
 
     final Uint8List toMarker =
-    await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
+        await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
 
     markers.add(
       Marker(
@@ -528,7 +581,7 @@ class MapController extends GetxController implements GetxService {
         anchor: const Offset(0.5, 0.5),
         infoWindow: InfoWindow(
           title:
-          Get.find<RideController>().tripDetails?.destinationAddress ?? '',
+              Get.find<RideController>().tripDetails?.destinationAddress ?? '',
           snippet: 'destination'.tr,
         ),
         icon: BitmapDescriptor.fromBytes(toMarker),
@@ -539,9 +592,9 @@ class MapController extends GetxController implements GetxService {
   }
 
   Future<void> boundMapScreen(
-      LatLng startingPoint,
-      LatLng endingPoint,
-      ) async {
+    LatLng startingPoint,
+    LatLng endingPoint,
+  ) async {
     await fitRouteToScreen([startingPoint, endingPoint]);
   }
 

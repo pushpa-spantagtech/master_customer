@@ -69,15 +69,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 child: PaginatedListWidget(
                   scrollController: scrollController,
                   totalSize:
-                  notificationController.notificationModel!.totalSize,
+                      notificationController.notificationModel!.totalSize,
                   offset:
-                  notificationController.notificationModel!.offset != null
-                      ? int.tryParse(
-                    notificationController
-                        .notificationModel!.offset
-                        .toString(),
-                  )
-                      : null,
+                      notificationController.notificationModel!.offset != null
+                          ? int.tryParse(
+                              notificationController.notificationModel!.offset
+                                  .toString(),
+                            )
+                          : null,
                   onPaginate: (int? offset) async {
                     if (offset != null) {
                       await notificationController.getNotificationList(offset);

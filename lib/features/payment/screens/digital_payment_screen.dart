@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -6,13 +7,13 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/common_widgets/animated_dialog_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/digital_payment_dialog.dart';
+import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:ride_sharing_user_app/features/map/screens/map_screen.dart';
 import 'package:ride_sharing_user_app/features/payment/screens/payment_screen.dart';
 import 'package:ride_sharing_user_app/features/payment/screens/review_screen.dart';
-import 'package:ride_sharing_user_app/util/app_constants.dart';
-import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
+import 'package:ride_sharing_user_app/util/app_constants.dart';
 
 class DigitalPaymentScreen extends StatefulWidget {
   final String tripId;

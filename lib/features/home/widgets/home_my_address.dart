@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/features/address/controllers/address_controller.dart';
+import 'package:ride_sharing_user_app/features/address/screens/add_new_address.dart';
 import 'package:ride_sharing_user_app/features/address/widgets/address_item_card.dart';
 import 'package:ride_sharing_user_app/features/home/widgets/address_shimmer.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/address/controllers/address_controller.dart';
-import 'package:ride_sharing_user_app/features/address/screens/add_new_address.dart';
 
 enum AddressPage { home, sender, receiver }
 

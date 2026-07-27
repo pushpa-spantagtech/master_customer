@@ -1,15 +1,15 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
+import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
+import 'package:ride_sharing_user_app/features/wallet/controllers/wallet_controller.dart';
 import 'package:ride_sharing_user_app/features/wallet/widget/point_to_wallet_money_widget.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/helper/price_converter.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
-import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
-import 'package:ride_sharing_user_app/features/wallet/controllers/wallet_controller.dart';
 
 class WalletMoneyAmountWidget extends StatelessWidget {
   final bool walletMoney;

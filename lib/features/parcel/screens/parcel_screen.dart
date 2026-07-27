@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/features/map/screens/map_screen.dart';
-import 'package:ride_sharing_user_app/features/parcel/widgets/dotted_border_card.dart';
-import 'package:ride_sharing_user_app/features/parcel/widgets/parcel_category_screen.dart';
-import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
-import 'package:ride_sharing_user_app/helper/display_helper.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/features/home/widgets/banner_view.dart';
-import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
-import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
-import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
-import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
+import 'package:ride_sharing_user_app/features/home/widgets/banner_view.dart';
+import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
+import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
+import 'package:ride_sharing_user_app/features/map/screens/map_screen.dart';
+import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
+import 'package:ride_sharing_user_app/features/parcel/widgets/dotted_border_card.dart';
+import 'package:ride_sharing_user_app/features/parcel/widgets/parcel_category_screen.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
+import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
+import 'package:ride_sharing_user_app/helper/display_helper.dart';
+import 'package:ride_sharing_user_app/util/dimensions.dart';
 
 class ParcelScreen extends StatefulWidget {
   const ParcelScreen({super.key});

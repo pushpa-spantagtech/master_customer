@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
+import 'package:ride_sharing_user_app/common_widgets/custom_text_field.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
+import 'package:ride_sharing_user_app/features/auth/widgets/test_field_title.dart';
+import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/parcel_category_screen.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
-import 'package:ride_sharing_user_app/features/auth/widgets/test_field_title.dart';
-import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
-import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
-import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
-import 'package:ride_sharing_user_app/common_widgets/custom_text_field.dart';
 
 class ParcelDetailInputView extends StatefulWidget {
   final GlobalKey<ExpandableBottomSheetState> expandableKey;

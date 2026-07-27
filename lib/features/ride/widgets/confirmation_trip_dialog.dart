@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_overlay_pro/loading_overlay_pro.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:loading_overlay_pro/loading_overlay_pro.dart';
 
 class ConfirmationTripDialog extends StatelessWidget {
   final bool isStartedTrip;

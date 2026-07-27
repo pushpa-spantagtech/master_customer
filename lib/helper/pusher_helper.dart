@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:dart_pusher_channels/dart_pusher_channels.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/features/auth/controllers/auth_controller.dart';

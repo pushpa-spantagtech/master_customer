@@ -1385,10 +1385,12 @@ class _ExtraRouteField extends StatelessWidget {
 class _AddStopsCard extends StatelessWidget {
   final int count;
   final List<Widget> children;
+
   const _AddStopsCard({
     required this.count,
     required this.children,
   });
+
   @override
   Widget build(BuildContext context) {
     return Container(

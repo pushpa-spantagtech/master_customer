@@ -113,9 +113,9 @@ class LocationController extends GetxController implements GetxService {
   final TextEditingController locationController = TextEditingController();
   final TextEditingController entranceController = TextEditingController();
   final TextEditingController pickupLocationController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController destinationLocationController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController extraRouteOneController = TextEditingController();
   final TextEditingController extraRouteTwoController = TextEditingController();
   final FocusNode entranceNode = FocusNode();
@@ -225,98 +225,146 @@ class LocationController extends GetxController implements GetxService {
 
   StreamSubscription? _locationSubscription;
 
-  Future<Address?> getCurrentLocation(
-      {bool isAnimate = true,
-        GoogleMapController? mapController,
-        LocationType type = LocationType.from}) async {
-    bool isSuccess = await checkPermission(() {});
-    Address? addressModel;
-    if (isSuccess) {
+  Future<Address?> getCurrentLocation({
+    bool isAnimate = true,
+    GoogleMapController? mapController,
+    LocationType type = LocationType.from,
+  }) async {
+    final bool permissionGranted = await checkPermission(() {});
+
+    if (!permissionGranted) {
+      debugPrint('GET CURRENT LOCATION: Permission not granted');
+      return null;
+    }
+
+    try {
+      await _locationSubscription?.cancel();
+      _locationSubscription = null;
+
+      final Position newLocalData = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      _position = newLocalData;
+      _initialPosition = LatLng(
+        newLocalData.latitude,
+        newLocalData.longitude,
+      );
+
+      // Rebuild location-dependent UI immediately after the GPS fix. Do not
+      // wait for zone lookup, reverse geocoding, or live-location storage.
+      update();
+
+      if (isAnimate && mapController != null) {
+        await mapController.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: _initialPosition,
+              zoom: 15,
+            ),
+          ),
+        );
+      }
+
+      if (type != LocationType.from) {
+        update();
+        return null;
+      }
+
+      _pickPosition = Position(
+        latitude: newLocalData.latitude,
+        longitude: newLocalData.longitude,
+        timestamp: DateTime.now(),
+        heading: newLocalData.heading,
+        accuracy: newLocalData.accuracy,
+        altitude: newLocalData.altitude,
+        speedAccuracy: newLocalData.speedAccuracy,
+        speed: newLocalData.speed,
+        altitudeAccuracy: newLocalData.altitudeAccuracy,
+        headingAccuracy: newLocalData.headingAccuracy,
+      );
+
+      final ZoneResponseModel zoneResponse = await getZone(
+        newLocalData.latitude.toString(),
+        newLocalData.longitude.toString(),
+        false,
+      );
+
+      debugPrint('CURRENT LOCATION ZONE SUCCESS: ${zoneResponse.isSuccess}');
+      debugPrint('CURRENT LOCATION ZONE ID: ${zoneResponse.zoneId}');
+
+      if (!zoneResponse.isSuccess ||
+          zoneResponse.zoneId == null ||
+          zoneResponse.zoneId!.isEmpty) {
+        debugPrint('GET CURRENT LOCATION: Zone not available');
+        return null;
+      }
+
+      String currentAddress = '';
+
       try {
-        if (_locationSubscription != null) {
-          _locationSubscription!.cancel();
-        }
-
-        Position newLocalData = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high);
-        _position = newLocalData;
-        _initialPosition = LatLng(_position.latitude, _position.longitude);
-        if (isAnimate && mapController != null) {
-          mapController.animateCamera(CameraUpdate.newCameraPosition(
-              CameraPosition(target: _initialPosition, zoom: 15)));
-        }
-        if (type == LocationType.from) {
-          _pickPosition = Position(
-              latitude: position.latitude,
-              longitude: position.longitude,
-              timestamp: DateTime.now(),
-              heading: 1,
-              accuracy: 1,
-              altitude: 1,
-              speedAccuracy: 1,
-              speed: 1,
-              altitudeAccuracy: 1,
-              headingAccuracy: 1);
-          //pushpa
-          ZoneResponseModel responseModel = await getZone(
-              _position.latitude.toString(),
-              _position.longitude.toString(),
-              false);
-          String address =
-          await initAddressAddressFromGeocode(_initialPosition);
-
-          if (responseModel.isSuccess && responseModel.zoneId != null) {
-            addressModel = Address(
-              latitude: newLocalData.latitude,
-              longitude: newLocalData.longitude,
-              address: address,
-              zoneId: responseModel.zoneId,
-            );
-            fromAddress = addressModel;
-          }
-        }
-
-        _locationSubscription =
-            Geolocator.getPositionStream(
-              locationSettings: const LocationSettings(
-                accuracy: LocationAccuracy.high,
-                distanceFilter: 10,
-              ),
-            ).listen((newLocalData) async {
-              // Live GPS updates must only update the user's current/live location.
-              // Do not update pickup/fromAddress here, otherwise the selected source
-              // can jump while the user is moving or while the map camera changes.
-              _position = newLocalData;
-              _initialPosition = LatLng(newLocalData.latitude, newLocalData.longitude);
-
-              if (mapController != null) {
-                Get.find<MapController>().updateMarkerAndCircle(
-                  latLng: LatLng(newLocalData.latitude, newLocalData.longitude),
-                );
-              }
-
-              await locationServiceInterface.storeLiveLocation(
-                newLocalData.latitude.toString(),
-                newLocalData.longitude.toString(),
-              );
-            });
-      } catch (e) {
-        if (kDebugMode) {
-          print(e);
-        }
+        currentAddress = await initAddressAddressFromGeocode(_initialPosition);
+      } catch (e, stackTrace) {
+        debugPrint('GEOCODE ERROR: $e');
+        debugPrintStack(stackTrace: stackTrace);
       }
-      if (mapController != null) {
-        mapController.animateCamera(CameraUpdate.newCameraPosition(
-          CameraPosition(
-              target:
-              LatLng(_initialPosition.latitude, _initialPosition.longitude),
-              zoom: 16),
-        ));
+
+      // Do not return null when the zone is valid but geocoding fails.
+      if (currentAddress.trim().isEmpty) {
+        currentAddress = '${newLocalData.latitude}, ${newLocalData.longitude}';
       }
+
+      final Address addressModel = Address(
+        latitude: newLocalData.latitude,
+        longitude: newLocalData.longitude,
+        addressLabel: 'others',
+        address: currentAddress,
+        zoneId: zoneResponse.zoneId,
+      );
+
+      fromAddress = addressModel;
+      pickupLocationController.text = currentAddress;
+
+      await locationServiceInterface.storeLiveLocation(
+        newLocalData.latitude.toString(),
+        newLocalData.longitude.toString(),
+      );
+
+      _locationSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 10,
+        ),
+      ).listen((Position livePosition) async {
+        _position = livePosition;
+        _initialPosition = LatLng(
+          livePosition.latitude,
+          livePosition.longitude,
+        );
+
+        if (mapController != null && Get.isRegistered<MapController>()) {
+          Get.find<MapController>().updateMarkerAndCircle(
+            latLng: LatLng(
+              livePosition.latitude,
+              livePosition.longitude,
+            ),
+          );
+        }
+
+        await locationServiceInterface.storeLiveLocation(
+          livePosition.latitude.toString(),
+          livePosition.longitude.toString(),
+        );
+      });
 
       update();
+      return addressModel;
+    } catch (e, stackTrace) {
+      debugPrint('GET CURRENT LOCATION ERROR: $e');
+      debugPrintStack(stackTrace: stackTrace);
+      update();
+      return null;
     }
-    return addressModel;
   }
 
   Future<LatLng?> getCurrentPosition(
@@ -354,6 +402,10 @@ class LocationController extends GetxController implements GetxService {
     update();
     ZoneResponseModel responseModel;
     Response response = await locationServiceInterface.getZone(lat, long);
+    debugPrint('========== GET ZONE ==========');
+    debugPrint('Status: ${response.statusCode}');
+    debugPrint('Body: ${response.body}');
+    debugPrint('==============================');
     String? zoneId;
     if (response.statusCode == 200 && response.body != null) {
       final body = response.body;
@@ -368,6 +420,8 @@ class LocationController extends GetxController implements GetxService {
     if (zoneId != null && zoneId.isNotEmpty) {
       _zoneID = zoneId;
       _inZone = true;
+      debugPrint('ZONE ID: $_zoneID');
+      debugPrint('IN ZONE: $_inZone');
       responseModel = ZoneResponseModel(true, '', _zoneID);
     } else {
       _inZone = false;
@@ -398,27 +452,49 @@ class LocationController extends GetxController implements GetxService {
   }
 
   Future<String> initAddressAddressFromGeocode(LatLng latLng) async {
-    Response response =
-    await locationServiceInterface.getAddressFromGeocode(latLng);
-    if (response.statusCode == 200) {
-      _address =
-          response.body['data']['results'][0]['formatted_address'].toString();
-      pickupLocationController.text = _address;
-      fromAddress = Address(
+    try {
+      final Response response =
+          await locationServiceInterface.getAddressFromGeocode(latLng);
+
+      debugPrint('GEOCODE STATUS: ${response.statusCode}');
+      debugPrint('GEOCODE BODY: ${response.body}');
+
+      if (response.statusCode == 200 &&
+          response.body is Map &&
+          response.body['data'] is Map &&
+          response.body['data']['results'] is List &&
+          (response.body['data']['results'] as List).isNotEmpty) {
+        final dynamic firstResult = response.body['data']['results'][0];
+
+        if (firstResult is Map && firstResult['formatted_address'] != null) {
+          _address = firstResult['formatted_address'].toString();
+        }
+      }
+
+      if (_address.trim().isNotEmpty) {
+        pickupLocationController.text = _address;
+
+        fromAddress = Address(
           latitude: latLng.latitude,
           longitude: latLng.longitude,
-          address: _address);
-    } else {
-      showCustomSnackBar(
-          response.body['errors'][0]['message'] ?? response.bodyString);
+          addressLabel: 'others',
+          address: _address,
+          zoneId: _zoneID,
+        );
+      }
+
+      update();
+      return _address;
+    } catch (e, stackTrace) {
+      debugPrint('INIT GEOCODE ERROR: $e');
+      debugPrintStack(stackTrace: stackTrace);
+      return '';
     }
-    update();
-    return _address;
   }
 
   Future<String> getAddressFromGeocode(LatLng latLng) async {
     Response response =
-    await locationServiceInterface.getAddressFromGeocode(latLng);
+        await locationServiceInterface.getAddressFromGeocode(latLng);
     if (response.statusCode == 200) {
       _address =
           response.body['data']['results'][0]['formatted_address'].toString();
@@ -612,11 +688,11 @@ class LocationController extends GetxController implements GetxService {
         extraRouteTwoAddress = address;
       } else if (type == LocationType.senderLocation) {
         Get.find<ParcelController>().senderAddressController.text =
-        address.address!;
+            address.address!;
         parcelSenderAddress = address;
       } else if (type == LocationType.receiverLocation) {
         Get.find<ParcelController>().receiverAddressController.text =
-        address.address!;
+            address.address!;
         parcelReceiverAddress = address;
       } else {
         _pickAddress = address.address!;
@@ -670,7 +746,7 @@ class LocationController extends GetxController implements GetxService {
     Response response = await locationServiceInterface.getPlaceDetails(placeID);
     if (response.statusCode == 200 && response.body['data']['status'] == 'OK') {
       PlaceDetailsModel placeDetails =
-      PlaceDetailsModel.fromJson(response.body);
+          PlaceDetailsModel.fromJson(response.body);
       latLng = LatLng(placeDetails.data!.result!.geometry!.location!.lat!,
           placeDetails.data!.result!.geometry!.location!.lng!);
 // pushpa

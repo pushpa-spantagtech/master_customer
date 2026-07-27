@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/features/message/controllers/message_controller.dart';
-import 'package:ride_sharing_user_app/features/message/domain/models/channel_model.dart';
-import 'package:ride_sharing_user_app/features/message/widget/message_item.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/features/notification/widgets/notification_shimmer.dart';
 import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/paginated_list_widget.dart';
+import 'package:ride_sharing_user_app/features/message/controllers/message_controller.dart';
+import 'package:ride_sharing_user_app/features/message/domain/models/channel_model.dart';
+import 'package:ride_sharing_user_app/features/message/widget/message_item.dart';
+import 'package:ride_sharing_user_app/features/notification/widgets/notification_shimmer.dart';
+import 'package:ride_sharing_user_app/util/dimensions.dart';
 
 class MessageListScreen extends StatefulWidget {
   const MessageListScreen({super.key});

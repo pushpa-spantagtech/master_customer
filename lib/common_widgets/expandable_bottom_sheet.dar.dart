@@ -269,9 +269,9 @@ class ExpandableBottomSheetState extends State<ExpandableBottomSheet>
     double contentHeight = _contentKey.currentContext!.size!.height;
 
     double checkedPersistentContentHeight =
-    (widget.persistentContentHeight < contentHeight)
-        ? widget.persistentContentHeight
-        : contentHeight;
+        (widget.persistentContentHeight < contentHeight)
+            ? widget.persistentContentHeight
+            : contentHeight;
 
     _minOffset =
         context.size!.height - headerHeight - contentHeight - footerHeight;

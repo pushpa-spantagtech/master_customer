@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/features/address/screens/my_address.dart';
 import 'package:ride_sharing_user_app/features/message/screens/message_list.dart';
 import 'package:ride_sharing_user_app/features/my_level/screens/my_level_screen.dart';
 import 'package:ride_sharing_user_app/features/my_offer/screens/my_offer_screen.dart';

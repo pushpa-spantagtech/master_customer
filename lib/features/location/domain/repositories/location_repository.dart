@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/data/api_client.dart';
+import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';
 import 'package:ride_sharing_user_app/features/location/domain/repositories/location_repository_interface.dart';
 import 'package:ride_sharing_user_app/util/app_constants.dart';
-import 'package:ride_sharing_user_app/features/address/domain/models/address_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationRepository implements LocationRepositoryInterface {

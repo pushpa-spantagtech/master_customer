@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
-import 'package:ride_sharing_user_app/common_widgets/swipable_button_widget/slider_button_widget.dart';
 import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
@@ -14,9 +12,8 @@ import 'package:ride_sharing_user_app/features/ride/widgets/estimated_fare_and_d
 import 'package:ride_sharing_user_app/features/trip/controllers/trip_controller.dart';
 import 'package:ride_sharing_user_app/features/trip/widgets/rider_details.dart';
 import 'package:ride_sharing_user_app/helper/price_converter.dart';
-import 'package:ride_sharing_user_app/util/images.dart';
-import 'package:ride_sharing_user_app/localization/localization_controller.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
+import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
 
 class OtpSentBottomSheet extends StatefulWidget {
@@ -183,7 +180,8 @@ class _OtpSentBottomSheetState extends State<OtpSentBottomSheet> {
                       backgroundColor: const Color(0xFFE71921),
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      padding: EdgeInsets.zero, // Remove default padding
+                      padding: EdgeInsets.zero,
+                      // Remove default padding
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       minimumSize: Size.zero,
                       shape: RoundedRectangleBorder(

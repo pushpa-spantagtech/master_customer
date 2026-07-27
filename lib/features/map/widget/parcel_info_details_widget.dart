@@ -4,9 +4,9 @@ import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/fare_input_widget.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/product_details_widget.dart';
-import 'package:ride_sharing_user_app/features/parcel/widgets/user_details_widget.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/route_widget.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/tolltip_widget.dart';
+import 'package:ride_sharing_user_app/features/parcel/widgets/user_details_widget.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/who_will_pay_button.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';

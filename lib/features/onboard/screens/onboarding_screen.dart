@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/features/auth/screens/sign_in_screen.dart';
 import 'package:ride_sharing_user_app/features/onboard/controllers/on_board_page_controller.dart';
 import 'package:ride_sharing_user_app/features/onboard/widget/pager_content.dart';
+import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:ride_sharing_user_app/util/app_constants.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/features/auth/screens/sign_in_screen.dart';
-import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 
 class OnBoardingScreen extends StatefulWidget {
   const OnBoardingScreen({super.key});

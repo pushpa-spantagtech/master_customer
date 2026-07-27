@@ -1,17 +1,17 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
+import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/map/widget/accepting_ongoing_bottomsheet.dart';
 import 'package:ride_sharing_user_app/features/map/widget/initial_widget.dart';
 import 'package:ride_sharing_user_app/features/map/widget/otp_sent_bottomsheet.dart';
 import 'package:ride_sharing_user_app/features/map/widget/risefare_bottomsheet.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/finding_rider_widget.dart';
-import 'package:ride_sharing_user_app/features/parcel/widgets/tolltip_widget.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/features/trip/widgets/rider_details.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
-import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
 
 class RideExpendableBottomSheet extends StatefulWidget {

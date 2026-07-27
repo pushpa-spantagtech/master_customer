@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
+import 'package:ride_sharing_user_app/common_widgets/custom_text_field.dart';
+import 'package:ride_sharing_user_app/features/location/view/access_location_screen.dart';
+import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
-import 'package:ride_sharing_user_app/features/location/view/access_location_screen.dart';
-import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
-import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
-import 'package:ride_sharing_user_app/common_widgets/custom_text_field.dart';
 
 class EditProfileAccountInfo extends StatefulWidget {
   final bool fromAccount;

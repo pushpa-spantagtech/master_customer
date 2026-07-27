@@ -63,7 +63,7 @@ class ActivityScreenRiderDetails extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 3),
                           ),
@@ -257,10 +257,10 @@ class _ActionButton extends StatelessWidget {
               isEnabled ? backgroundColor : colorScheme.surfaceContainerHighest,
           foregroundColor: isEnabled
               ? iconColor
-              : colorScheme.onSurfaceVariant.withOpacity(0.4),
+              : colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
           disabledBackgroundColor: colorScheme.surfaceContainerHighest,
           disabledForegroundColor:
-              colorScheme.onSurfaceVariant.withOpacity(0.4),
+              colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
           side: BorderSide(
             color: isEnabled ? borderColor : colorScheme.outlineVariant,
           ),

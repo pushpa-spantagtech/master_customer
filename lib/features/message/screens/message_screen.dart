@@ -1,20 +1,19 @@
 import 'dart:io';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/features/message/widget/message_bubble.dart';
-import 'package:ride_sharing_user_app/helper/display_helper.dart';
-import 'package:ride_sharing_user_app/localization/localization_controller.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/util/images.dart';
-import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/message/controllers/message_controller.dart';
-import 'package:ride_sharing_user_app/features/notification/widgets/notification_shimmer.dart';
 import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/no_data_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/paginated_list_widget.dart';
-import 'dart:math' as math;
+import 'package:ride_sharing_user_app/features/message/controllers/message_controller.dart';
+import 'package:ride_sharing_user_app/features/message/widget/message_bubble.dart';
+import 'package:ride_sharing_user_app/features/notification/widgets/notification_shimmer.dart';
+import 'package:ride_sharing_user_app/helper/display_helper.dart';
+import 'package:ride_sharing_user_app/localization/localization_controller.dart';
+import 'package:ride_sharing_user_app/util/dimensions.dart';
+import 'package:ride_sharing_user_app/util/styles.dart';
 
 class MessageScreen extends StatefulWidget {
   final String channelId;

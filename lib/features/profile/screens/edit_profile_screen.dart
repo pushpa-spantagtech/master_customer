@@ -1,16 +1,17 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ride_sharing_user_app/features/profile/widgets/edit_profile_account_info.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
-import 'package:ride_sharing_user_app/util/images.dart';
-import 'package:ride_sharing_user_app/util/styles.dart';
-import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
-import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
-import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:ride_sharing_user_app/common_widgets/app_bar_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/body_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/image_widget.dart';
+import 'package:ride_sharing_user_app/features/dashboard/controllers/bottom_menu_controller.dart';
+import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
+import 'package:ride_sharing_user_app/features/profile/widgets/edit_profile_account_info.dart';
+import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
+import 'package:ride_sharing_user_app/util/dimensions.dart';
+import 'package:ride_sharing_user_app/util/images.dart';
+import 'package:ride_sharing_user_app/util/styles.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final bool fromLogin;
