@@ -278,74 +278,107 @@ class _AcceptingAndOngoingBottomSheetState
                       ),
                       Expanded(
                           child: ButtonWidget(
-                              buttonText: 'submit'.tr,
-                              showBorder: true,
-                              transparent: true,
-                              fontSize: Dimensions.fontSizeDefault + 1,
-                              textColor: Get.isDarkMode
-                                  ? Colors.white
-                                  : const Color.fromRGBO(20, 20, 20, 1),
-                              borderColor: Theme.of(context).hintColor,
-                              radius: Dimensions.paddingSizeSmall,
-                              onPressed: () {
-                                if (rideController.currentRideState ==
-                                    RideState.acceptingRider) {
-                                  Get.find<RideController>()
-                                      .stopLocationRecord();
-                                  rideController
-                                      .tripStatusUpdate(
-                                          rideController.tripDetails!.id!,
-                                          'cancelled',
-                                          'ride_request_cancelled_successfully',
-                                          Get.find<TripController>()
-                                              .tripCancellationCauseList!
-                                              .data!
-                                              .acceptedRide![Get.find<
-                                                  TripController>()
-                                              .tripCancellationCauseCurrentIndex])
-                                      .then((value) {
-                                    if (value.statusCode == 200) {
-                                      Get.find<MapController>()
-                                          .notifyMapController();
-                                      Get.find<BottomMenuController>()
-                                          .navigateToDashboard();
-                                    }
-                                  });
-                                } else {
-                                  Get.find<TripController>()
-                                      .tripCancellationCauseList!
-                                      .data!
-                                      .ongoingRide = [
-                                    "Trip taking too long",
-                                    "Customer requested cancel"
-                                  ];
-                                  rideController
-                                      .tripStatusUpdate(
-                                          rideController.tripDetails!.id!,
-                                          'cancelled',
-                                          'ride_request_cancelled_successfully',
-                                          Get.find<TripController>()
-                                              .tripCancellationCauseList!
-                                              .data!
-                                              .ongoingRide![Get.find<
-                                                  TripController>()
-                                              .tripCancellationCauseCurrentIndex],
-                                          afterAccept: true)
-                                      .then((value) async {
-                                    if (value.statusCode == 200) {
-                                      Get.find<RideController>()
-                                          .updateRideCurrentState(
-                                              RideState.completeRide);
-                                      Get.find<MapController>()
-                                          .notifyMapController();
-                                      await Get.find<RideController>()
-                                          .getFinalFare(
-                                              rideController.tripDetails!.id!);
-                                      Get.offAll(() => const PaymentScreen());
-                                    }
-                                  });
-                                }
-                              })),
+                        buttonText: 'submit'.tr,
+                        showBorder: true,
+                        transparent: true,
+                        fontSize: Dimensions.fontSizeDefault + 1,
+                        textColor: Get.isDarkMode
+                            ? Colors.white
+                            : const Color.fromRGBO(20, 20, 20, 1),
+                        borderColor: Theme.of(context).hintColor,
+                        radius: Dimensions.paddingSizeSmall,
+                        onPressed: () async {
+                          final tripController = Get.find<TripController>();
+                          final tripDetails = rideController.tripDetails;
+                          final tripId = tripDetails?.id;
+
+                          if (tripId == null || tripId.isEmpty) {
+                            Get.snackbar(
+                              'Error',
+                              'Trip details are not available. Please try again.',
+                            );
+                            return;
+                          }
+
+                          final selectedIndex =
+                              tripController.tripCancellationCauseCurrentIndex;
+
+                          if (rideController.currentRideState ==
+                              RideState.acceptingRider) {
+                            final acceptedReasons = tripController
+                                .tripCancellationCauseList?.data?.acceptedRide;
+
+                            if (acceptedReasons == null ||
+                                acceptedReasons.isEmpty ||
+                                selectedIndex < 0 ||
+                                selectedIndex >= acceptedReasons.length) {
+                              Get.snackbar(
+                                'Error',
+                                'Please select a cancellation reason.',
+                              );
+                              return;
+                            }
+
+                            final selectedReason =
+                                acceptedReasons[selectedIndex];
+
+                            Get.find<RideController>().stopLocationRecord();
+
+                            final response =
+                                await rideController.tripStatusUpdate(
+                              tripId,
+                              'cancelled',
+                              'ride_request_cancelled_successfully',
+                              selectedReason,
+                            );
+
+                            if (response.statusCode == 200) {
+                              Get.find<MapController>().notifyMapController();
+                              Get.find<BottomMenuController>()
+                                  .navigateToDashboard();
+                            }
+                          } else {
+                            final ongoingReasons = <String>[
+                              'Trip taking too long',
+                              'Customer requested cancel',
+                            ];
+
+                            if (selectedIndex < 0 ||
+                                selectedIndex >= ongoingReasons.length) {
+                              Get.snackbar(
+                                'Error',
+                                'Please select a cancellation reason.',
+                              );
+                              return;
+                            }
+
+                            final selectedReason =
+                                ongoingReasons[selectedIndex];
+
+                            final response =
+                                await rideController.tripStatusUpdate(
+                              tripId,
+                              'cancelled',
+                              'ride_request_cancelled_successfully',
+                              selectedReason,
+                              afterAccept: true,
+                            );
+
+                            if (response.statusCode == 200) {
+                              Get.find<RideController>().updateRideCurrentState(
+                                RideState.completeRide,
+                              );
+
+                              Get.find<MapController>().notifyMapController();
+
+                              await Get.find<RideController>()
+                                  .getFinalFare(tripId);
+
+                              Get.offAll(() => const PaymentScreen());
+                            }
+                          }
+                        },
+                      )),
                     ],
                   )
                 ],
