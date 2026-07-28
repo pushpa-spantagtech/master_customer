@@ -6,6 +6,27 @@ import 'package:ride_sharing_user_app/common_widgets/country_picker_widget.dart'
 import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
 
+class PhoneNumberFormatter extends TextInputFormatter {
+  const PhoneNumberFormatter();
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    String digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (digits.length > 10) {
+      digits = digits.substring(digits.length - 10);
+    }
+
+    return TextEditingValue(
+      text: digits,
+      selection: TextSelection.collapsed(offset: digits.length),
+    );
+  }
+}
+
 class CustomTextField extends StatefulWidget {
   final String? label;
   final String? hintText;
@@ -143,10 +164,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
                                 : null,
         obscureText: widget.isPassword ? _obscureText : false,
         inputFormatters: widget.inputType == TextInputType.phone
-            ? <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(10),
-              ]
+            ? const <TextInputFormatter>[
+          PhoneNumberFormatter(),
+        ]
             : widget.isAmount
                 ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))]
                 : null,
