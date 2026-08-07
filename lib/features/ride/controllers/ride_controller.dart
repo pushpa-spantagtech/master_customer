@@ -606,82 +606,139 @@ class RideController extends GetxController implements GetxService {
 
   bool runningTrip = false;
 
-  Future<Response> getCurrentRideStatus(
-      {bool fromRefresh = false, bool navigateToMap = true}) async {
+  Future<Response> getCurrentRideStatus({
+    bool fromRefresh = false,
+    bool navigateToMap = true,
+  }) async {
     runningTrip = true;
 
     Response response = await rideServiceInterface.currentRideStatus();
 
     if (response.statusCode == 200 && response.body['data'] != null) {
       runningTrip = false;
-      print("========== DATA KEYS ==========");
-      print(response.body['data'].keys.toList());
-      print("===============================");
-
-      /// ===================== API RESPONSE =====================
-      print("========== FULL CURRENT RIDE API ==========");
-      print(response.body);
-      print("===========================================");
 
       tripDetails = TripDetailsModel.fromJson(response.body).data!;
 
-      /// ===================== DRIVER JSON =====================
-      print("========== DRIVER JSON FROM API ==========");
-      print(response.body['data']['driver']);
+      final String currentRideStatus =
+          tripDetails?.currentStatus?.toLowerCase() ?? '';
 
-      if (response.body['data']['driver'] != null) {
-        print("Driver ID      : ${response.body['data']['driver']['id']}");
-        print(
-            "First Name     : ${response.body['data']['driver']['first_name']}");
-        print(
-            "Last Name      : ${response.body['data']['driver']['last_name']}");
-        print("Phone          : ${response.body['data']['driver']['phone']}");
-        print(
-            "Profile Image  : ${response.body['data']['driver']['profile_image']}");
-      } else {
-        print("❌ DRIVER OBJECT IS NULL FROM API");
+      final String paymentStatus =
+          tripDetails?.paymentStatus?.toLowerCase() ?? '';
+
+      final String? tripId = tripDetails?.id;
+
+      debugPrint('========== CUSTOMER RIDE STATUS ==========');
+      debugPrint('Trip ID        : $tripId');
+      debugPrint('Status         : $currentRideStatus');
+      debugPrint('Payment Status : $paymentStatus');
+      debugPrint('==========================================');
+
+      /*
+     * ----------------------------------------------------------
+     * IMPORTANT:
+     * Handle completed ride BEFORE map/polyline processing.
+     * ----------------------------------------------------------
+     */
+      if (currentRideStatus == AppConstants.completed) {
+        stopLocationRecord();
+
+        updateRideCurrentState(RideState.completeRide);
+
+        /*
+       * Prevent Pusher + FCM + polling from navigating
+       * to PaymentScreen multiple times.
+       */
+        if (_completionNavigationInProgress) {
+          return response;
+        }
+
+        _completionNavigationInProgress = true;
+
+        try {
+          if (tripId != null && tripId.isNotEmpty) {
+            final fareResponse = await getFinalFare(tripId);
+
+            if (fareResponse.statusCode != 200) {
+              debugPrint(
+                'FINAL FARE FAILED: ${fareResponse.statusCode}',
+              );
+
+              /*
+             * Allow next poll / Pusher event to retry.
+             */
+              _completionNavigationInProgress = false;
+
+              return response;
+            }
+          }
+
+          if (Get.currentRoute != '/PaymentScreen') {
+            Get.off(() => const PaymentScreen());
+          }
+        } catch (e) {
+          debugPrint(
+            'COMPLETED RIDE NAVIGATION ERROR: $e',
+          );
+
+          _completionNavigationInProgress = false;
+        }
+
+        return response;
       }
 
-      /// ===================== MODEL DATA =====================
-      print("========== DRIVER MODEL ==========");
-      print("Driver Model   : ${tripDetails?.driver}");
-      print("Driver ID      : ${tripDetails?.driver?.id}");
-      print("First Name     : ${tripDetails?.driver?.firstName}");
-      print("Last Name      : ${tripDetails?.driver?.lastName}");
-      print("Phone          : ${tripDetails?.driver?.phone}");
-      print("Profile Image  : ${tripDetails?.driver?.profileImage}");
-      print("==================================");
+      /*
+     * ----------------------------------------------------------
+     * Cancelled ride
+     * ----------------------------------------------------------
+     */
+      if (currentRideStatus == AppConstants.cancelled) {
+        stopLocationRecord();
 
-      /// ===================== TRIP DATA =====================
-      print("========== CUSTOMER RIDE STATUS ==========");
-      print("Trip ID        : ${tripDetails?.id}");
-      print("Status         : ${tripDetails?.currentStatus}");
-      print("OTP            : ${tripDetails?.otp}");
-      print(
-          "Driver Live    : ${response.body['data']['driver_last_location']}");
-      print("Vehicle        : ${tripDetails?.vehicle?.model?.name}");
-      print("Vehicle No     : ${tripDetails?.vehicle?.licencePlateNumber}");
-      print("==========================================");
+        if (tripId != null && tripId.isNotEmpty) {
+          await getFinalFare(tripId);
+        }
 
-      estimatedDistance = tripDetails!.estimatedDistance!.toString();
-      String currentRideStatus = tripDetails!.currentStatus!;
-      encodedPolyLine = tripDetails!.encodedPolyline ?? '';
+        if (Get.currentRoute != '/PaymentScreen') {
+          Get.off(() => const PaymentScreen());
+        }
 
-      // Draw the saved pickup-to-destination route immediately from the
-      // current-ride response. Previously this call was commented out, so the
-      // API returned encoded_polyline but the customer map never rendered it.
-      if (encodedPolyLine.isNotEmpty) {
-        await Get.find<MapController>().getPolyline();
+        return response;
       }
 
+      /*
+     * Reset completion lock for a normal active trip.
+     */
+      _completionNavigationInProgress = false;
+
+      estimatedDistance =
+          tripDetails?.estimatedDistance?.toString() ?? '0';
+
+      encodedPolyLine = tripDetails?.encodedPolyline ?? '';
+
+      /*
+     * Map work happens only for active rides.
+     * Never make completed rides wait for this.
+     */
+      if ((currentRideStatus == AppConstants.accepted ||
+          currentRideStatus == AppConstants.ongoing ||
+          currentRideStatus == AppConstants.pending) &&
+          encodedPolyLine.isNotEmpty) {
+        try {
+          await Get.find<MapController>().getPolyline();
+        } catch (e) {
+          debugPrint('POLYLINE UPDATE ERROR: $e');
+        }
+      }
+
+      /*
+     * ----------------------------------------------------------
+     * Accepted / Ongoing
+     * ----------------------------------------------------------
+     */
       if (currentRideStatus == AppConstants.accepted ||
           currentRideStatus == AppConstants.ongoing) {
-        // The API continues to return `accepted` after the driver reaches
-        // the pickup point. `remainingDistance()` changes the local UI to
-        // `otpSent`. Do not downgrade it to `acceptingRider` on every
-        // polling cycle, otherwise the cancel section alternates between
-        // two different bottom sheets.
         final RideState nextRideState;
+
         if (currentRideStatus == AppConstants.ongoing) {
           nextRideState = RideState.ongoingRide;
         } else if (currentRideState == RideState.otpSent) {
@@ -692,6 +749,9 @@ class RideController extends GetxController implements GetxService {
 
         updateRideCurrentState(nextRideState);
 
+        /*
+       * Keep fallback polling running.
+       */
         if (_timer == null || !_timer!.isActive) {
           startLocationRecord();
         }
@@ -699,45 +759,73 @@ class RideController extends GetxController implements GetxService {
         Get.find<MapController>().notifyMapController();
 
         if (navigateToMap) {
-          final current = Get.currentRoute;
+          final String currentRoute = Get.currentRoute;
 
-          if (!current.contains('MapScreen')) {
+          if (!currentRoute.contains('MapScreen')) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Get.off(() => const MapScreen(fromScreen: MapScreenType.splash));
+              if (!Get.currentRoute.contains('MapScreen')) {
+                Get.off(
+                      () => const MapScreen(
+                    fromScreen: MapScreenType.splash,
+                  ),
+                );
+              }
             });
           }
         }
-      } else if (currentRideStatus == AppConstants.pending) {
-        Get.find<RideController>()
-            .updateRideCurrentState(RideState.findingRider);
+      }
 
-        Get.find<RideController>().getBiddingList(tripDetails!.id!, 1);
+      /*
+     * ----------------------------------------------------------
+     * Pending
+     * ----------------------------------------------------------
+     */
+      else if (currentRideStatus == AppConstants.pending) {
+        updateRideCurrentState(RideState.findingRider);
+
+        if (tripId != null && tripId.isNotEmpty) {
+          getBiddingList(tripId, 1);
+        }
 
         Get.find<MapController>().notifyMapController();
 
         if (navigateToMap) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.to(() => const MapScreen(fromScreen: MapScreenType.splash));
-          });
+          if (!Get.currentRoute.contains('MapScreen')) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!Get.currentRoute.contains('MapScreen')) {
+                Get.to(
+                      () => const MapScreen(
+                    fromScreen: MapScreenType.splash,
+                  ),
+                );
+              }
+            });
+          }
         }
-      } else if (currentRideStatus == AppConstants.completed ||
-          currentRideStatus == AppConstants.cancelled) {
-        await getFinalFare(tripDetails!.id!);
+      }
 
-        Get.off(() => const PaymentScreen());
-      } else {
+      /*
+     * ----------------------------------------------------------
+     * Unknown / inactive state
+     * ----------------------------------------------------------
+     */
+      else {
         if (Get.find<LocationController>().getUserAddress() != null) {
           if (!fromRefresh) {
-            Get.offAll(() => const DashboardScreen());
+            Get.offAll(
+                  () => const DashboardScreen(),
+            );
           }
         } else {
-          Get.offAll(() => const AccessLocationScreen());
+          Get.offAll(
+                () => const AccessLocationScreen(),
+          );
         }
       }
     } else {
-      print("❌ CURRENT RIDE API FAILED");
-      print(response.statusCode);
-      print(response.body);
+      debugPrint('CURRENT RIDE API FAILED');
+      debugPrint('Status Code: ${response.statusCode}');
+      debugPrint('Response: ${response.body}');
 
       runningTrip = false;
       tripDetails = null;
@@ -745,19 +833,21 @@ class RideController extends GetxController implements GetxService {
 
       if (Get.find<LocationController>().getUserAddress() != null) {
         if (!fromRefresh) {
-          Get.offAll(() => const DashboardScreen());
+          Get.offAll(
+                () => const DashboardScreen(),
+          );
         }
       } else {
-        Get.to(() => const AccessLocationScreen());
+        Get.offAll(
+              () => const AccessLocationScreen(),
+        );
       }
     }
 
-    // During the 5-second background poll, the map and driver marker are
-    // updated separately by MapController. Rebuilding every RideController
-    // listener here refreshes the complete map/bottom-sheet screen.
-    //
-    // Ride-state changes are still rebuilt by updateRideCurrentState(), and
-    // completion/cancellation still navigate normally.
+    /*
+   * Background polling must not unnecessarily rebuild
+   * the complete map.
+   */
     if (!fromRefresh) {
       update();
     }
@@ -924,6 +1014,7 @@ class RideController extends GetxController implements GetxService {
   }
 
   Timer? _timer;
+  bool _completionNavigationInProgress = false;
 
   void startLocationRecord() {
     _timer?.cancel();
