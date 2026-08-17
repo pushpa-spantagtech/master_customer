@@ -694,12 +694,10 @@ class RideController extends GetxController implements GetxService {
       if (currentRideStatus == AppConstants.cancelled) {
         stopLocationRecord();
 
-        if (tripId != null && tripId.isNotEmpty) {
-          await getFinalFare(tripId);
-        }
-
-        if (Get.currentRoute != '/PaymentScreen') {
-          Get.off(() => const PaymentScreen());
+        if (Get.find<LocationController>().getUserAddress() != null) {
+          Get.offAll(() => const DashboardScreen());
+        } else {
+          Get.offAll(() => const AccessLocationScreen());
         }
 
         return response;
