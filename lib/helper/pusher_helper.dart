@@ -31,33 +31,27 @@ class PusherHelper {
    */
   static Future<void> initilizePusher() async {
     try {
-      final PusherChannelsOptions options =
-      PusherChannelsOptions.fromHost(
-        host:
-        Get.find<ConfigController>().config!.webSocketUrl ?? '',
+      final PusherChannelsOptions options = PusherChannelsOptions.fromHost(
+        host: Get.find<ConfigController>().config!.webSocketUrl ?? '',
         scheme: 'ws',
         key: AppConstants.appKey,
         port: int.parse(
-          Get.find<ConfigController>()
-              .config
-              ?.webSocketPort ??
-              '6001',
+          Get.find<ConfigController>().config?.webSocketPort ?? '6001',
         ),
       );
 
       pusherClient = PusherChannelsClient.websocket(
         options: options,
         connectionErrorHandler: (
-            exception,
-            trace,
-            refresh,
-            ) async {
+          exception,
+          trace,
+          refresh,
+        ) async {
           debugPrint(
             'PUSHER CONNECTION ERROR: $exception',
           );
 
-          Get.find<ConfigController>()
-              .setPusherStatus('Disconnected');
+          Get.find<ConfigController>().setPusherStatus('Disconnected');
 
           refresh();
         },
@@ -65,33 +59,28 @@ class PusherHelper {
 
       await pusherClient?.connect();
 
-      final String? socketId = pusherClient
-          ?.channelsManager
-          .channelsConnectionDelegate
-          .socketId;
+      final String? socketId =
+          pusherClient?.channelsManager.channelsConnectionDelegate.socketId;
 
       if (socketId != null && socketId.isNotEmpty) {
         debugPrint(
           'PUSHER CONNECTED: $socketId',
         );
 
-        Get.find<ConfigController>()
-            .setPusherStatus('Connected');
+        Get.find<ConfigController>().setPusherStatus('Connected');
       } else {
         debugPrint(
           'PUSHER SOCKET ID NOT AVAILABLE',
         );
 
-        Get.find<ConfigController>()
-            .setPusherStatus('Disconnected');
+        Get.find<ConfigController>().setPusherStatus('Disconnected');
       }
     } catch (e) {
       debugPrint(
         'PUSHER INITIALIZATION ERROR: $e',
       );
 
-      Get.find<ConfigController>()
-          .setPusherStatus('Disconnected');
+      Get.find<ConfigController>().setPusherStatus('Disconnected');
     }
   }
 
@@ -102,12 +91,10 @@ class PusherHelper {
    */
   void pusherDriverStatus(String tripId) {
     if (pusherClient == null ||
-        Get.find<ConfigController>()
-            .pusherConnectionStatus !=
-            'Connected') {
+        Get.find<ConfigController>().pusherConnectionStatus != 'Connected') {
       debugPrint(
         'PUSHER NOT CONNECTED - '
-            'status: ${Get.find<ConfigController>().pusherConnectionStatus}',
+        'status: ${Get.find<ConfigController>().pusherConnectionStatus}',
       );
 
       return;
@@ -126,25 +113,23 @@ class PusherHelper {
    * ------------------------------------------------------------
    */
   void _subscribeDriverAccepted(String tripId) {
-    pusherDriverAccepted =
-        pusherClient!.privateChannel(
-          "private-driver-trip-accepted.$tripId",
-          authorizationDelegate:
+    pusherDriverAccepted = pusherClient!.privateChannel(
+      "private-driver-trip-accepted.$tripId",
+      authorizationDelegate:
           EndpointAuthorizableChannelTokenAuthorizationDelegate
               .forPrivateChannel(
-            authorizationEndpoint: Uri.parse(
-              'https://${Get.find<ConfigController>().config!.webSocketUrl}/broadcasting/auth',
-            ),
-            headers: {
-              "Accept": "application/json",
-              "Authorization":
+        authorizationEndpoint: Uri.parse(
+          'https://${Get.find<ConfigController>().config!.webSocketUrl}/broadcasting/auth',
+        ),
+        headers: {
+          "Accept": "application/json",
+          "Authorization":
               "Bearer ${Get.find<AuthController>().getUserToken()}",
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods":
-              "PUT, GET, POST, DELETE, OPTIONS",
-            },
-          ),
-        );
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "PUT, GET, POST, DELETE, OPTIONS",
+        },
+      ),
+    );
 
     if (pusherDriverAccepted.currentStatus != null) {
       return;
@@ -160,14 +145,11 @@ class PusherHelper {
           return;
         }
 
-        final dynamic data =
-        jsonDecode(event.data!);
+        final dynamic data = jsonDecode(event.data!);
 
-        final String eventTripId =
-            data['id']?.toString() ?? '';
+        final String eventTripId = data['id']?.toString() ?? '';
 
-        final String type =
-            data['type']?.toString() ?? '';
+        final String type = data['type']?.toString() ?? '';
 
         if (eventTripId.isEmpty) {
           return;
@@ -182,28 +164,24 @@ class PusherHelper {
         }
 
         final response =
-        await Get.find<RideController>()
-            .getRideDetails(eventTripId);
+            await Get.find<RideController>().getRideDetails(eventTripId);
 
         if (response.statusCode != 200) {
           return;
         }
 
         if (type == 'parcel') {
-          Get.find<ParcelController>()
-              .updateParcelState(
+          Get.find<ParcelController>().updateParcelState(
             ParcelDeliveryState.acceptRider,
           );
 
-          Get.find<RideController>()
-              .startLocationRecord();
+          Get.find<RideController>().startLocationRecord();
 
-          Get.find<MapController>()
-              .notifyMapController();
+          Get.find<MapController>().notifyMapController();
 
           if (Get.currentRoute != '/MapScreen') {
             Get.to(
-                  () => const MapScreen(
+              () => const MapScreen(
                 fromScreen: MapScreenType.parcel,
               ),
             );
@@ -212,20 +190,17 @@ class PusherHelper {
           return;
         }
 
-        Get.find<RideController>()
-            .updateRideCurrentState(
+        Get.find<RideController>().updateRideCurrentState(
           RideState.acceptingRider,
         );
 
-        Get.find<RideController>()
-            .startLocationRecord();
+        Get.find<RideController>().startLocationRecord();
 
-        Get.find<MapController>()
-            .notifyMapController();
+        Get.find<MapController>().notifyMapController();
 
         if (Get.currentRoute != '/MapScreen') {
           Get.to(
-                () => const MapScreen(
+            () => const MapScreen(
               fromScreen: MapScreenType.splash,
             ),
           );
@@ -244,25 +219,23 @@ class PusherHelper {
    * ------------------------------------------------------------
    */
   void _subscribeTripStarted(String tripId) {
-    driverTripStarted =
-        pusherClient!.privateChannel(
-          "private-driver-trip-started.$tripId",
-          authorizationDelegate:
+    driverTripStarted = pusherClient!.privateChannel(
+      "private-driver-trip-started.$tripId",
+      authorizationDelegate:
           EndpointAuthorizableChannelTokenAuthorizationDelegate
               .forPrivateChannel(
-            authorizationEndpoint: Uri.parse(
-              'https://${Get.find<ConfigController>().config!.webSocketUrl}/broadcasting/auth',
-            ),
-            headers: {
-              "Accept": "application/json",
-              "Authorization":
+        authorizationEndpoint: Uri.parse(
+          'https://${Get.find<ConfigController>().config!.webSocketUrl}/broadcasting/auth',
+        ),
+        headers: {
+          "Accept": "application/json",
+          "Authorization":
               "Bearer ${Get.find<AuthController>().getUserToken()}",
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods":
-              "PUT, GET, POST, DELETE, OPTIONS",
-            },
-          ),
-        );
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "PUT, GET, POST, DELETE, OPTIONS",
+        },
+      ),
+    );
 
     if (driverTripStarted.currentStatus != null) {
       return;
@@ -270,22 +243,17 @@ class PusherHelper {
 
     driverTripStarted.subscribe();
 
-    driverTripStarted
-        .bind("driver-trip-started.$tripId")
-        .listen((event) async {
+    driverTripStarted.bind("driver-trip-started.$tripId").listen((event) async {
       try {
         if (event.data == null) {
           return;
         }
 
-        final dynamic data =
-        jsonDecode(event.data!);
+        final dynamic data = jsonDecode(event.data!);
 
-        final String eventTripId =
-            data['id']?.toString() ?? '';
+        final String eventTripId = data['id']?.toString() ?? '';
 
-        final String type =
-            data['type']?.toString() ?? '';
+        final String type = data['type']?.toString() ?? '';
 
         if (eventTripId.isEmpty) {
           return;
@@ -295,47 +263,35 @@ class PusherHelper {
           'PUSHER TRIP STARTED: $eventTripId',
         );
 
-        Get.find<RideController>()
-            .startLocationRecord();
+        Get.find<RideController>().startLocationRecord();
 
         /*
          * Parcel
          */
         if (type == 'parcel') {
-          await Get.find<MapController>()
-              .getPolyline();
+          await Get.find<MapController>().getPolyline();
 
-          Get.find<ParcelController>()
-              .updateParcelState(
+          Get.find<ParcelController>().updateParcelState(
             ParcelDeliveryState.parcelOngoing,
           );
 
-          if (Get.find<RideController>()
-              .tripDetails ==
-              null) {
-            await Get.find<RideController>()
-                .getRideDetails(eventTripId);
+          if (Get.find<RideController>().tripDetails == null) {
+            await Get.find<RideController>().getRideDetails(eventTripId);
           }
 
           final parcelInformation =
-              Get.find<RideController>()
-                  .tripDetails
-                  ?.parcelInformation;
+              Get.find<RideController>().tripDetails?.parcelInformation;
 
-          if (parcelInformation?.payer ==
-              'sender') {
+          if (parcelInformation?.payer == 'sender') {
             final response =
-            await Get.find<RideController>()
-                .getFinalFare(eventTripId);
+                await Get.find<RideController>().getFinalFare(eventTripId);
 
             if (response.statusCode == 200) {
-              Get.find<MapController>()
-                  .notifyMapController();
+              Get.find<MapController>().notifyMapController();
 
-              if (Get.currentRoute !=
-                  '/PaymentScreen') {
+              if (Get.currentRoute != '/PaymentScreen') {
                 Get.off(
-                      () => const PaymentScreen(
+                  () => const PaymentScreen(
                     fromParcel: true,
                   ),
                 );
@@ -349,17 +305,15 @@ class PusherHelper {
         /*
          * Normal ride
          */
-        Get.find<RideController>()
-            .updateRideCurrentState(
+        Get.find<RideController>().updateRideCurrentState(
           RideState.ongoingRide,
         );
 
-        Get.find<MapController>()
-            .notifyMapController();
+        Get.find<MapController>().notifyMapController();
 
         if (Get.currentRoute != '/MapScreen') {
           Get.to(
-                () => const MapScreen(
+            () => const MapScreen(
               fromScreen: MapScreenType.splash,
             ),
           );
@@ -378,25 +332,23 @@ class PusherHelper {
    * ------------------------------------------------------------
    */
   void _subscribeTripCancelled(String tripId) {
-    driverTripCancelled =
-        pusherClient!.privateChannel(
-          "private-driver-trip-cancelled.$tripId",
-          authorizationDelegate:
+    driverTripCancelled = pusherClient!.privateChannel(
+      "private-driver-trip-cancelled.$tripId",
+      authorizationDelegate:
           EndpointAuthorizableChannelTokenAuthorizationDelegate
               .forPrivateChannel(
-            authorizationEndpoint: Uri.parse(
-              'https://${Get.find<ConfigController>().config!.webSocketUrl}/broadcasting/auth',
-            ),
-            headers: {
-              "Accept": "application/json",
-              "Authorization":
+        authorizationEndpoint: Uri.parse(
+          'https://${Get.find<ConfigController>().config!.webSocketUrl}/broadcasting/auth',
+        ),
+        headers: {
+          "Accept": "application/json",
+          "Authorization":
               "Bearer ${Get.find<AuthController>().getUserToken()}",
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods":
-              "PUT, GET, POST, DELETE, OPTIONS",
-            },
-          ),
-        );
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "PUT, GET, POST, DELETE, OPTIONS",
+        },
+      ),
+    );
 
     if (driverTripCancelled.currentStatus != null) {
       return;
@@ -412,21 +364,19 @@ class PusherHelper {
           'PUSHER TRIP CANCELLED: ${event.data}',
         );
 
-        Get.find<RideController>()
-            .stopLocationRecord();
+        Get.find<RideController>().stopLocationRecord();
 
         /*
          * Refresh backend status so local ride
          * information is no longer stale.
          */
-        await Get.find<RideController>()
-            .getCurrentRideStatus(
+        await Get.find<RideController>().getCurrentRideStatus(
           navigateToMap: false,
           fromRefresh: true,
         );
 
         Get.offAll(
-              () => const DashboardScreen(),
+          () => const DashboardScreen(),
         );
       } catch (e) {
         debugPrint(
@@ -444,25 +394,23 @@ class PusherHelper {
    * ------------------------------------------------------------
    */
   void _subscribeTripCompleted(String tripId) {
-    driverTripCompleted =
-        pusherClient!.privateChannel(
-          "private-driver-trip-completed.$tripId",
-          authorizationDelegate:
+    driverTripCompleted = pusherClient!.privateChannel(
+      "private-driver-trip-completed.$tripId",
+      authorizationDelegate:
           EndpointAuthorizableChannelTokenAuthorizationDelegate
               .forPrivateChannel(
-            authorizationEndpoint: Uri.parse(
-              'https://${Get.find<ConfigController>().config!.webSocketUrl}/broadcasting/auth',
-            ),
-            headers: {
-              "Accept": "application/json",
-              "Authorization":
+        authorizationEndpoint: Uri.parse(
+          'https://${Get.find<ConfigController>().config!.webSocketUrl}/broadcasting/auth',
+        ),
+        headers: {
+          "Accept": "application/json",
+          "Authorization":
               "Bearer ${Get.find<AuthController>().getUserToken()}",
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods":
-              "PUT, GET, POST, DELETE, OPTIONS",
-            },
-          ),
-        );
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "PUT, GET, POST, DELETE, OPTIONS",
+        },
+      ),
+    );
 
     if (driverTripCompleted.currentStatus != null) {
       return;
@@ -482,14 +430,11 @@ class PusherHelper {
           return;
         }
 
-        final dynamic data =
-        jsonDecode(event.data!);
+        final dynamic data = jsonDecode(event.data!);
 
-        final String completedTripId =
-            data['id']?.toString() ?? '';
+        final String completedTripId = data['id']?.toString() ?? '';
 
-        final String type =
-            data['type']?.toString() ?? '';
+        final String type = data['type']?.toString() ?? '';
 
         if (completedTripId.isEmpty) {
           return;
@@ -498,27 +443,23 @@ class PusherHelper {
         /*
          * Immediately stop ongoing polling.
          */
-        Get.find<RideController>()
-            .stopLocationRecord();
+        Get.find<RideController>().stopLocationRecord();
 
         /*
          * Parcel flow
          */
         if (type == 'parcel') {
-          Get.find<RideController>()
-              .clearRideDetails();
+          Get.find<RideController>().clearRideDetails();
 
-          if (Get.find<ConfigController>()
-              .config!
-              .reviewStatus!) {
+          if (Get.find<ConfigController>().config!.reviewStatus!) {
             Get.off(
-                  () => ReviewScreen(
+              () => ReviewScreen(
                 tripId: completedTripId,
               ),
             );
           } else {
             Get.offAll(
-                  () => const DashboardScreen(),
+              () => const DashboardScreen(),
             );
           }
 
@@ -541,8 +482,7 @@ class PusherHelper {
          *        ↓
          * PaymentScreen
          */
-        await Get.find<RideController>()
-            .getCurrentRideStatus(
+        await Get.find<RideController>().getCurrentRideStatus(
           navigateToMap: false,
           fromRefresh: true,
         );
@@ -568,25 +508,23 @@ class PusherHelper {
    * ------------------------------------------------------------
    */
   void _subscribePaymentReceived(String tripId) {
-    driverPaymentReceived =
-        pusherClient!.privateChannel(
-          "private-driver-payment-received.$tripId",
-          authorizationDelegate:
+    driverPaymentReceived = pusherClient!.privateChannel(
+      "private-driver-payment-received.$tripId",
+      authorizationDelegate:
           EndpointAuthorizableChannelTokenAuthorizationDelegate
               .forPrivateChannel(
-            authorizationEndpoint: Uri.parse(
-              'https://${Get.find<ConfigController>().config!.webSocketUrl}/broadcasting/auth',
-            ),
-            headers: {
-              "Accept": "application/json",
-              "Authorization":
+        authorizationEndpoint: Uri.parse(
+          'https://${Get.find<ConfigController>().config!.webSocketUrl}/broadcasting/auth',
+        ),
+        headers: {
+          "Accept": "application/json",
+          "Authorization":
               "Bearer ${Get.find<AuthController>().getUserToken()}",
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods":
-              "PUT, GET, POST, DELETE, OPTIONS",
-            },
-          ),
-        );
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "PUT, GET, POST, DELETE, OPTIONS",
+        },
+      ),
+    );
 
     if (driverPaymentReceived.currentStatus != null) {
       return;
@@ -602,40 +540,32 @@ class PusherHelper {
           return;
         }
 
-        final dynamic data =
-        jsonDecode(event.data!);
+        final dynamic data = jsonDecode(event.data!);
 
-        final String eventTripId =
-            data['id']?.toString() ?? '';
+        final String eventTripId = data['id']?.toString() ?? '';
 
-        final String type =
-            data['type']?.toString() ?? '';
+        final String type = data['type']?.toString() ?? '';
 
         debugPrint(
           'PUSHER PAYMENT RECEIVED: $eventTripId',
         );
 
-        Get.find<RideController>()
-            .stopLocationRecord();
+        Get.find<RideController>().stopLocationRecord();
 
-        if (Get.find<ConfigController>()
-            .config!
-            .reviewStatus! &&
+        if (Get.find<ConfigController>().config!.reviewStatus! &&
             type == 'ride_request') {
-          Get.find<RideController>()
-              .tripDetails = null;
+          Get.find<RideController>().tripDetails = null;
 
           Get.off(
-                () => ReviewScreen(
+            () => ReviewScreen(
               tripId: eventTripId,
             ),
           );
         } else {
-          Get.find<RideController>()
-              .tripDetails = null;
+          Get.find<RideController>().tripDetails = null;
 
           Get.offAll(
-                () => const DashboardScreen(),
+            () => const DashboardScreen(),
           );
         }
       } catch (e) {
@@ -646,7 +576,7 @@ class PusherHelper {
     });
   }
 
-  /*
+/*
    * ------------------------------------------------------------
    * Common private channel authorization
    * ------------------------------------------------------------

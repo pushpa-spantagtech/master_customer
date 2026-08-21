@@ -83,7 +83,7 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
       debugPrint('CALLING LOCATION CONTROLLER...');
 
       final List<PredictionModel> result =
-      await Get.find<LocationController>().searchLocation(
+          await Get.find<LocationController>().searchLocation(
         context,
         query,
         fromMap: true,
@@ -195,22 +195,22 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
                     fillColor: Theme.of(context).cardColor,
                     hintText: 'search_location'.tr,
                     hintStyle:
-                    Theme.of(context).textTheme.displayMedium?.copyWith(
-                      fontSize: Dimensions.fontSizeDefault,
-                      color: Theme.of(context).disabledColor,
-                    ),
+                        Theme.of(context).textTheme.displayMedium?.copyWith(
+                              fontSize: Dimensions.fontSizeDefault,
+                              color: Theme.of(context).disabledColor,
+                            ),
                     suffixIcon: _isLoading
                         ? const Padding(
-                      padding: EdgeInsets.all(14),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Color.fromRGBO(250, 173, 2, 1),
-                          strokeWidth: 2.5,
-                        ),
-                      ),
-                    )
+                            padding: EdgeInsets.all(14),
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Color.fromRGBO(250, 173, 2, 1),
+                                strokeWidth: 2.5,
+                              ),
+                            ),
+                          )
                         : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -226,9 +226,9 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
                     ),
                   ),
                   style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                    fontSize: Dimensions.fontSizeLarge,
-                  ),
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                        fontSize: Dimensions.fontSizeLarge,
+                      ),
                 ),
               ),
               if (_suggestions.isNotEmpty)
@@ -251,7 +251,7 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
                     keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
+                        ScrollViewKeyboardDismissBehavior.onDrag,
                     itemCount: _suggestions.length,
                     separatorBuilder: (_, __) => Divider(
                       height: 1,
@@ -289,12 +289,12 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
                                       .textTheme
                                       .displayMedium
                                       ?.copyWith(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
-                                        ?.color,
-                                    fontSize: Dimensions.fontSizeDefault,
-                                  ),
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge
+                                            ?.color,
+                                        fontSize: Dimensions.fontSizeDefault,
+                                      ),
                                 ),
                               ),
                             ],

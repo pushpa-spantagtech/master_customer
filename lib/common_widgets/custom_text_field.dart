@@ -11,9 +11,9 @@ class PhoneNumberFormatter extends TextInputFormatter {
 
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     String digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
 
     if (digits.length > 10) {
@@ -165,8 +165,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
         obscureText: widget.isPassword ? _obscureText : false,
         inputFormatters: widget.inputType == TextInputType.phone
             ? const <TextInputFormatter>[
-          PhoneNumberFormatter(),
-        ]
+                PhoneNumberFormatter(),
+              ]
             : widget.isAmount
                 ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))]
                 : null,

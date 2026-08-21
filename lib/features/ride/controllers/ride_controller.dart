@@ -708,8 +708,7 @@ class RideController extends GetxController implements GetxService {
      */
       _completionNavigationInProgress = false;
 
-      estimatedDistance =
-          tripDetails?.estimatedDistance?.toString() ?? '0';
+      estimatedDistance = tripDetails?.estimatedDistance?.toString() ?? '0';
 
       encodedPolyLine = tripDetails?.encodedPolyline ?? '';
 
@@ -718,8 +717,8 @@ class RideController extends GetxController implements GetxService {
      * Never make completed rides wait for this.
      */
       if ((currentRideStatus == AppConstants.accepted ||
-          currentRideStatus == AppConstants.ongoing ||
-          currentRideStatus == AppConstants.pending) &&
+              currentRideStatus == AppConstants.ongoing ||
+              currentRideStatus == AppConstants.pending) &&
           encodedPolyLine.isNotEmpty) {
         try {
           await Get.find<MapController>().getPolyline();
@@ -763,7 +762,7 @@ class RideController extends GetxController implements GetxService {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!Get.currentRoute.contains('MapScreen')) {
                 Get.off(
-                      () => const MapScreen(
+                  () => const MapScreen(
                     fromScreen: MapScreenType.splash,
                   ),
                 );
@@ -792,7 +791,7 @@ class RideController extends GetxController implements GetxService {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!Get.currentRoute.contains('MapScreen')) {
                 Get.to(
-                      () => const MapScreen(
+                  () => const MapScreen(
                     fromScreen: MapScreenType.splash,
                   ),
                 );
@@ -811,12 +810,12 @@ class RideController extends GetxController implements GetxService {
         if (Get.find<LocationController>().getUserAddress() != null) {
           if (!fromRefresh) {
             Get.offAll(
-                  () => const DashboardScreen(),
+              () => const DashboardScreen(),
             );
           }
         } else {
           Get.offAll(
-                () => const AccessLocationScreen(),
+            () => const AccessLocationScreen(),
           );
         }
       }
@@ -832,12 +831,12 @@ class RideController extends GetxController implements GetxService {
       if (Get.find<LocationController>().getUserAddress() != null) {
         if (!fromRefresh) {
           Get.offAll(
-                () => const DashboardScreen(),
+            () => const DashboardScreen(),
           );
         }
       } else {
         Get.offAll(
-              () => const AccessLocationScreen(),
+          () => const AccessLocationScreen(),
         );
       }
     }
