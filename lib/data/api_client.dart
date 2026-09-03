@@ -60,45 +60,59 @@ class ApiClient extends GetxService {
 
   Future<Response> getData(String uri,
       {Map<String, dynamic>? query, Map<String, String>? headers}) async {
-    try {
-      if (kDebugMode) {
-        print('==============================');
-        print('API Call: $uri');
-        print('Zone Id Header = ${_mainHeaders['zoneId']}');
-        print('Headers = $_mainHeaders');
-        print('==============================');
+    const int maxAttempts = 3;
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        if (kDebugMode) {
+          print('==============================');
+          print('API Call: $uri (Attempt $attempt)');
+          print('Zone Id Header = ${_mainHeaders['zoneId']}');
+          print('Headers = $_mainHeaders');
+          print('==============================');
+        }
+        http.Response response = await http
+            .get(
+              Uri.parse(appBaseUrl + uri),
+              headers: headers ?? _mainHeaders,
+            )
+            .timeout(Duration(seconds: timeoutInSeconds));
+        return handleResponse(response, uri);
+      } catch (e) {
+        if (attempt == maxAttempts) {
+          return Response(statusCode: 1, statusText: noInternetMessage);
+        }
+        await Future.delayed(Duration(milliseconds: 500 * attempt));
       }
-      http.Response response = await http
-          .get(
-            Uri.parse(appBaseUrl + uri),
-            headers: headers ?? _mainHeaders,
-          )
-          .timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(response, uri);
-    } catch (e) {
-      return Response(statusCode: 1, statusText: noInternetMessage);
     }
+    return Response(statusCode: 1, statusText: noInternetMessage);
   }
 
   Future<Response> postData(String uri, dynamic body,
       {Map<String, String>? headers}) async {
-    try {
-      if (kDebugMode) {
-        print('====> API Call: $uri\nHeader: $_mainHeaders');
-        print('====> API Body: $body');
+    const int maxAttempts = 3;
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        if (kDebugMode) {
+          print('====> API Call: $uri (Attempt $attempt)\nHeader: $_mainHeaders');
+          print('====> API Body: $body');
+        }
+        print('Full API URL: ${appBaseUrl + uri}');
+        http.Response response = await http
+            .post(
+              Uri.parse(appBaseUrl + uri),
+              body: jsonEncode(body),
+              headers: headers ?? _mainHeaders,
+            )
+            .timeout(Duration(seconds: timeoutInSeconds));
+        return handleResponse(response, uri);
+      } catch (e) {
+        if (attempt == maxAttempts) {
+          return Response(statusCode: 1, statusText: noInternetMessage);
+        }
+        await Future.delayed(Duration(milliseconds: 500 * attempt));
       }
-      print('Full API URL: ${appBaseUrl + uri}');
-      http.Response response = await http
-          .post(
-            Uri.parse(appBaseUrl + uri),
-            body: jsonEncode(body),
-            headers: headers ?? _mainHeaders,
-          )
-          .timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(response, uri);
-    } catch (e) {
-      return Response(statusCode: 1, statusText: noInternetMessage);
     }
+    return Response(statusCode: 1, statusText: noInternetMessage);
   }
 
   Future<Response> postMultipartDataConversation(

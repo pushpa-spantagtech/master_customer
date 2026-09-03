@@ -546,6 +546,11 @@ class PusherHelper {
 
         final String type = data['type']?.toString() ?? '';
 
+        if (!Get.find<RideController>()
+            .claimTerminalNavigation(eventTripId)) {
+          return;
+        }
+
         debugPrint(
           'PUSHER PAYMENT RECEIVED: $eventTripId',
         );

@@ -66,7 +66,11 @@ class LocationController extends GetxController implements GetxService {
   Address? parcelReceiverAddress;
   bool _loading = false;
   String _address = '';
+  String _liveAddress = '';
   String _pickAddress = '';
+  Position? _lastLiveAddressPosition;
+  DateTime? _lastLiveAddressUpdateAt;
+  bool _isUpdatingLiveAddress = false;
   List<AddressModel>? _addressList;
   bool _isLoading = false;
   bool _inZone = false;
@@ -97,6 +101,8 @@ class LocationController extends GetxController implements GetxService {
   Position get pickPosition => _pickPosition;
 
   String get address => _address;
+
+  String get liveAddress => _liveAddress;
 
   String get pickAddress => _pickAddress;
 
@@ -323,6 +329,9 @@ class LocationController extends GetxController implements GetxService {
       );
 
       fromAddress = addressModel;
+      _liveAddress = currentAddress;
+      _lastLiveAddressPosition = newLocalData;
+      _lastLiveAddressUpdateAt = DateTime.now();
       pickupLocationController.text = currentAddress;
 
       await locationServiceInterface.storeLiveLocation(
@@ -351,10 +360,17 @@ class LocationController extends GetxController implements GetxService {
           );
         }
 
+        // Rebuild the live GPS marker immediately. The readable Home address
+        // is refreshed separately and never overwrites a manually selected
+        // ride pickup address.
+        update();
+
         await locationServiceInterface.storeLiveLocation(
           livePosition.latitude.toString(),
           livePosition.longitude.toString(),
         );
+
+        await _updateLiveAddressIfNeeded(livePosition);
       });
 
       update();
@@ -364,6 +380,46 @@ class LocationController extends GetxController implements GetxService {
       debugPrintStack(stackTrace: stackTrace);
       update();
       return null;
+    }
+  }
+
+  Future<void> _updateLiveAddressIfNeeded(Position livePosition) async {
+    if (_isUpdatingLiveAddress) return;
+
+    final previousPosition = _lastLiveAddressPosition;
+    final previousUpdate = _lastLiveAddressUpdateAt;
+    final movedDistance = previousPosition == null
+        ? double.infinity
+        : Geolocator.distanceBetween(
+            previousPosition.latitude,
+            previousPosition.longitude,
+            livePosition.latitude,
+            livePosition.longitude,
+          );
+    final enoughTimePassed = previousUpdate == null ||
+        DateTime.now().difference(previousUpdate) >=
+            const Duration(seconds: 20);
+
+    // Avoid excessive reverse-geocoding calls while still keeping the Home
+    // location useful during normal vehicle movement.
+    if (movedDistance < 50 || !enoughTimePassed) return;
+
+    _isUpdatingLiveAddress = true;
+    try {
+      final currentAddress = await initAddressAddressFromGeocode(
+        LatLng(livePosition.latitude, livePosition.longitude),
+      );
+
+      if (currentAddress.trim().isNotEmpty) {
+        _liveAddress = currentAddress;
+        _lastLiveAddressPosition = livePosition;
+        _lastLiveAddressUpdateAt = DateTime.now();
+        update();
+      }
+    } catch (e) {
+      debugPrint('LIVE ADDRESS UPDATE ERROR: $e');
+    } finally {
+      _isUpdatingLiveAddress = false;
     }
   }
 

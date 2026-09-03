@@ -61,6 +61,12 @@ class FinalFare {
   double? idleTime;
   double? actualTime;
   double? estimatedTime;
+  double? hourlyPackageHours;
+  double? hourlyFreeKm;
+  double? hourlyActualHours;
+  double? hourlyExtraHours;
+  double? hourlyExtraKm;
+  double? additionalCharge;
 
   FinalFare(
       {this.id,
@@ -106,7 +112,13 @@ class FinalFare {
       this.delayTime,
       this.idleTime,
       this.actualTime,
-      this.estimatedTime});
+      this.estimatedTime,
+      this.hourlyPackageHours,
+      this.hourlyFreeKm,
+      this.hourlyActualHours,
+      this.hourlyExtraHours,
+      this.hourlyExtraKm,
+      this.additionalCharge});
 
   FinalFare.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -215,6 +227,12 @@ class FinalFare {
     if (json['estimated_time'] != null) {
       estimatedTime = json['estimated_time'].toDouble();
     }
+    hourlyPackageHours = double.tryParse(json['hourly_package_hours'].toString());
+    hourlyFreeKm = double.tryParse(json['hourly_free_km'].toString());
+    hourlyActualHours = double.tryParse(json['hourly_actual_hours'].toString());
+    hourlyExtraHours = double.tryParse(json['hourly_extra_hours'].toString());
+    hourlyExtraKm = double.tryParse(json['hourly_extra_km'].toString());
+    additionalCharge = double.tryParse(json['additional_charge'].toString());
   }
 }
 

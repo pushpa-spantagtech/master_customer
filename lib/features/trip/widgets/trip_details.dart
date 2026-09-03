@@ -49,7 +49,7 @@ class TripDetailWidget extends StatelessWidget {
               ),
               TripRouteWidget(
                 pickupAddress: tripDetails.pickupAddress!,
-                destinationAddress: tripDetails.destinationAddress!,
+                destinationAddress: tripDetails.destinationAddress ?? '',
                 extraOne: firstRoute,
                 extraTwo: secondRoute,
                 entrance: tripDetails.entrance,

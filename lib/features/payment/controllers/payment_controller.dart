@@ -110,37 +110,59 @@ class PaymentController extends GetxController implements GetxService {
     return response;
   }
 
+  bool _isPaymentSubmitting = false;
+
   Future<Response> paymentSubmit(String tripId, String paymentMethod,
       {bool fromParcel = false}) async {
+    if (_isPaymentSubmitting) {
+      return Response(
+        statusCode: 409,
+        statusText: 'Payment submission already in progress',
+      );
+    }
+
+    _isPaymentSubmitting = true;
     isLoading = true;
     update();
-    Response response =
-        await paymentServiceInterface.paymentSubmit(tripId, paymentMethod);
-    if (response.statusCode == 200) {
-      Get.find<RideController>().clearRideDetails();
-      Get.find<ProfileController>().getProfileInfo();
-      showCustomSnackBar('payment_successful'.tr, isError: false);
-      if (fromParcel) {
-        Get.find<RideController>()
-            .updateRideCurrentState(RideState.afterAcceptRider);
-        Get.find<RideController>().getRideDetails(tripId).then((value) {
-          Get.offAll(() => const MapScreen(fromScreen: MapScreenType.parcel));
-        });
-      } else {
-        if (Get.find<ConfigController>().config!.reviewStatus!) {
-          Get.offAll(() => ReviewScreen(tripId: tripId));
-        } else {
-          Get.offAll(() => const DashboardScreen());
-        }
-      }
 
-      isLoading = false;
-    } else {
-      isLoading = false;
-      ApiChecker.checkApi(response);
+    final RideController rideController = Get.find<RideController>();
+    final bool ownsNavigation = rideController.claimTerminalNavigation(tripId);
+
+    try {
+      Response response =
+          await paymentServiceInterface.paymentSubmit(tripId, paymentMethod);
+      if (response.statusCode == 200) {
+        rideController.clearRideDetails();
+        Get.find<ProfileController>().getProfileInfo();
+        showCustomSnackBar('payment_successful'.tr, isError: false);
+        if (ownsNavigation) {
+          if (fromParcel) {
+            rideController.updateRideCurrentState(RideState.afterAcceptRider);
+            rideController.getRideDetails(tripId).then((value) {
+              Get.offAll(
+                  () => const MapScreen(fromScreen: MapScreenType.parcel));
+            });
+          } else {
+            if (Get.find<ConfigController>().config!.reviewStatus!) {
+              Get.offAll(() => ReviewScreen(tripId: tripId));
+            } else {
+              Get.offAll(() => const DashboardScreen());
+            }
+          }
+        }
+        isLoading = false;
+      } else {
+        if (ownsNavigation) {
+          rideController.releaseTerminalNavigation(tripId);
+        }
+        isLoading = false;
+        ApiChecker.checkApi(response);
+      }
+      update();
+      return response;
+    } finally {
+      _isPaymentSubmitting = false;
     }
-    update();
-    return response;
   }
 
   List<PaymentGateways>? paymentGateways = [];

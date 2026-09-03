@@ -8,13 +8,16 @@ import 'package:ride_sharing_user_app/features/auth/screens/sign_in_screen.dart'
 import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/location/view/access_location_screen.dart';
+import 'package:ride_sharing_user_app/features/map/screens/map_screen.dart';
 import 'package:ride_sharing_user_app/features/maintainance_mode/maintainance_screen.dart';
 import 'package:ride_sharing_user_app/features/onboard/screens/onboarding_screen.dart';
 import 'package:ride_sharing_user_app/features/profile/controllers/profile_controller.dart';
 import 'package:ride_sharing_user_app/features/profile/screens/edit_profile_screen.dart';
+import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:ride_sharing_user_app/features/trip/controllers/trip_controller.dart';
 import 'package:ride_sharing_user_app/helper/pusher_helper.dart';
+import 'package:ride_sharing_user_app/util/app_constants.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -177,7 +180,31 @@ class _SplashScreenState extends State<SplashScreen> {
 
         if (isProfileVerified == 1) {
           authController.remainingFindingRideTime();
-          _openScreen(const DashboardScreen());
+
+          final RideController rideController = Get.find<RideController>();
+          await rideController.getCurrentRideStatus(
+            fromRefresh: true,
+            navigateToMap: false,
+          );
+          if (!mounted) return;
+
+          final String status =
+              rideController.tripDetails?.currentStatus?.toLowerCase() ?? '';
+
+          // Completed rides navigate to Payment inside RideController.
+          if (status == AppConstants.completed) {
+            return;
+          }
+
+          if (status == AppConstants.accepted ||
+              status == AppConstants.ongoing ||
+              status == AppConstants.pending) {
+            _openScreen(
+              const MapScreen(fromScreen: MapScreenType.splash),
+            );
+          } else {
+            _openScreen(const DashboardScreen());
+          }
         } else {
           _openScreen(const EditProfileScreen(fromLogin: true));
         }

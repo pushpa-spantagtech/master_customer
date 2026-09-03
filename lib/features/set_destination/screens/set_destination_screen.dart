@@ -68,8 +68,27 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
     }
 
     Get.find<ParcelController>().updatePaymentPerson(false, notify: false);
-    Get.find<LocationController>()
-        .setPickUp(Get.find<LocationController>().getUserAddress());
+
+    final locationController = Get.find<LocationController>();
+
+// Display the saved address temporarily as a fallback.
+    locationController.setPickUp(locationController.getUserAddress());
+
+// Refresh pickup using the phone's current GPS when this screen opens.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final Address? currentPickup =
+      await locationController.getCurrentLocation(
+        isAnimate: false,
+        type: LocationType.from,
+      );
+
+      if (!mounted) return;
+
+      if (currentPickup != null) {
+        locationController.setPickUp(currentPickup);
+        locationController.update();
+      }
+    });
     if (widget.address != null) {
       Get.find<LocationController>().setDestination(widget.address);
     }
@@ -77,6 +96,8 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
       Get.find<LocationController>()
           .setDestination(Address(address: widget.searchText));
       Future.delayed(const Duration(seconds: 1)).then((_) {
+        if (!mounted) return;
+
         Get.find<LocationController>().searchLocation(
           context,
           widget.searchText ?? '',
@@ -516,22 +537,22 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                     const SizedBox(height: 18),
                                     const _OutstationInfoCard(),
                                   ],
-                                  if (locationController.toAddress != null &&
-                                      (locationController
-                                              .toAddress?.address?.isNotEmpty ??
-                                          false) &&
-                                      locationController
-                                          .destinationLocationController.text
-                                          .trim()
-                                          .isNotEmpty) ...[
-                                    const SizedBox(height: 18),
-                                    _TripDistanceCard(
-                                      distanceText:
-                                          _distanceText(locationController),
-                                      timeText:
-                                          _durationText(locationController),
-                                    ),
-                                  ],
+                                  // if (locationController.toAddress != null &&
+                                  //     (locationController
+                                  //             .toAddress?.address?.isNotEmpty ??
+                                  //         false) &&
+                                  //     locationController
+                                  //         .destinationLocationController.text
+                                  //         .trim()
+                                  //         .isNotEmpty) ...[
+                                  //   const SizedBox(height: 18),
+                                  //   _TripDistanceCard(
+                                  //     distanceText:
+                                  //         _distanceText(locationController),
+                                  //     timeText:
+                                  //         _durationText(locationController),
+                                  //   ),
+                                  // ],
                                   const SizedBox(height: 24),
                                 ],
                               ),

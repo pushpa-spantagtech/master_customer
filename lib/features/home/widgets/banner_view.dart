@@ -9,7 +9,14 @@ import 'package:ride_sharing_user_app/util/dimensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BannerView extends StatefulWidget {
-  const BannerView({super.key});
+  final double height;
+  final bool showIndicator;
+
+  const BannerView({
+    super.key,
+    this.height = 130,
+    this.showIndicator = true,
+  });
 
   @override
   State<BannerView> createState() => _BannerViewState();
@@ -20,7 +27,12 @@ class _BannerViewState extends State<BannerView> {
 
   @override
   Widget build(BuildContext context) {
-    String baseurl = Get.find<ConfigController>().config!.imageBaseUrl!.banner!;
+    final String baseurl = Get.find<ConfigController>()
+            .config
+            ?.imageBaseUrl
+            ?.banner
+            ?.replaceAll(RegExp(r'/+$'), '') ??
+        '';
     return GetBuilder<BannerController>(
       builder: (bannerController) {
         if (bannerController.bannerList == null) {
@@ -32,7 +44,7 @@ class _BannerViewState extends State<BannerView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                height: 130,
+                height: widget.height,
                 width: MediaQuery.of(context).size.width,
                 child: CarouselSlider.builder(
                   options: CarouselOptions(
@@ -54,8 +66,13 @@ class _BannerViewState extends State<BannerView> {
                       onTap: () {
                         bannerController.updateBannerClickCount(banner.id!);
                         debugPrint("=click===> ${banner.redirectLink}");
-                        if (banner.redirectLink != null) {
-                          _launchUrl(Uri.parse(banner.redirectLink!));
+                        final redirectLink = banner.redirectLink?.trim();
+                        if (redirectLink != null && redirectLink.isNotEmpty) {
+                          final normalizedLink = redirectLink.startsWith('http://') ||
+                                  redirectLink.startsWith('https://')
+                              ? redirectLink
+                              : 'https://$redirectLink';
+                          _launchUrl(Uri.parse(normalizedLink));
                         }
                       },
                       child: Padding(
@@ -64,7 +81,9 @@ class _BannerViewState extends State<BannerView> {
                           borderRadius:
                               BorderRadius.circular(Dimensions.radiusOverLarge),
                           child: ImageWidget(
-                              image: '$baseurl/${banner.image}',
+                              image: banner.image?.startsWith('http') == true
+                                  ? banner.image!
+                                  : '$baseurl/${banner.image}',
                               fit: BoxFit.cover),
                         ),
                       ),
@@ -72,12 +91,13 @@ class _BannerViewState extends State<BannerView> {
                   },
                 ),
               ),
-              const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-              SizedBox(
-                height: 5,
-                width: Get.width,
-                child: Center(
-                  child: ListView.separated(
+              if (widget.showIndicator) ...[
+                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                SizedBox(
+                  height: 5,
+                  width: Get.width,
+                  child: Center(
+                    child: ListView.separated(
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
                     scrollDirection: Axis.horizontal,
@@ -101,9 +121,10 @@ class _BannerViewState extends State<BannerView> {
                           padding: EdgeInsets.only(
                               right: Dimensions.paddingSizeExtraSmall));
                     },
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
           );
         }

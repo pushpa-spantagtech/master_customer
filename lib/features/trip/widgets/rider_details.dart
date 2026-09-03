@@ -5,6 +5,7 @@ import 'package:ride_sharing_user_app/features/message/controllers/message_contr
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:ride_sharing_user_app/util/images.dart';
 
 class ActivityScreenRiderDetails extends StatelessWidget {
   const ActivityScreenRiderDetails({super.key});
@@ -20,6 +21,14 @@ class ActivityScreenRiderDetails extends StatelessWidget {
         final trip = rideController.tripDetails;
         final driver = trip?.driver;
         final vehicle = trip?.vehicle;
+        final String driverImageName =
+    driver?.profileImage?.toString().trim() ?? '';
+
+final String driverImageUrl = driverImageName.isEmpty
+    ? ''
+    : driverImageName.startsWith('http')
+        ? driverImageName
+        : '${Get.find<ConfigController>().config?.imageBaseUrl?.profileImageDriver ?? ''}/$driverImageName';
         final colorScheme = Theme.of(context).colorScheme;
 
         final String rating = driver != null && trip?.driverAvgRating != null
@@ -74,9 +83,8 @@ class ActivityScreenRiderDetails extends StatelessWidget {
                         child: ImageWidget(
                           height: 48,
                           width: 48,
-                          image: driver != null
-                              ? '${Get.find<ConfigController>().config!.imageBaseUrl!.profileImageDriver}/${driver.profileImage}'
-                              : '',
+                          image: driverImageUrl,
+placeholder: Images.personPlaceholder,
                         ),
                       ),
                     ),

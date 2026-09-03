@@ -487,7 +487,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     borderColor: const Color.fromRGBO(255, 128, 128, 0.2),
                     backgroundColor: const Color.fromRGBO(250, 173, 2, 1),
                     fontSize: 18.0,
-                    buttonText: 'pay_now'.tr,
+                    buttonText: paymentController.paymentTypeList[paymentController.paymentTypeIndex] == 'cash'
+                        ? 'confirm_cash_payment'.tr
+                        : 'pay_now'.tr,
                     onPressed: () {
                       if (paymentController.paymentTypeIndex == 1 &&
                           paymentController.paymentGatewayIndex != -1) {

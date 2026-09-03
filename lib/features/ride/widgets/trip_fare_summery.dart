@@ -145,15 +145,20 @@ class TripFareSummery extends StatelessWidget {
                         ]),
                       )
                     : PaymentItemInfoWidget(
-                        icon: Images.farePrice,
-                        title: 'fare_price'.tr,
-                        amount: rideController.finalFare?.actualFare ?? 0,
+                      icon: Images.farePrice,
+                      title: rideController.finalFare?.hourlyPackageHours != null
+                      ? 'Package fare'
+                          : 'fare_price'.tr,
+                      amount: rideController.finalFare?.hourlyPackageHours != null
+                      ? ((rideController.finalFare?.actualFare ?? 0) -
+                      (rideController.finalFare?.additionalCharge ?? 0))
+                          : (rideController.finalFare?.actualFare ?? 0),
                       ),
-              ],
-              if (fromPayment &&
-                  !fromParcel &&
-                  (rideController.finalFare?.cancellationFee ?? 0).toDouble() >
-                      0)
+                          ],
+                          if (fromPayment &&
+                              !fromParcel &&
+                              (rideController.finalFare?.cancellationFee ?? 0).toDouble() >
+                                  0)
                 PaymentItemInfoWidget(
                   icon: Images.idleHourIcon,
                   title: 'cancellation_price'.tr,
@@ -176,6 +181,38 @@ class TripFareSummery extends StatelessWidget {
                   title: 'delay_price'.tr,
                   amount: rideController.finalFare?.delayFee ?? 0,
                 ),
+              if (fromPayment &&
+                  !fromParcel &&
+                  rideController.finalFare?.hourlyPackageHours != null)
+                Builder(builder: (context) {
+                  String formatHourlyDuration(double decimalHours, {bool isExtra = false}) {
+                    final int totalMins = (decimalHours * 60).round();
+                    if (totalMins <= 0) return isExtra ? '0 extra min' : '0 min';
+                    final int hrs = totalMins ~/ 60;
+                    final int mins = totalMins % 60;
+                    if (isExtra) {
+                      if (hrs > 0 && mins > 0) return '$hrs hr $mins extra min';
+                      if (hrs > 0) return '$hrs extra hr';
+                      return '$mins extra min';
+                    }
+                    if (hrs > 0 && mins > 0) return '$hrs hr $mins min';
+                    if (hrs > 0) return '$hrs hr';
+                    return '$mins min';
+                  }
+
+                  final String runningTime = formatHourlyDuration(
+                      rideController.finalFare?.hourlyActualHours ?? 0);
+                  final String extraTime = formatHourlyDuration(
+                      rideController.finalFare?.hourlyExtraHours ?? 0, isExtra: true);
+
+                  return PaymentItemInfoWidget(
+                    icon: Images.waitingPrice,
+                    title: 'Package extra charge',
+                    amount: rideController.finalFare?.additionalCharge ?? 0,
+                    subTitle:
+                        'Running: ${(rideController.finalFare?.actualDistance ?? 0).toStringAsFixed(2)} km / $runningTime • Extra: ${(rideController.finalFare?.hourlyExtraKm ?? 0).toStringAsFixed(2)} km / $extraTime',
+                  );
+                }),
               if (fromPayment &&
                   (rideController.finalFare?.couponAmount ?? 0).toDouble() > 0)
                 PaymentItemInfoWidget(

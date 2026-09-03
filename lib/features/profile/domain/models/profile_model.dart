@@ -1,3 +1,17 @@
+Map<String, dynamic> _unpackRelation(dynamic jsonVal) {
+  if (jsonVal is Map<String, dynamic>) {
+    for (var key in jsonVal.keys) {
+      if (key.startsWith('Modules\\') || key.contains('\\')) {
+        final val = jsonVal[key];
+        if (val is Map<String, dynamic>) {
+          return val;
+        }
+      }
+    }
+  }
+  return jsonVal is Map<String, dynamic> ? jsonVal : {};
+}
+
 class ProfileModel {
   ProfileInfo? data;
 
@@ -63,8 +77,8 @@ class ProfileInfo {
     }
 
     isActive = int.parse(json['is_active'].toString());
-    wallet = json['wallet'] != null ? Wallet.fromJson(json['wallet']) : null;
-    level = json['level'] != null ? Level.fromJson(json['level']) : null;
+    wallet = json['wallet'] != null ? Wallet.fromJson(_unpackRelation(json['wallet'])) : null;
+    level = json['level'] != null ? Level.fromJson(_unpackRelation(json['level'])) : null;
     userRating = json['user_rating'].toString();
     totalRideCount = int.tryParse('${json['total_ride_count']}') ?? 0;
     completionPercent = json['completion_percent'].toDouble();

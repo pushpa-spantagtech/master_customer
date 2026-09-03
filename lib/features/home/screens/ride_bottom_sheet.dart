@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ride_sharing_user_app/features/home/controllers/banner_controller.dart';
 import 'package:ride_sharing_user_app/features/home/screens/local_tab.dart';
 import 'package:ride_sharing_user_app/features/home/screens/outstation_tab.dart';
 import 'package:ride_sharing_user_app/features/home/screens/rental_tab.dart';
+import 'package:ride_sharing_user_app/features/home/widgets/banner_view.dart';
 import 'package:ride_sharing_user_app/features/home/widgets/home_search_widget.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
@@ -92,6 +94,16 @@ class RideBottomSheet extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: BannerView(height: 105, showIndicator: false),
+                ),
+                GetBuilder<BannerController>(
+                  builder: (bannerController) =>
+                      (bannerController.bannerList?.isNotEmpty ?? false)
+                          ? const SizedBox(height: 8)
+                          : const SizedBox.shrink(),
+                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: TabBar(

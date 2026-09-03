@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -34,12 +36,18 @@ class NotificationHelper {
     var iOSInitialize = const DarwinInitializationSettings();
     var initializationsSettings =
         InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
-    flutterLocalNotificationsPlugin.initialize(initializationsSettings,
-        onDidReceiveNotificationResponse: (NotificationResponse payload) async {
-      return;
+    await flutterLocalNotificationsPlugin.initialize(initializationsSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse response) async {
+      await _handleLocalNotificationPayload(response.payload);
     }, onDidReceiveBackgroundNotificationResponse: myBackgroundMessageReceiver);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      if (message.data['action'] == 'new_message_arrived') {
+        final String channelId = message.data['type']?.toString() ?? '';
+        if (channelId.isNotEmpty) {
+          await Get.find<MessageController>().getConversation(channelId, 1);
+        }
+      }
       AndroidInitializationSettings androidInitialize =
           const AndroidInitializationSettings('notification_icon');
       var iOSInitialize = const DarwinInitializationSettings();
@@ -47,10 +55,8 @@ class NotificationHelper {
           android: androidInitialize, iOS: iOSInitialize);
       flutterLocalNotificationsPlugin.initialize(
         initializationsSettings,
-        onDidReceiveNotificationResponse:
-            (NotificationResponse response) async {
-          notificationRouteCheck(message);
-          return;
+        onDidReceiveNotificationResponse: (NotificationResponse response) async {
+          await _handleLocalNotificationPayload(response.payload);
         },
         onDidReceiveBackgroundNotificationResponse: myBackgroundMessageReceiver,
       );
@@ -332,14 +338,42 @@ class NotificationHelper {
       }
     });
 
-    FirebaseMessaging.instance
-        .getInitialMessage()
-        .then((RemoteMessage? message) {
-      if (message != null) {
-        customPrint('getInitialMessage: ${message.data}');
-        notificationRouteCheck(message);
-      }
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      customPrint('onMessageOpenedApp: ${message.data}');
+      await notificationRouteCheck(message);
     });
+  }
+
+  static Future<void> handleInitialNotification(
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 1800));
+
+    final RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      customPrint('getInitialMessage: ${initialMessage.data}');
+      await notificationRouteCheck(initialMessage);
+      return;
+    }
+
+    final NotificationAppLaunchDetails? launchDetails =
+        await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+    if (launchDetails?.didNotificationLaunchApp == true) {
+      await _handleLocalNotificationPayload(
+          launchDetails?.notificationResponse?.payload);
+    }
+  }
+
+  static Future<void> _handleLocalNotificationPayload(String? payload) async {
+    if (payload == null || payload.trim().isEmpty) return;
+    try {
+      final Map<String, dynamic> data =
+          Map<String, dynamic>.from(jsonDecode(payload));
+      await notificationRouteCheck(RemoteMessage.fromMap({'data': data}));
+    } catch (e) {
+      customPrint('Invalid notification payload: $e');
+    }
   }
 
   static Future<void> hintForBetterServiceLocationTurnOn({String? body}) async {
@@ -375,9 +409,36 @@ class NotificationHelper {
 
   static Future<void> showNotification(RemoteMessage message,
       FlutterLocalNotificationsPlugin fln, bool data) async {
-    String title = message.data['title'];
-    String body = message.data['body'];
-    String? orderID = message.data['order_id'];
+    final String action = message.data['action']?.toString() ?? '';
+    String title = message.data['title']?.toString().trim() ?? '';
+    String body = message.data['body']?.toString().trim() ?? '';
+
+    // Notification messages may place visible text in the Firebase
+    // notification section instead of the data section.
+    if (title.isEmpty) {
+      title = message.notification?.title?.trim() ?? '';
+    }
+    if (body.isEmpty) {
+      body = message.notification?.body?.trim() ?? '';
+    }
+
+    if (title.isEmpty && body.isNotEmpty) {
+      title = AppConstants.appName;
+    }
+    if (body.isEmpty) {
+      body = _fallbackNotificationBody(action);
+    }
+
+    // Continue processing the Firebase action, but do not create a blank
+    // Android notification for internal/silent events without visible text.
+    if (title.isEmpty && body.isEmpty) {
+      customPrint('Skipped empty notification for action: $action');
+      return;
+    }
+    if (title.isEmpty) {
+      title = AppConstants.appName;
+    }
+    final String payload = jsonEncode(message.data);
     String? image = (message.data['image'] != null &&
             message.data['image'].isNotEmpty)
         ? message.data['image'].startsWith('http')
@@ -387,11 +448,35 @@ class NotificationHelper {
 
     try {
       await showBigPictureNotificationHiddenLargeIcon(
-          title, body, orderID, image, fln);
+          title, body, payload, image, fln);
     } catch (e) {
       await showBigPictureNotificationHiddenLargeIcon(
-          title, body, orderID, null, fln);
+          title, body, payload, null, fln);
       customPrint('Failed to show notification: ${e.toString()}');
+    }
+  }
+
+  static String _fallbackNotificationBody(String action) {
+    switch (action) {
+      case 'driver_assigned':
+        return 'A driver has accepted your ride.';
+      case 'driver_bid_received':
+        return 'You received a new driver bid.';
+      case 'otp_matched':
+        return 'Your trip has started.';
+      case 'trip_waited_message':
+        return 'Your driver is waiting at the pickup location.';
+      case 'ride_completed':
+      case 'parcel_completed':
+        return 'Your trip has been completed.';
+      case 'payment_successful':
+        return 'Your payment was successful.';
+      case 'ride_cancelled':
+        return 'Your ride has been cancelled.';
+      case 'new_message_arrived':
+        return 'You received a new message.';
+      default:
+        return '';
     }
   }
 
@@ -469,13 +554,16 @@ Future<dynamic> myBackgroundMessageReceiver(
   customPrint('onBackgroundClicked: ${response.payload}');
 }
 
-void notificationRouteCheck(RemoteMessage message) {
+Future<void> notificationRouteCheck(RemoteMessage message) async {
   if (message.data['action'] == "new_message_arrived") {
-    Get.find<MessageController>().getConversation(message.data['type'], 1);
-    Get.to(() => MessageScreen(
-        channelId: message.data['type'],
-        tripId: message.data['ride_request_id'],
-        userName: message.data['user_name']));
+    await Get.find<MessageController>()
+        .getConversation(message.data['type'], 1);
+    if (!Get.currentRoute.contains('MessageScreen')) {
+      Get.to(() => MessageScreen(
+          channelId: message.data['type'],
+          tripId: message.data['ride_request_id'],
+          userName: message.data['user_name']));
+    }
   } else if (message.data['action'] == 'driver_assigned') {
     notificationToRouteNavigate(message.data['ride_request_id']);
   } else if (message.data['action'] == 'otp_matched' &&

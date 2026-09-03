@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/data/api_checker.dart';
 import 'package:ride_sharing_user_app/features/coupon/domain/models/coupon_model.dart';
 import 'package:ride_sharing_user_app/features/coupon/domain/services/coupon_service_interface.dart';
+import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 
@@ -82,13 +83,34 @@ class CouponController extends GetxController implements GetxService {
     Response response =
         await couponServiceInterface.customerAppliedCoupon(couponId);
     if (response.statusCode == 200) {
+      bool isCurrentlyApplied = couponModel!.data![index].isApplied ?? false;
       couponModel!.data![index].isLoading = false;
+
+      if (Get.isBottomSheetOpen == true || Get.isDialogOpen == true) {
+        Get.back();
+      }
+
       showCustomSnackBar(
-          couponModel!.data![index].isApplied!
+          isCurrentlyApplied
               ? 'coupon_removed_successfully'.tr
               : 'coupon_applied_successfully'.tr,
-          isError: couponModel!.data![index].isApplied! ? true : false);
+          isError: isCurrentlyApplied ? true : false);
+
       getCouponList(1);
+
+      if (Get.isRegistered<LocationController>() &&
+          Get.isRegistered<RideController>()) {
+        final locController = Get.find<LocationController>();
+        final rideController = Get.find<RideController>();
+
+        if (locController.fromAddress != null &&
+            locController.toAddress != null) {
+          rideController.getEstimatedFare(false);
+        } else if (locController.parcelSenderAddress != null &&
+            locController.parcelReceiverAddress != null) {
+          rideController.getEstimatedFare(true);
+        }
+      }
     } else {
       couponModel!.data![index].isLoading = false;
       ApiChecker.checkApi(response);
@@ -97,3 +119,4 @@ class CouponController extends GetxController implements GetxService {
     return response;
   }
 }
+

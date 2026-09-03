@@ -269,13 +269,14 @@ class MessageController extends GetxController implements GetxService {
   String id = "";
 
   void subscribeMessageChannel(String tripId) {
-    id = "";
-    if (id == "") {
-      id = tripId;
-    }
+    id = tripId;
 
-    if (Get.find<ConfigController>().pusherConnectionStatus != null ||
-        Get.find<ConfigController>().pusherConnectionStatus == 'Connected') {
+    if (Get.find<ConfigController>().pusherConnectionStatus == 'Connected' &&
+        PusherHelper.pusherClient != null) {
+      try {
+        channel.unsubscribe();
+      } catch (_) {}
+
       channel = PusherHelper.pusherClient!.privateChannel(
           "private-customer-ride-chat.$id",
           authorizationDelegate:
@@ -292,20 +293,17 @@ class MessageController extends GetxController implements GetxService {
             },
           ));
 
-      if (channel.currentStatus == null) {
-        channel.subscribe();
-        channel.bind("customer-ride-chat.$id").listen((event) {
-          if (id ==
-              jsonDecode(event.data!)['channel_conversation']['channel']
-                  ['trip_id']) {
-            messageModel!.data!.insert(
-                0,
-                Message.fromJson(
-                    jsonDecode(event.data!)['channel_conversation']));
-            update();
-          }
-        });
-      }
+      channel.subscribe();
+      channel.bind("customer-ride-chat.$id").listen((event) async {
+        final dynamic data = jsonDecode(event.data!);
+        final String eventTripId = data['channel_conversation']?['channel']
+                    ?['trip_id']
+                ?.toString() ??
+            '';
+        if (id == eventTripId) {
+          await getConversation(id, 1);
+        }
+      });
     }
   }
 

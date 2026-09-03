@@ -192,6 +192,7 @@ class _CategoryImage extends StatelessWidget {
     return ImageWidget(
       height: 42,
       width: 86,
+      fit: BoxFit.contain,
       image:
           '${Get.find<ConfigController>().config?.imageBaseUrl?.vehicleCategory}/${category.image}',
     );

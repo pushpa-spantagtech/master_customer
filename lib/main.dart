@@ -50,6 +50,12 @@ Future<void> main() async {
   // Open the application before permission and topic network calls.
   runApp(MyApp(languages: languages));
 
+  unawaited(
+    NotificationHelper.handleInitialNotification(
+      flutterLocalNotificationsPlugin,
+    ),
+  );
+
   unawaited(_configureFirebaseMessaging());
 }
 

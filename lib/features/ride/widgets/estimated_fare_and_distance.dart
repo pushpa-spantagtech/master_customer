@@ -18,11 +18,11 @@ class EstimatedFareAndDistance extends StatelessWidget {
     return GetBuilder<RideController>(builder: (rideController) {
       final colorScheme = Theme.of(context).colorScheme;
 
-      final String distanceText = rideController.remainingDistanceModel !=
-                  null &&
-              rideController.remainingDistanceModel!.isNotEmpty
+      final String distanceText = !fromPickLocation &&
+          rideController.remainingDistanceModel != null &&
+          rideController.remainingDistanceModel!.isNotEmpty
           ? rideController.remainingDistanceModel![0].distanceText ?? '0.00 km'
-          : '${double.tryParse(rideController.estimatedDistance.toString())?.toStringAsFixed(2) ?? '0.00'} km';
+          : '${double.tryParse(rideController.estimatedDistance)?.toStringAsFixed(2) ?? '0.00'} km';
 
       final double fare = fromPickLocation
           ? rideController.estimatedFare

@@ -161,7 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
 
       final rideController = Get.find<RideController>();
-      final currentRide = rideController.rideDetails;
+      final currentRide =
+          rideController.rideDetails ?? rideController.currentTripDetails;
 
       if (currentRide == null) return;
 
@@ -218,20 +219,22 @@ class _HomeScreenState extends State<HomeScreen> {
         body: GetBuilder<RideController>(builder: (rideController) {
           return GetBuilder<ParcelController>(builder: (parcelController) {
             const int parcelCount = 0;
-            final int rideCount = (rideController.rideDetails != null &&
-                    rideController.rideDetails!.type == 'ride_request' &&
-                    (rideController.rideDetails!.currentStatus == 'pending' ||
-                        rideController.rideDetails!.currentStatus ==
+            final activeRide =
+                rideController.rideDetails ?? rideController.currentTripDetails;
+            final int rideCount = (activeRide != null &&
+                    activeRide.type == 'ride_request' &&
+                    (activeRide.currentStatus == 'pending' ||
+                        activeRide.currentStatus ==
                             'accepted' ||
-                        rideController.rideDetails!.currentStatus ==
+                        activeRide.currentStatus ==
                             'ongoing' ||
-                        (rideController.rideDetails!.currentStatus ==
+                        (activeRide.currentStatus ==
                                 'completed' &&
-                            rideController.rideDetails!.paymentStatus ==
+                            activeRide.paymentStatus ==
                                 'unpaid') ||
-                        (rideController.rideDetails!.currentStatus ==
+                        (activeRide.currentStatus ==
                                 'cancelled' &&
-                            rideController.rideDetails!.paymentStatus ==
+                            activeRide.paymentStatus ==
                                 'unpaid')))
                 ? 1
                 : 0;
@@ -260,12 +263,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     right: 18,
                     child: _PickupLocationPill(),
                   ),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    top: MediaQuery.of(context).size.height * 0.52,
-                    child: const RideBottomSheet(),
+                  GetBuilder<BannerController>(
+                    builder: (bannerController) {
+                      final hasBanner =
+                          bannerController.bannerList?.isNotEmpty ?? false;
+                      return Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        top: MediaQuery.of(context).size.height *
+                            (hasBanner ? 0.45 : 0.52),
+                        child: const RideBottomSheet(),
+                      );
+                    },
                   ),
                   if ((rideCount + parcelCount) != 0)
                     Positioned(
@@ -484,8 +494,10 @@ class _PickupLocationPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LocationController>(builder: (locationController) {
-      final text = locationController.getUserAddress()?.address ??
-          locationController.fromAddress?.address ??
+      final text = locationController.liveAddress.trim().isNotEmpty
+          ? locationController.liveAddress
+          : locationController.fromAddress?.address ??
+          locationController.getUserAddress()?.address ??
           'current_location'.tr;
       return Align(
         alignment: Alignment.centerLeft,

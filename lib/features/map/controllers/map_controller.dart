@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -36,10 +37,23 @@ class MapController extends GetxController implements GetxService {
   }
 
   void initializeData() {
+    _driverMarkerAnimationTimer?.cancel();
+    _driverMarkerAnimationTimer = null;
+
     markers = {};
     polylines = {};
+
+    _polylineCoordinateList = [];
+    _currentDriverPosition = null;
+    _currentDriverBearing = 0.0;
+
     _lastMainRoutePolyline = '';
+    _lastDriverRoutePolyline = '';
+
+    _isInside = false;
     _isLoading = false;
+
+    update();
   }
 
   void notifyMapController() {
@@ -228,34 +242,55 @@ class MapController extends GetxController implements GetxService {
     bool isBound = true,
     required List<LatLng> latLongList,
   }) async {
-    markers = HashSet();
+    final RideController rideController = Get.find<RideController>();
 
-    Uint8List fromMarker =
+    final bool isOngoing =
+        rideController.currentRideState == RideState.ongoingRide;
+
+    // Preserve only the moving driver marker.
+    final Set<Marker> liveMarkers = markers
+        .where(
+          (marker) => marker.markerId.value == 'driverPosition',
+        )
+        .toSet();
+
+    markers = HashSet<Marker>.of(liveMarkers);
+
+    final Uint8List fromMarker =
         await convertAssetToUnit8List(Images.mapIcon, width: 50);
-    Uint8List toMarker =
+
+    final Uint8List toMarker =
         await convertAssetToUnit8List(Images.mapLocationIcon, width: 50);
 
-    markers.add(Marker(
-      markerId: const MarkerId('from'),
-      position: from,
-      anchor: const Offset(0.5, 0.5),
-      infoWindow: InfoWindow(
-        title: Get.find<RideController>().tripDetails?.pickupAddress ?? '',
-        snippet: 'pick_up_location'.tr,
-      ),
-      icon: BitmapDescriptor.fromBytes(fromMarker),
-    ));
+    // Show pickup marker only before the ride becomes ongoing.
+    if (!isOngoing) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('from'),
+          position: from,
+          anchor: const Offset(0.5, 0.5),
+          infoWindow: InfoWindow(
+            title: rideController.tripDetails?.pickupAddress ?? '',
+            snippet: 'pick_up_location'.tr,
+          ),
+          icon: BitmapDescriptor.fromBytes(fromMarker),
+        ),
+      );
+    }
 
-    markers.add(Marker(
-      markerId: const MarkerId('to'),
-      position: to,
-      anchor: const Offset(0.5, 0.5),
-      infoWindow: InfoWindow(
-        title: Get.find<RideController>().tripDetails?.destinationAddress ?? '',
-        snippet: 'destination'.tr,
+    // Destination marker is required in every state.
+    markers.add(
+      Marker(
+        markerId: const MarkerId('to'),
+        position: to,
+        anchor: const Offset(0.5, 0.5),
+        infoWindow: InfoWindow(
+          title: rideController.tripDetails?.destinationAddress ?? '',
+          snippet: 'destination'.tr,
+        ),
+        icon: BitmapDescriptor.fromBytes(toMarker),
       ),
-      icon: BitmapDescriptor.fromBytes(toMarker),
-    ));
+    );
 
     update();
 
@@ -265,6 +300,14 @@ class MapController extends GetxController implements GetxService {
   }
 
   void updateMarkerAndCircle({LatLng? latLng}) async {
+    if (Get.find<RideController>().currentRideState == RideState.ongoingRide) {
+      markers.removeWhere(
+        (marker) => marker.markerId.value == 'my_location',
+      );
+      update();
+      return;
+    }
+
     markers.removeWhere((marker) => marker.markerId.value == "my_location");
 
     Uint8List car = await convertAssetToUnit8List(
@@ -418,14 +461,39 @@ class MapController extends GetxController implements GetxService {
   //   update();
   // }
 
+  Timer? _driverMarkerAnimationTimer;
+  LatLng? _currentDriverPosition;
+  double _currentDriverBearing = 0.0;
+  String _lastDriverRoutePolyline = '';
+
+  double _interpolateAngle(double start, double end, double fraction) {
+    double difference = (end - start) % 360.0;
+    if (difference > 180.0) difference -= 360.0;
+    if (difference < -180.0) difference += 360.0;
+    return (start + difference * fraction) % 360.0;
+  }
+
   Future<void> getDriverToPickupOrDestinationPolyline(
     String lines, {
     bool mapBound = false,
+    double? driverLatitude,
+    double? driverLongitude,
   }) async {
     if (lines.isEmpty) return;
 
     final List<LatLng> result = decodeEncodedPolyline(lines);
     if (result.isEmpty) return;
+
+    final bool hasExactDriverPosition = driverLatitude != null &&
+        driverLongitude != null &&
+        driverLatitude >= -90 &&
+        driverLatitude <= 90 &&
+        driverLongitude >= -180 &&
+        driverLongitude <= 180;
+
+    final LatLng exactDriverPosition = hasExactDriverPosition
+        ? LatLng(driverLatitude!, driverLongitude!)
+        : result.first;
 
     final List<LatLng> polylineCoordinates =
         result.map((point) => LatLng(point.latitude, point.longitude)).toList();
@@ -433,15 +501,18 @@ class MapController extends GetxController implements GetxService {
     final RideController rideController = Get.find<RideController>();
 
     isInsideCircle(
-      result.first.latitude,
-      result.first.longitude,
+      exactDriverPosition.latitude,
+      exactDriverPosition.longitude,
       result.last.latitude,
       result.last.longitude,
       Get.find<ConfigController>().config!.completionRadius!,
     );
 
     _polylineCoordinateList = polylineCoordinates;
-    _addPolyLine(polylineCoordinates);
+    if (_lastDriverRoutePolyline != lines || polylines.isEmpty) {
+      _lastDriverRoutePolyline = lines;
+      _addPolyLine(polylineCoordinates);
+    }
 
     if (rideController.currentRideState == RideState.ongoingRide) {
       markers.removeWhere(
@@ -451,9 +522,20 @@ class MapController extends GetxController implements GetxService {
       );
     }
 
-    await updateDriverMarker(polylineCoordinates);
+    await updateDriverMarker(
+      polylineCoordinates,
+      driverPosition: exactDriverPosition,
+    );
 
-    // Rebuild map only once after polyline and marker are ready.
+    if (rideController.currentRideState == RideState.ongoingRide) {
+      markers.removeWhere(
+        (marker) =>
+            marker.markerId.value == 'from' ||
+            marker.markerId.value == 'my_location',
+      );
+    }
+
+// Rebuild map only once after polyline and marker are ready.
     update();
 
     if (mapBound) {
@@ -461,26 +543,21 @@ class MapController extends GetxController implements GetxService {
     }
   }
 
-  Future<void> updateDriverMarker(List<LatLng> latLngList) async {
+  Future<void> updateDriverMarker(
+    List<LatLng> latLngList, {
+    LatLng? driverPosition,
+  }) async {
     final RideController rideController = Get.find<RideController>();
 
     if (rideController.tripDetails == null || latLngList.isEmpty) {
       return;
     }
 
-    LatLng driverPosition = latLngList.first;
-    final liveLocation = rideController.tripDetails?.driverLastLocation;
-
-    if (liveLocation?.latitude != null && liveLocation?.longitude != null) {
-      final double? latitude =
-          double.tryParse(liveLocation!.latitude.toString());
-      final double? longitude =
-          double.tryParse(liveLocation.longitude.toString());
-
-      if (latitude != null && longitude != null) {
-        driverPosition = LatLng(latitude, longitude);
-      }
-    }
+    final LatLng targetPosition = driverPosition ?? latLngList.first;
+    final LatLng bearingTarget =
+        latLngList.length > 1 ? latLngList[1] : targetPosition;
+    final double targetBearing =
+        _calculateBearing(targetPosition, bearingTarget);
 
     final bool isCar =
         rideController.tripDetails?.vehicleCategory?.type == 'car';
@@ -496,18 +573,76 @@ class MapController extends GetxController implements GetxService {
       isCar ? _cachedCarIcon! : _cachedBikeIcon!,
     );
 
+    if (_currentDriverPosition == null) {
+      _currentDriverPosition = targetPosition;
+      _currentDriverBearing = targetBearing;
+      _setDriverMarkerAt(targetPosition, targetBearing, icon);
+      return;
+    }
+
+    final double distanceMeters = Geolocator.distanceBetween(
+      _currentDriverPosition!.latitude,
+      _currentDriverPosition!.longitude,
+      targetPosition.latitude,
+      targetPosition.longitude,
+    );
+
+    if (distanceMeters < 0.5) {
+      _currentDriverBearing = targetBearing;
+      _setDriverMarkerAt(_currentDriverPosition!, _currentDriverBearing, icon);
+      return;
+    }
+
+    if (distanceMeters > 5000) {
+      _driverMarkerAnimationTimer?.cancel();
+      _currentDriverPosition = targetPosition;
+      _currentDriverBearing = targetBearing;
+      _setDriverMarkerAt(targetPosition, targetBearing, icon);
+      return;
+    }
+
+    _driverMarkerAnimationTimer?.cancel();
+    final LatLng startPos = _currentDriverPosition!;
+    final double startBearing = _currentDriverBearing;
+    const int totalSteps = 20;
+    const int stepDurationMs = 100;
+    int currentStep = 0;
+
+    _driverMarkerAnimationTimer = Timer.periodic(
+      const Duration(milliseconds: stepDurationMs),
+      (timer) {
+        currentStep++;
+        final double fraction = (currentStep / totalSteps).clamp(0.0, 1.0);
+        final double lat = startPos.latitude +
+            (targetPosition.latitude - startPos.latitude) * fraction;
+        final double lng = startPos.longitude +
+            (targetPosition.longitude - startPos.longitude) * fraction;
+        final double bearing =
+            _interpolateAngle(startBearing, targetBearing, fraction);
+
+        _currentDriverPosition = LatLng(lat, lng);
+        _currentDriverBearing = bearing;
+        _setDriverMarkerAt(_currentDriverPosition!, bearing, icon);
+        update();
+
+        if (currentStep >= totalSteps) {
+          timer.cancel();
+          _currentDriverPosition = targetPosition;
+          _currentDriverBearing = targetBearing;
+        }
+      },
+    );
+  }
+
+  void _setDriverMarkerAt(LatLng pos, double bearing, BitmapDescriptor icon) {
     markers.removeWhere(
       (marker) => marker.markerId.value == 'driverPosition',
     );
-
-    final LatLng bearingTarget =
-        latLngList.length > 1 ? latLngList[1] : driverPosition;
-
     markers.add(
       Marker(
         markerId: const MarkerId('driverPosition'),
-        position: driverPosition,
-        rotation: _calculateBearing(driverPosition, bearingTarget),
+        position: pos,
+        rotation: bearing,
         draggable: false,
         zIndex: 2,
         flat: true,
@@ -515,12 +650,6 @@ class MapController extends GetxController implements GetxService {
         icon: icon,
       ),
     );
-
-    print(
-      'LIVE DRIVER = '
-      '${driverPosition.latitude}, ${driverPosition.longitude}',
-    );
-    print('MARKER UPDATED');
   }
 
   bool _isInside = false;

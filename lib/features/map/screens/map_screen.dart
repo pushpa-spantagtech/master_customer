@@ -8,9 +8,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
 import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
+import 'package:ride_sharing_user_app/features/coupon/controllers/coupon_controller.dart';
 import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/map/controllers/map_controller.dart';
 import 'package:ride_sharing_user_app/features/map/widget/discount_coupon_bottomsheet.dart';
+import 'package:ride_sharing_user_app/features/my_offer/controller/offer_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/controllers/parcel_controller.dart';
 import 'package:ride_sharing_user_app/features/parcel/widgets/parcel_expendable_bottom_sheet.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
@@ -335,10 +337,14 @@ class _MapScreenState extends State<MapScreen> {
                         Positioned(
                           bottom: mapController.sheetHeight + 134,
                           right: 18,
-                          child: _MapCircleButton(
-                            icon: Icons.local_offer_outlined,
-                            color: _brandRed,
-                            onTap: () {
+                          child: _MapCouponButton(
+                            onTap: () async {
+                              await Future.wait([
+                                Get.find<CouponController>()
+                                    .getCouponList(1, isUpdate: false),
+                                Get.find<OfferController>().getOfferList(1),
+                              ]);
+                              if (!mounted) return;
                               Get.bottomSheet(
                                 const DiscountAndCouponBottomSheet(),
                                 backgroundColor: Theme.of(context).cardColor,
@@ -527,6 +533,57 @@ class _MapCircleButton extends StatelessWidget {
             ],
           ),
           child: Icon(icon, color: color, size: 23),
+        ),
+      ),
+    );
+  }
+}
+
+class _MapCouponButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _MapCouponButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE8EBF0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.10),
+                blurRadius: 14,
+                offset: const Offset(0, 7),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.local_offer_outlined,
+                color: Color(0xFFE71921),
+                size: 21,
+              ),
+              const SizedBox(width: 7),
+              Text(
+                'coupons'.tr,
+                style: textBold.copyWith(
+                  color: const Color(0xFF121A2C),
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

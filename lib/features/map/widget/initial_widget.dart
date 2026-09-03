@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:ride_sharing_user_app/common_widgets/button_widget.dart';
 import 'package:ride_sharing_user_app/common_widgets/expandable_bottom_sheet.dar.dart';
+import 'package:ride_sharing_user_app/common_widgets/image_widget.dart';
 import 'package:ride_sharing_user_app/features/auth/controllers/auth_controller.dart';
 import 'package:ride_sharing_user_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:ride_sharing_user_app/features/home/controllers/category_controller.dart';
@@ -153,6 +154,7 @@ class _InitialWidgetState extends State<InitialWidget> {
                     option.name,
                     fare,
                     option.categoryId,
+                    option.imageUrl,
                     'Total distance: ${distance.toStringAsFixed(1)} km',
                     option.tariff,
                   ),
@@ -221,6 +223,12 @@ class _InitialWidgetState extends State<InitialWidget> {
                     tariff['vehicle_category']['name'] ?? 'Unknown',
                     tariff['package_rate'] ?? 0,
                     tariff['vehicle_category']['id'],
+                    _vehicleCategoryImageUrl(
+                      categoryId: tariff['vehicle_category']['id']?.toString(),
+                      categoryName:
+                          tariff['vehicle_category']['name']?.toString(),
+                      image: tariff['vehicle_category']['image']?.toString(),
+                    ),
                   ),
                 ),
               );
@@ -255,6 +263,9 @@ class _InitialWidgetState extends State<InitialWidget> {
                     tariff.vehicleType ?? '',
                     totalFare,
                     distance,
+                    _vehicleCategoryImageUrl(
+                      categoryName: tariff.vehicleType,
+                    ),
                   ),
                 ),
               );
@@ -486,6 +497,7 @@ class _InitialWidgetState extends State<InitialWidget> {
     String title,
     double fare,
     String categoryId,
+    String imageUrl,
     String subtitle,
     dynamic tariff,
   ) {
@@ -494,6 +506,7 @@ class _InitialWidgetState extends State<InitialWidget> {
       title: title,
       subtitle: subtitle,
       fareText: '₹${fare.round()}',
+      imageUrl: imageUrl,
       selected: selected,
       onTap: () {
         setState(() {
@@ -585,12 +598,14 @@ class _InitialWidgetState extends State<InitialWidget> {
     String title,
     int fare,
     String categoryId,
+    String imageUrl,
   ) {
     final bool isSelected = selectedVehicle == title;
     return _PremiumVehicleFareCard(
       title: title,
       subtitle: '$selectedHour hr • $selectedKm km package',
       fareText: '₹$fare',
+      imageUrl: imageUrl,
       selected: isSelected,
       onTap: () {
         setState(() {
@@ -609,6 +624,7 @@ class _InitialWidgetState extends State<InitialWidget> {
     String title,
     double totalFare,
     double distanceKm,
+    String imageUrl,
   ) {
     final bool selected = selectedOutstationVehicle == title;
 
@@ -616,6 +632,7 @@ class _InitialWidgetState extends State<InitialWidget> {
       title: title,
       subtitle: '${distanceKm.toStringAsFixed(1)} km • Outstation',
       fareText: '₹${totalFare.round()}',
+      imageUrl: imageUrl,
       selected: selected,
       onTap: () {
         setState(() {
@@ -668,7 +685,9 @@ class _InitialWidgetState extends State<InitialWidget> {
 
     final options = <_LocalVehicleOption>[];
     final addedNames = <String>{};
-    final categories = Get.find<CategoryController>().categoryList;
+    final categories = Get.isRegistered<CategoryController>()
+        ? Get.find<CategoryController>().categoryList
+        : null;
 
     if (categories != null && categories.isNotEmpty) {
       for (final category in categories) {
@@ -686,6 +705,11 @@ class _InitialWidgetState extends State<InitialWidget> {
         options.add(_LocalVehicleOption(
           name: name,
           categoryId: category.id ?? '',
+          imageUrl: _vehicleCategoryImageUrl(
+            categoryId: category.id,
+            categoryName: category.name,
+            image: category.image,
+          ),
           tariff: tariff,
         ));
       }
@@ -702,6 +726,11 @@ class _InitialWidgetState extends State<InitialWidget> {
         options.add(_LocalVehicleOption(
           name: name,
           categoryId: fare['vehicle_category']?['id']?.toString() ?? '',
+          imageUrl: _vehicleCategoryImageUrl(
+            categoryId: fare['vehicle_category']?['id']?.toString(),
+            categoryName: fare['vehicle_category']?['name']?.toString(),
+            image: fare['vehicle_category']?['image']?.toString(),
+          ),
           tariff: fare,
         ));
       }
@@ -772,6 +801,54 @@ class _InitialWidgetState extends State<InitialWidget> {
     return name.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '');
   }
 
+  String _vehicleCategoryImageUrl({
+    String? categoryId,
+    String? categoryName,
+    String? image,
+  }) {
+    String? resolvedImage = image?.trim();
+    final categories = Get.isRegistered<CategoryController>()
+        ? Get.find<CategoryController>().categoryList
+        : null;
+
+    if ((resolvedImage == null || resolvedImage.isEmpty) && categories != null) {
+      for (final category in categories) {
+        final bool idMatches = categoryId != null &&
+            categoryId.isNotEmpty &&
+            category.id == categoryId;
+        final bool nameMatches = categoryName != null &&
+            categoryName.isNotEmpty &&
+            _normalizeVehicleName(category.name ?? '') ==
+                _normalizeVehicleName(categoryName);
+        if (idMatches || nameMatches) {
+          resolvedImage = category.image?.trim();
+          break;
+        }
+      }
+    }
+
+    if (resolvedImage != null &&
+        (resolvedImage.startsWith('http://') ||
+            resolvedImage.startsWith('https://'))) {
+      return resolvedImage;
+    }
+
+    final baseUrl = Get.isRegistered<ConfigController>()
+        ? Get.find<ConfigController>()
+            .config
+            ?.imageBaseUrl
+            ?.vehicleCategory
+            ?.replaceAll(RegExp(r'/+$'), '')
+        : null;
+    if (resolvedImage == null ||
+        resolvedImage.isEmpty ||
+        baseUrl == null ||
+        baseUrl.isEmpty) {
+      return '';
+    }
+    return '$baseUrl/$resolvedImage';
+  }
+
   @override
   void dispose() {
     _packageScrollController.dispose();
@@ -782,11 +859,13 @@ class _InitialWidgetState extends State<InitialWidget> {
 class _LocalVehicleOption {
   final String name;
   final String categoryId;
+  final String imageUrl;
   final dynamic tariff;
 
   const _LocalVehicleOption({
     required this.name,
     required this.categoryId,
+    required this.imageUrl,
     required this.tariff,
   });
 }
@@ -795,6 +874,7 @@ class _PremiumVehicleFareCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final String fareText;
+  final String imageUrl;
   final bool selected;
   final VoidCallback onTap;
 
@@ -802,6 +882,7 @@ class _PremiumVehicleFareCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.fareText,
+    required this.imageUrl,
     required this.selected,
     required this.onTap,
   });
@@ -861,12 +942,20 @@ class _PremiumVehicleFareCard extends StatelessWidget {
                         ? _brandRed.withValues(alpha: 0.10)
                         : Colors.black.withValues(alpha: 0.06),
                   ),
-                  Image.asset(
-                    Images.car,
-                    width: 62,
-                    height: 42,
-                    fit: BoxFit.contain,
-                  ),
+                  imageUrl.isNotEmpty
+                      ? ImageWidget(
+                          image: imageUrl,
+                          width: 62,
+                          height: 42,
+                          fit: BoxFit.contain,
+                          placeholder: Images.car,
+                        )
+                      : Image.asset(
+                          Images.car,
+                          width: 62,
+                          height: 42,
+                          fit: BoxFit.contain,
+                        ),
                 ],
               ),
             ),
