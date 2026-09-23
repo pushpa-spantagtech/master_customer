@@ -222,20 +222,12 @@ class _HomeScreenState extends State<HomeScreen> {
             final activeRide =
                 rideController.rideDetails ?? rideController.currentTripDetails;
             final int rideCount = (activeRide != null &&
-                    activeRide.type == 'ride_request' &&
-                    (activeRide.currentStatus == 'pending' ||
-                        activeRide.currentStatus ==
-                            'accepted' ||
-                        activeRide.currentStatus ==
-                            'ongoing' ||
-                        (activeRide.currentStatus ==
-                                'completed' &&
-                            activeRide.paymentStatus ==
-                                'unpaid') ||
-                        (activeRide.currentStatus ==
-                                'cancelled' &&
-                            activeRide.paymentStatus ==
-                                'unpaid')))
+                activeRide.type == 'ride_request' &&
+                (activeRide.currentStatus == 'pending' ||
+                    activeRide.currentStatus == 'accepted' ||
+                    activeRide.currentStatus == 'ongoing' ||
+                    (activeRide.currentStatus == 'completed' &&
+                        activeRide.paymentStatus == 'unpaid')))
                 ? 1
                 : 0;
 

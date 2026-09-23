@@ -10,164 +10,189 @@ import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/util/styles.dart';
 
-class RideBottomSheet extends StatelessWidget {
+class RideBottomSheet extends StatefulWidget {
   const RideBottomSheet({super.key});
 
+  @override
+  State<RideBottomSheet> createState() => _RideBottomSheetState();
+}
+
+class _RideBottomSheetState extends State<RideBottomSheet>
+    with SingleTickerProviderStateMixin {
   static const Color _brandRed = Color(0xFFE71921);
   static const Color _ink = Color(0xFF121A2C);
   static const Color _muted = Color(0xFF6F7787);
 
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_handleTabChange);
+  }
+
+  void _handleTabChange() {
+    if (_tabController.indexIsChanging) {
+      final rideController = Get.find<RideController>();
+      if (_tabController.index == 0) {
+        rideController.setLocalRide(true);
+      } else if (_tabController.index == 1) {
+        rideController.setRentalRide(true);
+      } else if (_tabController.index == 2) {
+        rideController.setOutstationRide(true);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_handleTabChange);
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Builder(builder: (context) {
-        final tabController = DefaultTabController.of(context);
-
-        tabController.addListener(() {
-          if (tabController.indexIsChanging) {
-            final rideController = Get.find<RideController>();
-            if (tabController.index == 0) {
-              rideController.setLocalRide(true);
-            } else if (tabController.index == 1) {
-              rideController.setRentalRide(true);
-            } else if (tabController.index == 2) {
-              rideController.setOutstationRide(true);
-            }
-          }
-        });
-
-        return Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.62,
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.62,
+      ),
+      margin: const EdgeInsets.only(left: 0, right: 0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.14),
+            blurRadius: 30,
+            offset: const Offset(0, -12),
           ),
-          margin: const EdgeInsets.only(left: 0, right: 0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.14),
-                blurRadius: 30,
-                offset: const Offset(0, -12),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 54,
+                height: 5,
+                margin: const EdgeInsets.only(top: 3, bottom: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE2E5EA),
+                  borderRadius: BorderRadius.circular(999),
+                ),
               ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 54,
-                    height: 5,
-                    margin: const EdgeInsets.only(top: 3, bottom: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE2E5EA),
-                      borderRadius: BorderRadius.circular(999),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Choose your ride',
+                      style: textBold.copyWith(color: _ink, fontSize: 19),
                     ),
                   ),
-                ),
-                Padding(
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF1F1),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text('SevenTaxi',
+                        style: textBold.copyWith(
+                            color: _brandRed, fontSize: 12)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: BannerView(height: 105, showIndicator: false),
+            ),
+            GetBuilder<BannerController>(
+              builder: (bannerController) =>
+                  (bannerController.bannerList?.isNotEmpty ?? false)
+                      ? const SizedBox(height: 8)
+                      : const SizedBox.shrink(),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TabBar(
+                controller: _tabController,
+                indicatorColor: Colors.transparent,
+                labelPadding: EdgeInsets.zero,
+                dividerColor: Colors.transparent,
+                overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                tabs: [
+                  _PremiumVehicleTab(
+                      title: 'Local',
+                      subtitle: 'Within city',
+                      image: Images.car,
+                      index: 0,
+                      controller: _tabController),
+                  _PremiumVehicleTab(
+                      title: 'Rental',
+                      subtitle: 'By the hour',
+                      image: Images.car,
+                      index: 1,
+                      controller: _tabController),
+                  _PremiumVehicleTab(
+                      title: 'Outstation',
+                      subtitle: 'Out of city',
+                      image: Images.car,
+                      index: 2,
+                      controller: _tabController),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            AnimatedBuilder(
+              animation: _tabController,
+              builder: (context, child) {
+                return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Choose your ride',
-                          style: textBold.copyWith(color: _ink, fontSize: 19),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF1F1),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text('SevenTaxi',
-                            style: textBold.copyWith(
-                                color: _brandRed, fontSize: 12)),
-                      ),
-                    ],
+                  child: HomeSearchWidget(
+                    isLocal: _tabController.index == 0,
+                    isRental: _tabController.index == 1,
+                    isOutstation: _tabController.index == 2,
                   ),
-                ),
-                const SizedBox(height: 8),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: BannerView(height: 105, showIndicator: false),
-                ),
-                GetBuilder<BannerController>(
-                  builder: (bannerController) =>
-                      (bannerController.bannerList?.isNotEmpty ?? false)
-                          ? const SizedBox(height: 8)
-                          : const SizedBox.shrink(),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: TabBar(
-                    indicatorColor: Colors.transparent,
-                    labelPadding: EdgeInsets.zero,
-                    dividerColor: Colors.transparent,
-                    overlayColor: WidgetStatePropertyAll(Colors.transparent),
-                    tabs: [
-                      _PremiumVehicleTab(
-                          title: 'Local',
-                          subtitle: 'Within city',
-                          image: Images.car,
-                          index: 0),
-                      _PremiumVehicleTab(
-                          title: 'Rental',
-                          subtitle: 'By the hour',
-                          image: Images.car,
-                          index: 1),
-                      _PremiumVehicleTab(
-                          title: 'Outstation',
-                          subtitle: 'Out of city',
-                          image: Images.car,
-                          index: 2),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                AnimatedBuilder(
-                  animation: tabController,
-                  builder: (context, child) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: HomeSearchWidget(
-                        isLocal: tabController.index == 0,
-                        isRental: tabController.index == 1,
-                        isOutstation: tabController.index == 2,
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: SizedBox(
-                    height: tabController.index == 0
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            Flexible(
+              fit: FlexFit.loose,
+              child: AnimatedBuilder(
+                animation: _tabController,
+                builder: (context, _) {
+                  return SizedBox(
+                    height: _tabController.index == 0
                         ? 115
-                        : tabController.index == 1
+                        : _tabController.index == 1
                             ? 150
                             : 135,
-                    child: const NotificationListener<
+                    child: NotificationListener<
                         OverscrollIndicatorNotification>(
                       onNotification: _disableGlow,
                       child: TabBarView(
-                        physics: NeverScrollableScrollPhysics(),
-                        children: [LocalTab(), RentalTab(), OutstationTab()],
+                        controller: _tabController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: const [LocalTab(), RentalTab(), OutstationTab()],
                       ),
                     ),
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
-          ),
-        );
-      }),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -182,12 +207,14 @@ class _PremiumVehicleTab extends StatelessWidget {
   final String subtitle;
   final String image;
   final int index;
+  final TabController controller;
 
   const _PremiumVehicleTab({
     required this.title,
     required this.subtitle,
     required this.image,
     required this.index,
+    required this.controller,
   });
 
   static const Color _brandRed = Color(0xFFE71921);
@@ -196,8 +223,6 @@ class _PremiumVehicleTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TabController controller = DefaultTabController.of(context);
-
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {

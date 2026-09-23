@@ -19,10 +19,6 @@ class HomeScreenHelper {
                 (Get.find<RideController>().rideDetails!.currentStatus ==
                         'completed' &&
                     Get.find<RideController>().rideDetails!.paymentStatus! ==
-                        'unpaid') ||
-                (Get.find<RideController>().rideDetails!.currentStatus ==
-                        'cancelled' &&
-                    Get.find<RideController>().rideDetails!.paymentStatus! ==
                         'unpaid')))
         ? 1
         : 0;

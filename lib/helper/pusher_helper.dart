@@ -366,14 +366,11 @@ class PusherHelper {
 
         Get.find<RideController>().stopLocationRecord();
 
-        /*
-         * Refresh backend status so local ride
-         * information is no longer stale.
-         */
-        await Get.find<RideController>().getCurrentRideStatus(
-          navigateToMap: false,
-          fromRefresh: true,
-        );
+        // The event itself confirms cancellation. A status request made in
+        // this instant can still return the old `pending` row, so clear the
+        // local request immediately and allow the next booking to create a
+        // fresh trip id.
+        Get.find<RideController>().clearRideDetails();
 
         Get.offAll(
           () => const DashboardScreen(),

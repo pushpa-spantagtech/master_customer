@@ -15,7 +15,9 @@ class _OutstationTabState extends State<OutstationTab> {
   @override
   void initState() {
     super.initState();
-    Get.find<RideController>().getOutstationTariffs();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<RideController>().getOutstationTariffs();
+    });
   }
 
   @override

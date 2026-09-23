@@ -92,6 +92,7 @@ class _MapScreenState extends State<MapScreen> {
     if (_isMovingToCurrentLocation) return;
 
     _isMovingToCurrentLocation = true;
+    Get.find<MapController>().setAutoFollowDriver(true);
 
     try {
       final GoogleMapController? controller =
@@ -210,6 +211,16 @@ class _MapScreenState extends State<MapScreen> {
                             onCameraMove: (CameraPosition position) {
                               _lastCameraTarget = position.target;
                             },
+                            onCameraMoveStarted: () {
+                              final mapController = Get.find<MapController>();
+                              if (!mapController
+                                  .cameraFollowAnimationInProgress) {
+                                // Respect a customer's manual map movement.
+                                // Pressing the location button enables follow
+                                // mode again.
+                                mapController.setAutoFollowDriver(false);
+                              }
+                            },
                             onCameraIdle: () async {
                               // IMPORTANT:
                               // Do not update pickup/source location here.
@@ -224,33 +235,28 @@ class _MapScreenState extends State<MapScreen> {
                             },
                             onMapCreated: (GoogleMapController controller) {
                               mapController.mapController = controller;
-                              if (Get.find<RideController>()
-                                          .currentRideState
-                                          .name ==
-                                      'findingRider' ||
-                                  Get.find<RideController>()
-                                          .currentRideState
-                                          .name ==
-                                      'riseFare') {
-                                Get.find<MapController>().initializeData();
-                                Get.find<MapController>()
-                                    .setOwnCurrentLocation();
-                              } else if (Get.find<RideController>()
-                                      .currentRideState
-                                      .name ==
-                                  'initial') {
-                                mapController.getPolyline();
-                              } else if (Get.find<RideController>()
-                                      .currentRideState
-                                      .name ==
-                                  'completeRide') {
-                                Get.find<MapController>().initializeData();
-                              } else {
-                                Get.find<MapController>().initializeData();
-                                Get.find<MapController>()
-                                    .setMarkersInitialPosition();
-                              }
                               _mapController = controller;
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (!mounted) return;
+                                final rideController =
+                                    Get.find<RideController>();
+                                final rideState =
+                                    rideController.currentRideState.name;
+                                if (rideState == 'findingRider' ||
+                                    rideState == 'riseFare') {
+                                  Get.find<MapController>().initializeData();
+                                  Get.find<MapController>()
+                                      .setOwnCurrentLocation();
+                                } else if (rideState == 'initial') {
+                                  mapController.getPolyline();
+                                } else if (rideState == 'completeRide') {
+                                  Get.find<MapController>().initializeData();
+                                } else {
+                                  Get.find<MapController>().initializeData();
+                                  Get.find<MapController>()
+                                      .setMarkersInitialPosition();
+                                }
+                              });
                             },
                             minMaxZoomPreference: const MinMaxZoomPreference(
                               0,

@@ -19,8 +19,8 @@ class ActivityScreenRiderDetails extends StatelessWidget {
     return GetBuilder<RideController>(
       builder: (rideController) {
         final trip = rideController.tripDetails;
-        final driver = trip?.driver;
-        final vehicle = trip?.vehicle;
+        final driver = rideController.displayDriver;
+        final vehicle = rideController.displayVehicle;
         final String driverImageName =
     driver?.profileImage?.toString().trim() ?? '';
 
@@ -31,9 +31,10 @@ final String driverImageUrl = driverImageName.isEmpty
         : '${Get.find<ConfigController>().config?.imageBaseUrl?.profileImageDriver ?? ''}/$driverImageName';
         final colorScheme = Theme.of(context).colorScheme;
 
-        final String rating = driver != null && trip?.driverAvgRating != null
+        final String? savedRating = rideController.displayDriverRating;
+        final String rating = driver != null && savedRating != null
             ? double.tryParse(
-                  trip!.driverAvgRating!,
+                  savedRating,
                 )?.toStringAsFixed(1) ??
                 '0.0'
             : '0.0';

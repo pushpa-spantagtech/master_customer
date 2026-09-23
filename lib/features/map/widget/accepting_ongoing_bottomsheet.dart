@@ -365,16 +365,8 @@ class _AcceptingAndOngoingBottomSheetState
                             );
 
                             if (response.statusCode == 200) {
-                              Get.find<RideController>().updateRideCurrentState(
-                                RideState.completeRide,
-                              );
-
                               Get.find<MapController>().notifyMapController();
-
-                              await Get.find<RideController>()
-                                  .getFinalFare(tripId);
-
-                              Get.offAll(() => const PaymentScreen());
+                              Get.find<BottomMenuController>().navigateToDashboard();
                             }
                           }
                         },

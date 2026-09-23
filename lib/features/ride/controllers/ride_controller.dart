@@ -80,6 +80,8 @@ class RideController extends GetxController implements GetxService {
   bool isRentalRide = false;
   double? selectedIdleFee;
   List<dynamic> localTariffs = [];
+  bool isLocalTariffsLoading = false;
+  String? localTariffsError;
 
   String localVehicle = '';
   String localVehicleCategoryId = '';
@@ -88,6 +90,21 @@ class RideController extends GetxController implements GetxService {
   String outstationVehicle = '';
 
   TripDetails? get currentTripDetails => tripDetails;
+
+  // Rider detail widgets must always read from the current trip first.
+  // rideDetails is retained as a fallback for screens opened from Activity.
+  TripDetails? get _displayTripDetails => tripDetails ?? rideDetails;
+
+  Driver? get displayDriver => _displayTripDetails?.driver;
+
+  Vehicle? get displayVehicle =>
+      _displayTripDetails?.vehicle ?? displayDriver?.vehicle;
+
+  String get displayDriverRating {
+    final value = _displayTripDetails?.driverAvgRating;
+    return double.tryParse(value?.toString() ?? '')?.toStringAsFixed(1) ??
+        '0.0';
+  }
 
   TextEditingController inputFarePriceController =
       TextEditingController(text: '0.00');
@@ -236,8 +253,15 @@ class RideController extends GetxController implements GetxService {
   }
 
   void clearRideDetails() {
+    stopLocationRecord();
     tripDetails = null;
     rideDetails = null;
+    currentRideState = RideState.initial;
+    encodedPolyLine = '';
+    biddingList = [];
+    remainingDistanceModel = null;
+    runningTrip = false;
+    _completionNavigationInProgress = false;
     Get.find<SharedPreferences>().remove('active_trip_id');
     update();
   }
@@ -345,6 +369,13 @@ class RideController extends GetxController implements GetxService {
 
   Future<Response> submitRideRequest(String note, bool parcel,
       {String categoryId = ''}) async {
+    // The booking sheet represents a new ride. An expired/cancelled ride can
+    // remain in memory when its push arrives before the backend status query
+    // catches up. Never reuse that stale id for a new booking.
+    if (!parcel && currentRideState == RideState.initial && tripDetails != null) {
+      clearRideDetails();
+    }
+
     if (!isLocalRide) {
       selectedIdleFee = selectedType?.idleFeePerMin ?? 0;
     }
@@ -521,8 +552,12 @@ class RideController extends GetxController implements GetxService {
             Get.find<ParcelController>().receiverContactController.text,
         receiverAddress:
             Get.find<ParcelController>().receiverAddressController.text,
-        parcelCategoryId:
-            parcel ? Get.find<ParcelController>().parcelCategoryList![Get.find<ParcelController>().selectedParcelCategory].id : '',
+        parcelCategoryId: parcel
+            ? Get.find<ParcelController>()
+                .parcelCategoryList![
+                    Get.find<ParcelController>().selectedParcelCategory]
+                .id
+            : '',
         payer: Get.find<ParcelController>().payReceiver ? 'receiver' : "sender",
         weight: Get.find<ParcelController>().parcelWeightController.text,
         tripRequestId: parcel ? null : tripDetails?.id);
@@ -534,7 +569,8 @@ class RideController extends GetxController implements GetxService {
       // customer returns from MapScreen. Home historically reads rideDetails.
       rideDetails = tripDetails;
       tripDetails!.id = response.body['data']['id'];
-      Get.find<SharedPreferences>().setString('active_trip_id', tripDetails!.id!);
+      Get.find<SharedPreferences>()
+          .setString('active_trip_id', tripDetails!.id!);
       encodedPolyLine = tripDetails?.encodedPolyline ?? '';
       if (encodedPolyLine != '' && encodedPolyLine.isNotEmpty) {
         //  Get.find<MapController>().getPolyline();
@@ -579,10 +615,49 @@ class RideController extends GetxController implements GetxService {
 
     Response response = await rideServiceInterface.getRideDetails(tripId);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && response.body['data'] != null) {
       Get.find<MapController>().notifyMapController();
 
-      tripDetails = TripDetailsModel.fromJson(response.body).data!;
+      final TripDetails? previousTripDetails = tripDetails ?? rideDetails;
+      final TripDetails refreshedTripDetails =
+          TripDetailsModel.fromJson(response.body).data!;
+
+      // A ride-details response can be temporarily incomplete immediately
+      // after connectivity is restored. Keep the last complete data visible
+      // instead of replacing the driver card with an empty skeleton.
+      refreshedTripDetails.driver ??= previousTripDetails?.driver;
+      if (refreshedTripDetails.driver != null &&
+          previousTripDetails?.driver != null) {
+        refreshedTripDetails.driver!.id ??= previousTripDetails!.driver!.id;
+        refreshedTripDetails.driver!.firstName ??=
+            previousTripDetails!.driver!.firstName;
+        refreshedTripDetails.driver!.lastName ??=
+            previousTripDetails!.driver!.lastName;
+        refreshedTripDetails.driver!.profileImage ??=
+            previousTripDetails!.driver!.profileImage;
+        refreshedTripDetails.driver!.vehicle ??=
+            previousTripDetails!.driver!.vehicle;
+      }
+      refreshedTripDetails.driverLastLocation ??=
+          previousTripDetails?.driverLastLocation;
+      refreshedTripDetails.vehicle ??= previousTripDetails?.vehicle;
+      refreshedTripDetails.vehicleCategory ??=
+          previousTripDetails?.vehicleCategory;
+      refreshedTripDetails.pickupCoordinates ??=
+          previousTripDetails?.pickupCoordinates;
+      refreshedTripDetails.destinationCoordinates ??=
+          previousTripDetails?.destinationCoordinates;
+      refreshedTripDetails.customerRequestCoordinates ??=
+          previousTripDetails?.customerRequestCoordinates;
+      refreshedTripDetails.pickupAddress ??=
+          previousTripDetails?.pickupAddress;
+      refreshedTripDetails.destinationAddress ??=
+          previousTripDetails?.destinationAddress;
+      refreshedTripDetails.encodedPolyline ??=
+          previousTripDetails?.encodedPolyline;
+
+      tripDetails = refreshedTripDetails;
+      rideDetails = refreshedTripDetails;
       print("TRIP ENTRANCE => ${tripDetails?.entrance}");
 
       estimatedDistance = tripDetails!.estimatedDistance!.toString();
@@ -653,12 +728,12 @@ class RideController extends GetxController implements GetxService {
     runningTrip = true;
 
     if (tripDetails == null) {
-      String? activeTripId = Get.find<SharedPreferences>().getString('active_trip_id');
+      String? activeTripId =
+          Get.find<SharedPreferences>().getString('active_trip_id');
       if (activeTripId != null && activeTripId.isNotEmpty) {
-        final fallbackResponse = await getRideDetails(activeTripId);
-        if (fallbackResponse.statusCode == 200 && fallbackResponse.body['data'] != null) {
-          tripDetails = TripDetailsModel.fromJson(fallbackResponse.body).data!;
-        }
+        await getRideDetails(activeTripId);
+        // getRideDetails() already parses, merges and stores the response.
+        // Parsing its raw body again here discards the recovered driver data.
       }
     }
 
@@ -669,10 +744,10 @@ class RideController extends GetxController implements GetxService {
             response.statusCode == 403 ||
             response.statusCode == 404;
 
-    if (shouldUseDetailsFallback &&
-        tripDetails?.id != null) {
+    if (shouldUseDetailsFallback && tripDetails?.id != null) {
       final fallbackResponse = await getRideDetails(tripDetails!.id!);
-      if (fallbackResponse.statusCode == 200 && fallbackResponse.body['data'] != null) {
+      if (fallbackResponse.statusCode == 200 &&
+          fallbackResponse.body['data'] != null) {
         response = fallbackResponse;
       }
     }
@@ -680,33 +755,32 @@ class RideController extends GetxController implements GetxService {
     if (response.statusCode == 200 && response.body['data'] != null) {
       runningTrip = false;
 
-      final TripDetails? previousTripDetails = tripDetails;
+      final TripDetails? previousTripDetails = tripDetails ?? rideDetails;
 
       TripDetails refreshedTripDetails =
-      TripDetailsModel.fromJson(response.body).data!;
+          TripDetailsModel.fromJson(response.body).data!;
 
 // When the app resumes, the status endpoint may return only partial data.
 // If no driver data is available, load the complete ride details.
-      if (refreshedTripDetails.driver == null &&
+      if ((refreshedTripDetails.driver == null ||
+              refreshedTripDetails.driver?.id == null ||
+              refreshedTripDetails.driver?.firstName == null) &&
           refreshedTripDetails.id != null &&
           refreshedTripDetails.id!.isNotEmpty) {
         final Response fullDetailsResponse =
-        await rideServiceInterface.getRideDetails(
+            await rideServiceInterface.getRideDetails(
           refreshedTripDetails.id!,
         );
 
         if (fullDetailsResponse.statusCode == 200 &&
             fullDetailsResponse.body['data'] != null) {
           final TripDetails fullTripDetails =
-          TripDetailsModel.fromJson(fullDetailsResponse.body).data!;
+              TripDetailsModel.fromJson(fullDetailsResponse.body).data!;
 
           // Preserve the latest status returned by the polling endpoint.
-          fullTripDetails.currentStatus ??=
-              refreshedTripDetails.currentStatus;
-          fullTripDetails.paymentStatus ??=
-              refreshedTripDetails.paymentStatus;
-          fullTripDetails.isPaused ??=
-              refreshedTripDetails.isPaused;
+          fullTripDetails.currentStatus ??= refreshedTripDetails.currentStatus;
+          fullTripDetails.paymentStatus ??= refreshedTripDetails.paymentStatus;
+          fullTripDetails.isPaused ??= refreshedTripDetails.isPaused;
           fullTripDetails.driverLastLocation ??=
               refreshedTripDetails.driverLastLocation;
 
@@ -716,6 +790,18 @@ class RideController extends GetxController implements GetxService {
 
 // Preserve the last valid information if either endpoint omits fields.
       refreshedTripDetails.driver ??= previousTripDetails?.driver;
+      if (refreshedTripDetails.driver != null &&
+          previousTripDetails?.driver != null) {
+        refreshedTripDetails.driver!.id ??= previousTripDetails!.driver!.id;
+        refreshedTripDetails.driver!.firstName ??=
+            previousTripDetails!.driver!.firstName;
+        refreshedTripDetails.driver!.lastName ??=
+            previousTripDetails!.driver!.lastName;
+        refreshedTripDetails.driver!.profileImage ??=
+            previousTripDetails!.driver!.profileImage;
+        refreshedTripDetails.driver!.vehicle ??=
+            previousTripDetails!.driver!.vehicle;
+      }
       refreshedTripDetails.driverLastLocation ??=
           previousTripDetails?.driverLastLocation;
       refreshedTripDetails.vehicle ??= previousTripDetails?.vehicle;
@@ -729,8 +815,7 @@ class RideController extends GetxController implements GetxService {
       refreshedTripDetails.customerRequestCoordinates ??=
           previousTripDetails?.customerRequestCoordinates;
 
-      refreshedTripDetails.pickupAddress ??=
-          previousTripDetails?.pickupAddress;
+      refreshedTripDetails.pickupAddress ??= previousTripDetails?.pickupAddress;
       refreshedTripDetails.destinationAddress ??=
           previousTripDetails?.destinationAddress;
       refreshedTripDetails.encodedPolyline ??=
@@ -812,7 +897,7 @@ class RideController extends GetxController implements GetxService {
      * ----------------------------------------------------------
      */
       if (currentRideStatus == AppConstants.cancelled) {
-        stopLocationRecord();
+        clearRideDetails();
 
         if (Get.find<LocationController>().getUserAddress() != null) {
           Get.offAll(() => const DashboardScreen());
@@ -954,6 +1039,7 @@ class RideController extends GetxController implements GetxService {
 // Keep the last valid trip details during temporary network failures.
 // The next polling request will refresh the information after reconnection.
       if (statusCode == 0 ||
+          statusCode == 1 ||
           statusCode == 408 ||
           statusCode == 429 ||
           statusCode >= 500) {
@@ -962,6 +1048,7 @@ class RideController extends GetxController implements GetxService {
 
       tripDetails = null;
       rideDetails = null;
+      Get.find<SharedPreferences>().remove('active_trip_id');
 
       if (Get.find<LocationController>().getUserAddress() != null) {
         if (!fromRefresh) {
@@ -991,8 +1078,45 @@ class RideController extends GetxController implements GetxService {
       {bool fromRefresh = false, bool navigateToMap = true}) async {
     Response response = await rideServiceInterface.currentRideStatus();
     if (response.statusCode == 200 && response.body['data'] != null) {
-      tripDetails =
-          rideDetails = TripDetailsModel.fromJson(response.body).data!;
+      final TripDetails? previousTripDetails = tripDetails ?? rideDetails;
+      final TripDetails refreshedTripDetails =
+          TripDetailsModel.fromJson(response.body).data!;
+
+      // HomeScreen still uses this legacy refresh path. The status response
+      // can be partial during a network transition, so keep the last complete
+      // driver, vehicle, address and route data visible.
+      refreshedTripDetails.driver ??= previousTripDetails?.driver;
+      if (refreshedTripDetails.driver != null &&
+          previousTripDetails?.driver != null) {
+        refreshedTripDetails.driver!.id ??= previousTripDetails!.driver!.id;
+        refreshedTripDetails.driver!.firstName ??=
+            previousTripDetails!.driver!.firstName;
+        refreshedTripDetails.driver!.lastName ??=
+            previousTripDetails!.driver!.lastName;
+        refreshedTripDetails.driver!.profileImage ??=
+            previousTripDetails!.driver!.profileImage;
+        refreshedTripDetails.driver!.vehicle ??=
+            previousTripDetails!.driver!.vehicle;
+      }
+      refreshedTripDetails.driverLastLocation ??=
+          previousTripDetails?.driverLastLocation;
+      refreshedTripDetails.vehicle ??= previousTripDetails?.vehicle;
+      refreshedTripDetails.vehicleCategory ??=
+          previousTripDetails?.vehicleCategory;
+      refreshedTripDetails.pickupCoordinates ??=
+          previousTripDetails?.pickupCoordinates;
+      refreshedTripDetails.destinationCoordinates ??=
+          previousTripDetails?.destinationCoordinates;
+      refreshedTripDetails.customerRequestCoordinates ??=
+          previousTripDetails?.customerRequestCoordinates;
+      refreshedTripDetails.pickupAddress ??=
+          previousTripDetails?.pickupAddress;
+      refreshedTripDetails.destinationAddress ??=
+          previousTripDetails?.destinationAddress;
+      refreshedTripDetails.encodedPolyline ??=
+          previousTripDetails?.encodedPolyline;
+
+      tripDetails = rideDetails = refreshedTripDetails;
       estimatedDistance = rideDetails!.estimatedDistance!.toString();
       encodedPolyLine = rideDetails!.encodedPolyline ?? '';
     } else if (response.statusCode == 403) {
@@ -1001,12 +1125,13 @@ class RideController extends GetxController implements GetxService {
     update();
     return response;
   }
+
   Future<Response>? _remainingDistanceFuture;
 
   Future<Response> remainingDistance(
-      String requestID, {
-        bool mapBound = false,
-      }) async {
+    String requestID, {
+    bool mapBound = false,
+  }) async {
     final Future<Response>? activeRequest = _remainingDistanceFuture;
 
     if (activeRequest != null) {
@@ -1028,10 +1153,11 @@ class RideController extends GetxController implements GetxService {
       }
     }
   }
+
   Future<Response> _loadRemainingDistance(
-      String requestID, {
-        bool mapBound = false,
-      }) async {
+    String requestID, {
+    bool mapBound = false,
+  }) async {
     // Background polling: do not enable the shared page loading state.
     Response response = await rideServiceInterface.remainDistance(requestID);
     print("========== CUSTOMER REMAIN DISTANCE ==========");
@@ -1071,12 +1197,12 @@ class RideController extends GetxController implements GetxService {
 
         if (routePolyline.isNotEmpty) {
           await Get.find<MapController>()
-          .getDriverToPickupOrDestinationPolyline(
+              .getDriverToPickupOrDestinationPolyline(
             routePolyline,
             mapBound: mapBound,
             driverLatitude: driverLatitude,
             driverLongitude: driverLongitude,
-        );
+          );
         } else {
           debugPrint(
             'REMAINING DISTANCE: API returned empty route polyline',
@@ -1087,10 +1213,11 @@ class RideController extends GetxController implements GetxService {
             (driveRoute['distance'] as num?)?.toDouble() ?? 0;
 
         if (routeDistance > 0) {
-          final double? prevDist = double.tryParse(estimatedDistance ?? '');
+          final double? prevDist = double.tryParse(estimatedDistance);
           if (prevDist != null &&
               prevDist > 0 &&
-              (tripDetails?.currentStatus == 'ongoing' || tripDetails?.currentStatus == 'accepted')) {
+              (tripDetails?.currentStatus == 'ongoing' ||
+                  tripDetails?.currentStatus == 'accepted')) {
             if (routeDistance > prevDist && (routeDistance - prevDist) < 0.4) {
               estimatedDistance = prevDist.toStringAsFixed(2);
             } else {
@@ -1262,10 +1389,19 @@ class RideController extends GetxController implements GetxService {
               tripDetails?.currentStatus == 'ongoing') &&
           currentRideState != RideState.otpSent) {
         await remainingDistance(tripDetails!.id!);
-      } else if (tripDetails == null ||
-          tripDetails?.currentStatus == 'completed' ||
+      } else if (tripDetails?.currentStatus == 'completed' ||
           tripDetails?.currentStatus == 'cancelled') {
         timer.cancel();
+      } else if (tripDetails == null) {
+        // Do not stop recovery polling while an active trip id is stored.
+        // This covers an app/process restart that happens while the device is
+        // offline. Once connectivity returns, the same timer reloads the
+        // complete ride and resumes marker/polyline updates.
+        final String? activeTripId =
+            Get.find<SharedPreferences>().getString('active_trip_id');
+        if (activeTripId == null || activeTripId.isEmpty) {
+          timer.cancel();
+        }
       }
     });
   }
@@ -1321,8 +1457,16 @@ class RideController extends GetxController implements GetxService {
     Response response = await rideServiceInterface.tripStatusUpdate(
         tripId, status, cancellationCause);
     if (response.statusCode == 200) {
-      if (status == "cancelled" && !afterAccept) {
+      if (status.toLowerCase() == 'cancelled') {
+        stopLocationRecord();
+
         tripDetails = null;
+        rideDetails = null;
+        currentRideState = RideState.initial;
+        encodedPolyLine = '';
+        biddingList = [];
+
+        Get.find<SharedPreferences>().remove('active_trip_id');
       }
       showCustomSnackBar(message.tr, isError: false);
       isLoading = false;
@@ -1522,37 +1666,45 @@ class RideController extends GetxController implements GetxService {
 
   double outstationFare = 0;
   List<OutstationTariff> outstationTariffs = [];
+  bool isOutstationTariffsLoading = false;
 
   Future<void> getOutstationTariffs() async {
-    Response response = await rideServiceInterface.getOutstationTariffs();
-
-    if (response.statusCode == 200) {
-      outstationTariffs =
-          OutstationTariffModel.fromJson(response.body).data ?? [];
-
-      final double distanceKm = double.tryParse(estimatedDistance) ?? 0;
-
-      for (final tariff in outstationTariffs) {
-        final double baseKm =
-            double.tryParse(tariff.baseKm?.toString() ?? '0') ?? 0;
-        final double baseFare =
-            double.tryParse(tariff.baseFare?.toString() ?? '0') ?? 0;
-        final double extraPerKm =
-            double.tryParse(tariff.extraPerKm?.toString() ?? '0') ?? 0;
-
-        final double extraKm = distanceKm > baseKm ? distanceKm - baseKm : 0;
-        final double totalFare = baseFare + (extraKm * extraPerKm);
-
-        // tariff.baseFare = totalFare.toStringAsFixed(2);
-      }
-
-      print('Outstation Tariffs Loaded: ${outstationTariffs.length}');
-      print('Outstation Distance KM: $distanceKm');
-    } else {
-      ApiChecker.checkApi(response);
-    }
-
+    isOutstationTariffsLoading = true;
     update();
+
+    try {
+      final Response response = await rideServiceInterface.getOutstationTariffs();
+
+      if (response.statusCode == 200) {
+        outstationTariffs =
+            OutstationTariffModel.fromJson(response.body).data ?? [];
+
+        final double distanceKm = double.tryParse(estimatedDistance) ?? 0;
+
+        for (final tariff in outstationTariffs) {
+          final double baseKm =
+              double.tryParse(tariff.baseKm?.toString() ?? '0') ?? 0;
+          final double baseFare =
+              double.tryParse(tariff.baseFare?.toString() ?? '0') ?? 0;
+          final double extraPerKm =
+              double.tryParse(tariff.extraPerKm?.toString() ?? '0') ?? 0;
+
+          final double extraKm = distanceKm > baseKm ? distanceKm - baseKm : 0;
+          final double totalFare = baseFare + (extraKm * extraPerKm);
+
+          // tariff.baseFare = totalFare.toStringAsFixed(2);
+        }
+
+        print('Outstation Tariffs Loaded: ${outstationTariffs.length}');
+        print('Outstation Distance KM: $distanceKm');
+      } else {
+        outstationTariffs = [];
+        ApiChecker.checkApi(response);
+      }
+    } finally {
+      isOutstationTariffsLoading = false;
+      update();
+    }
   }
 
   double calculateOutstationFare(
@@ -1571,37 +1723,76 @@ class RideController extends GetxController implements GetxService {
   }
 
   Future<void> getLocalTariffs() async {
-    Response response = await rideServiceInterface.getLocalTariffs();
-    if (response.statusCode == 200) {
-      final currentZoneId = Get.find<LocationController>().zoneID;
-      localTariffs = (response.body['data'] as List)
-          .where((e) => e['zone_id'] == currentZoneId)
-          .toList();
-      for (var item in localTariffs) {
-        print("ZONE => ${item['zone']['name']}");
+    isLocalTariffsLoading = true;
+    localTariffsError = null;
+    update();
+
+    try {
+      final Response response = await rideServiceInterface
+          .getLocalTariffs()
+          .timeout(const Duration(seconds: 15));
+      if (response.statusCode == 200 && response.body['data'] is List) {
+        final List<dynamic> responseTariffs = response.body['data'];
+        final String currentZoneId =
+            Get.find<LocationController>().zoneID ?? '';
+
+        final List<dynamic> zoneTariffs = currentZoneId.isEmpty
+            ? <dynamic>[]
+            : responseTariffs
+                .where((item) => item['zone_id'] == currentZoneId)
+                .toList();
+
+        // The API already resolves the zone from the request and may use the
+        // configured Chennai fallback before LocationController finishes
+        // loading. Do not discard that valid response because of timing.
+        localTariffs = zoneTariffs.isNotEmpty ? zoneTariffs : responseTariffs;
+      } else {
+        localTariffs = [];
+        localTariffsError = response.statusText ?? 'Unable to load vehicles';
+        ApiChecker.checkApi(response);
       }
+    } on TimeoutException {
+      localTariffs = [];
+      localTariffsError = 'Vehicle list is taking too long to load';
+    } catch (error) {
+      localTariffs = [];
+      localTariffsError = 'Unable to load vehicles. Please try again';
+      debugPrint('GET LOCAL TARIFFS ERROR => $error');
+    } finally {
+      isLocalTariffsLoading = false;
       update();
     }
   }
 
   List<dynamic> hourlyTariffs = [];
   List<dynamic> rentalPackages = [];
+  bool isHourlyTariffsLoading = false;
 
   Future<void> getHourlyTariffs() async {
-    Response response = await rideServiceInterface.getHourlyTariffs();
-
-    if (response.statusCode == 200) {
-      hourlyTariffs = response.body['data'];
-      rentalPackages = [];
-      for (var item in hourlyTariffs) {
-        if (!rentalPackages.any(
-          (e) => e['free_hours'] == item['free_hours'],
-        )) {
-          rentalPackages.add(item);
-        }
-      }
-    }
-
+    isHourlyTariffsLoading = true;
     update();
+
+    try {
+      final Response response = await rideServiceInterface.getHourlyTariffs();
+
+      if (response.statusCode == 200 && response.body['data'] is List) {
+        hourlyTariffs = response.body['data'];
+        rentalPackages = [];
+        for (var item in hourlyTariffs) {
+          if (!rentalPackages.any(
+            (e) => e['free_hours'] == item['free_hours'],
+          )) {
+            rentalPackages.add(item);
+          }
+        }
+      } else {
+        hourlyTariffs = [];
+        rentalPackages = [];
+        ApiChecker.checkApi(response);
+      }
+    } finally {
+      isHourlyTariffsLoading = false;
+      update();
+    }
   }
 }

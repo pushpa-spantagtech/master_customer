@@ -54,11 +54,18 @@ class _InitialWidgetState extends State<InitialWidget> {
   void initState() {
     super.initState();
     final rideController = Get.find<RideController>();
-    rideController.getLocalTariffs();
-    if (rideController.rentalPackages.isEmpty) {
-      rideController.getHourlyTariffs();
-    }
+
     selectedHour = rideController.rentalHour;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      rideController.getLocalTariffs();
+
+      if (rideController.rentalPackages.isEmpty) {
+        rideController.getHourlyTariffs();
+      }
+    });
 
     if (Get.find<PaymentController>().paymentType == 'wallet' &&
         (rideController.discountAmount.toDouble() > 0
@@ -129,7 +136,40 @@ class _InitialWidgetState extends State<InitialWidget> {
               double.tryParse(rideController.estimatedDistance) ?? 0;
           final localVehicles = _buildLocalVehicleOptions(rideController);
 
-          if (localVehicles.isEmpty) {
+          if (rideController.isLocalTariffsLoading) {
+            contentChildren.add(
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: SpinKitThreeBounce(
+                    color: _brandGold,
+                    size: 28,
+                  ),
+                ),
+              ),
+            );
+          } else if (rideController.localTariffsError != null) {
+            contentChildren.add(
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                child: Column(
+                  children: [
+                    Text(
+                      rideController.localTariffsError!,
+                      textAlign: TextAlign.center,
+                      style: textMedium.copyWith(color: _muted),
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: rideController.getLocalTariffs,
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          } else if (localVehicles.isEmpty) {
             contentChildren.add(
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 18),
@@ -202,7 +242,19 @@ class _InitialWidgetState extends State<InitialWidget> {
                 (a['package_rate'] ?? 0).compareTo(b['package_rate'] ?? 0),
           );
 
-          if (tariffs.isEmpty) {
+          if (rideController.isHourlyTariffsLoading) {
+            contentChildren.add(
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: SpinKitThreeBounce(
+                    color: _brandGold,
+                    size: 28,
+                  ),
+                ),
+              ),
+            );
+          } else if (tariffs.isEmpty) {
             contentChildren.add(
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -238,7 +290,19 @@ class _InitialWidgetState extends State<InitialWidget> {
           final distance =
               double.tryParse(rideController.estimatedDistance) ?? 0;
 
-          if (rideController.outstationTariffs.isEmpty) {
+          if (rideController.isOutstationTariffsLoading) {
+            contentChildren.add(
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: SpinKitThreeBounce(
+                    color: _brandGold,
+                    size: 28,
+                  ),
+                ),
+              ),
+            );
+          } else if (rideController.outstationTariffs.isEmpty) {
             contentChildren.add(
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 18),
@@ -658,85 +722,36 @@ class _InitialWidgetState extends State<InitialWidget> {
       }
     }
 
-    dynamic findTariff(String vehicleName) {
-      final normalizedName = _normalizeVehicleName(vehicleName);
-
-      for (final fare in tripFares) {
-        final tariffName = _normalizeVehicleName(
-          fare['vehicle_category']?['name']?.toString() ?? '',
-        );
-        if (tariffName == normalizedName) {
-          return fare;
-        }
-      }
-
-      final group = _localFareGroup(normalizedName);
-      for (final fare in tripFares) {
-        final tariffName = _normalizeVehicleName(
-          fare['vehicle_category']?['name']?.toString() ?? '',
-        );
-        if (_localFareGroup(tariffName) == group) {
-          return fare;
-        }
-      }
-
-      return null;
-    }
-
     final options = <_LocalVehicleOption>[];
-    final addedNames = <String>{};
-    final categories = Get.isRegistered<CategoryController>()
-        ? Get.find<CategoryController>().categoryList
-        : null;
+    final addedCategories = <String>{};
 
-    if (categories != null && categories.isNotEmpty) {
-      for (final category in categories) {
-        final name = category.name ?? '';
-        final normalizedName = _normalizeVehicleName(name);
-        if (!_isSupportedLocalVehicle(normalizedName)) continue;
+    // The backend response is the source of truth. Every active category that
+    // has a valid tariff for this zone must be visible without app-side name
+    // or UUID allow-lists.
+    for (final fare in tripFares) {
+      final category = fare['vehicle_category'];
+      final name = category?['name']?.toString().trim() ?? '';
+      final categoryId = category?['id']?.toString().trim() ?? '';
+      if (name.isEmpty || categoryId.isEmpty) continue;
 
-        final tariff = findTariff(name);
-        if (tariff == null) continue;
+      final uniqueKey = categoryId.isNotEmpty
+          ? categoryId
+          : _normalizeVehicleName(name);
+      if (!addedCategories.add(uniqueKey)) continue;
 
-        final uniqueKey = normalizedName;
-        if (addedNames.contains(uniqueKey)) continue;
-        addedNames.add(uniqueKey);
-
-        options.add(_LocalVehicleOption(
-          name: name,
-          categoryId: category.id ?? '',
-          imageUrl: _vehicleCategoryImageUrl(
-            categoryId: category.id,
-            categoryName: category.name,
-            image: category.image,
-          ),
-          tariff: tariff,
-        ));
-      }
+      options.add(_LocalVehicleOption(
+        name: name,
+        categoryId: categoryId,
+        imageUrl: _vehicleCategoryImageUrl(
+          categoryId: categoryId,
+          categoryName: name,
+          image: category?['image']?.toString(),
+        ),
+        tariff: fare,
+      ));
     }
 
-    if (options.isEmpty) {
-      for (final fare in tripFares) {
-        final name = fare['vehicle_category']?['name']?.toString() ?? '';
-        final normalizedName = _normalizeVehicleName(name);
-        if (!_isSupportedLocalVehicle(normalizedName)) continue;
-        if (addedNames.contains(normalizedName)) continue;
-        addedNames.add(normalizedName);
-
-        options.add(_LocalVehicleOption(
-          name: name,
-          categoryId: fare['vehicle_category']?['id']?.toString() ?? '',
-          imageUrl: _vehicleCategoryImageUrl(
-            categoryId: fare['vehicle_category']?['id']?.toString(),
-            categoryName: fare['vehicle_category']?['name']?.toString(),
-            image: fare['vehicle_category']?['image']?.toString(),
-          ),
-          tariff: fare,
-        ));
-      }
-    }
-
-    const order = ['hatchback', 'sedan', 'omni', 'eeco'];
+    const order = ['mini', 'hatchback', 'sedan', 'omni', 'eeco'];
     options.sort((a, b) {
       final aIndex = order.indexOf(_normalizeVehicleName(a.name));
       final bIndex = order.indexOf(_normalizeVehicleName(b.name));
@@ -781,20 +796,6 @@ class _InitialWidgetState extends State<InitialWidget> {
       if (parsed != null) return parsed;
     }
     return 0;
-  }
-
-  bool _isSupportedLocalVehicle(String name) {
-    return name == 'hatchback' ||
-        name == 'sedan' ||
-        name == 'omni' ||
-        name == 'eeco';
-  }
-
-  String _localFareGroup(String name) {
-    if (name == 'omni' || name == 'eeco') {
-      return 'omni_eeco';
-    }
-    return 'hatchback_sedan';
   }
 
   String _normalizeVehicleName(String name) {

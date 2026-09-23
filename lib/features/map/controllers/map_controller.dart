@@ -3,14 +3,15 @@ import 'dart:collection';
 import 'dart:math';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
-import 'dart:math' as math;
 
 class MapController extends GetxController implements GetxService {
   Set<Marker>? nearestDeliveryManMarkers = <Marker>{};
@@ -21,6 +22,16 @@ class MapController extends GetxController implements GetxService {
   Uint8List? _cachedCarIcon;
   Uint8List? _cachedBikeIcon;
   List<LatLng> _polylineCoordinateList = [];
+  bool _autoFollowDriver = true;
+  bool _cameraFollowAnimationInProgress = false;
+
+  bool get autoFollowDriver => _autoFollowDriver;
+  bool get cameraFollowAnimationInProgress =>
+      _cameraFollowAnimationInProgress;
+
+  void setAutoFollowDriver(bool value) {
+    _autoFollowDriver = value;
+  }
 
   // Prevent the same pickup-to-destination route from being rebuilt and
   // rebound every 5 seconds when ride status polling returns unchanged data.
@@ -29,6 +40,19 @@ class MapController extends GetxController implements GetxService {
   bool isTrafficEnable = false;
 
   bool get isLoading => _isLoading;
+
+  @override
+  void update([List<Object>? ids, bool condition = true]) {
+    if (!condition) return;
+    if (WidgetsBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        super.update(ids, condition);
+      });
+    } else {
+      super.update(ids, condition);
+    }
+  }
 
   @override
   void onInit() {
@@ -46,6 +70,8 @@ class MapController extends GetxController implements GetxService {
     _polylineCoordinateList = [];
     _currentDriverPosition = null;
     _currentDriverBearing = 0.0;
+    _autoFollowDriver = true;
+    _cameraFollowAnimationInProgress = false;
 
     _lastMainRoutePolyline = '';
     _lastDriverRoutePolyline = '';
@@ -577,6 +603,7 @@ class MapController extends GetxController implements GetxService {
       _currentDriverPosition = targetPosition;
       _currentDriverBearing = targetBearing;
       _setDriverMarkerAt(targetPosition, targetBearing, icon);
+      await _followDriverCamera(targetPosition);
       return;
     }
 
@@ -598,6 +625,7 @@ class MapController extends GetxController implements GetxService {
       _currentDriverPosition = targetPosition;
       _currentDriverBearing = targetBearing;
       _setDriverMarkerAt(targetPosition, targetBearing, icon);
+      await _followDriverCamera(targetPosition);
       return;
     }
 
@@ -625,6 +653,10 @@ class MapController extends GetxController implements GetxService {
         _setDriverMarkerAt(_currentDriverPosition!, bearing, icon);
         update();
 
+        if (currentStep == totalSteps) {
+          _followDriverCamera(targetPosition);
+        }
+
         if (currentStep >= totalSteps) {
           timer.cancel();
           _currentDriverPosition = targetPosition;
@@ -632,6 +664,29 @@ class MapController extends GetxController implements GetxService {
         }
       },
     );
+  }
+
+  Future<void> _followDriverCamera(LatLng position) async {
+    if (!_autoFollowDriver || mapController == null) return;
+
+    _cameraFollowAnimationInProgress = true;
+    try {
+      await mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: position,
+            zoom: 17.5,
+            bearing: 0,
+            tilt: 0,
+          ),
+        ),
+      );
+    } catch (_) {
+      // The map can be recreated while reconnecting. The next location poll
+      // will retry camera follow with the new controller.
+    } finally {
+      _cameraFollowAnimationInProgress = false;
+    }
   }
 
   void _setDriverMarkerAt(LatLng pos, double bearing, BitmapDescriptor icon) {

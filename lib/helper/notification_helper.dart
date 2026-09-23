@@ -206,8 +206,9 @@ class NotificationHelper {
             }
           } else if (message.data['action'] == 'ride_cancelled' &&
               message.data['type'] == 'ride_request') {
-            await Get.find<RideController>()
-                .getCurrentRideStatus(fromRefresh: true);
+            // The cancellation push is authoritative. Do not immediately
+            // reload a briefly stale `pending` row and keep its id in memory.
+            Get.find<RideController>().clearRideDetails();
             Get.offAll(const DashboardScreen());
           } else if (message.data['action'] == 'driver_bid_received') {
             Get.find<RideController>()
@@ -585,7 +586,8 @@ Future<void> notificationRouteCheck(RemoteMessage message) async {
     notificationToRouteNavigate(message.data['ride_request_id']);
   } else if (message.data['action'] == 'ride_cancelled' &&
       message.data['type'] == 'ride_request') {
-    notificationToRouteNavigate(message.data['ride_request_id']);
+    Get.find<RideController>().clearRideDetails();
+    Get.offAll(() => const DashboardScreen());
   } else if (message.data['action'] == 'driver_bid_received') {
     Get.find<RideController>()
         .getRideDetails(message.data['ride_request_id'])

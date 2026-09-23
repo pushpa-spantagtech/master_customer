@@ -96,9 +96,12 @@ class HomeMapViewState extends State<HomeMapView> {
           minMaxZoomPreference: const MinMaxZoomPreference(0, 18),
           onMapCreated: (gController) {
             _mapController = gController;
-            calculateCenterBound(
-                initialTarget.latitude, initialTarget.longitude);
             mapController.setMapController(gController);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              calculateCenterBound(
+                  initialTarget.latitude, initialTarget.longitude);
+            });
           },
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
