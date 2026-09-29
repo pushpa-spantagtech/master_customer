@@ -63,17 +63,6 @@ class _RouteWidgetState extends State<RouteWidget> {
 
     final parsedDistance = double.tryParse(totalDistance) ?? 0.0;
     estDistance = parsedDistance.toStringAsFixed(2);
-
-    int stopNumber = 1;
-
-    if (widget.extraOneAddress.isNotEmpty) {
-      stopNumber++;
-    }
-
-    if (widget.extraTwoAddress.isNotEmpty) {
-      stopNumber++;
-    }
-
     return GetBuilder<ParcelController>(
       builder: (parcelController) {
         return GetBuilder<LocationController>(
@@ -119,31 +108,7 @@ class _RouteWidgetState extends State<RouteWidget> {
                             stopNumber: 2,
                           ),
                         ],
-                        if (widget.entrance.isNotEmpty)
-                          ...List.generate(
-                            widget.entrance
-                                .split(',')
-                                .where((element) => element.trim().isNotEmpty)
-                                .length,
-                            (index) {
-                              final stops = widget.entrance
-                                  .split(',')
-                                  .where((element) => element.trim().isNotEmpty)
-                                  .toList();
 
-                              return Column(
-                                children: [
-                                  const _RouteConnector(),
-                                  _RoutePoint(
-                                    title: 'Stop ${stopNumber + index}',
-                                    address: stops[index],
-                                    type: _RoutePointType.stop,
-                                    stopNumber: stopNumber + index,
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
                         const _RouteConnector(),
                         _RoutePoint(
                           title: 'Destination',

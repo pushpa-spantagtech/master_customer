@@ -1726,11 +1726,23 @@ class RideController extends GetxController implements GetxService {
     isLocalTariffsLoading = true;
     localTariffsError = null;
     update();
-
+    debugPrint('GET LOCAL TARIFFS FUNCTION CALLED');
     try {
       final Response response = await rideServiceInterface
           .getLocalTariffs()
           .timeout(const Duration(seconds: 15));
+      final data = response.body['data'];
+
+      if (data is List && data.isNotEmpty) {
+        final fares = data.first['trip_fares'] as List? ?? [];
+
+        for (final fare in fares) {
+          debugPrint(
+            'VEHICLE CATEGORY => ${fare['vehicle_category']?['name']} | '
+                'ID: ${fare['vehicle_category']?['id']}',
+          );
+        }
+      }
       if (response.statusCode == 200 && response.body['data'] is List) {
         final List<dynamic> responseTariffs = response.body['data'];
         final String currentZoneId =

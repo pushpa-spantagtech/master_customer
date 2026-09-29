@@ -53,6 +53,7 @@ class _InitialWidgetState extends State<InitialWidget> {
   @override
   void initState() {
     super.initState();
+    debugPrint('INITIAL WIDGET INIT STATE CALLED');
     final rideController = Get.find<RideController>();
 
     selectedHour = rideController.rentalHour;
