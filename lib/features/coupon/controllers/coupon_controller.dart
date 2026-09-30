@@ -103,7 +103,8 @@ class CouponController extends GetxController implements GetxService {
         final locController = Get.find<LocationController>();
         final rideController = Get.find<RideController>();
 
-        if (locController.fromAddress != null &&
+        if (rideController.tripDetails == null &&
+            locController.fromAddress != null &&
             locController.toAddress != null) {
           rideController.getEstimatedFare(false);
         } else if (locController.parcelSenderAddress != null &&
