@@ -19,6 +19,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final bool isHome;
   final String? subTitle;
   final Color? backgroundColor;
+  final List<Widget>? actions;
 
   const AppBarWidget({
     super.key,
@@ -32,6 +33,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     this.fontSize,
     this.toolbarHeight,
     this.backgroundColor,
+    this.actions,
   });
 
   final Color whiteColor = const Color.fromRGBO(255, 255, 255, 1);
@@ -41,6 +43,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     return PreferredSize(
       preferredSize: const Size.fromHeight(150.0),
       child: AppBar(
+        actions: actions,
         elevation: 0,
         backgroundColor:
             backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
