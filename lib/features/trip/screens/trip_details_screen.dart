@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:screenshot/screenshot.dart';
+import 'package:ride_sharing_user_app/features/trip/helpers/trip_pdf_data.dart';
+import 'package:ride_sharing_user_app/features/trip/helpers/trip_pdf_images.dart';
+import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:ride_sharing_user_app/features/ride/domain/models/trip_details_model.dart';
 import 'package:ride_sharing_user_app/helper/display_helper.dart';
 import 'package:get/get.dart';
@@ -29,7 +31,6 @@ class TripDetailsScreen extends StatefulWidget {
 class _TripDetailsScreenState extends State<TripDetailsScreen> {
   static const _pdfChannel = MethodChannel('com.seventaxi.customer/trip_pdf');
   bool _downloading = false;
-  final _contentCapture = ScreenshotController();
 
   Widget _details(TripDetails trip) => Column(
         mainAxisSize: MainAxisSize.min,
@@ -48,41 +49,13 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
     try {
       await _pdfChannel.invokeMethod<void>('prepare');
       if (!mounted) return;
-      final width = context.size!.width.clamp(0.0, Dimensions.webMaxWidth);
-      // Capture the full rendered Column inside the scroll view, preserving
-      // loaded images, text layout and content beyond the viewport.
-      await WidgetsBinding.instance.endOfFrame;
+      final images = await TripPdfImages.load(
+          trip, Get.find<ConfigController>().config?.imageBaseUrl);
       if (!mounted) return;
-      final bytes = await _contentCapture.capture(pixelRatio: 2);
-      if (bytes == null) throw StateError('Trip content is unavailable');
-      if (!mounted) return;
-      final header = await ScreenshotController().captureFromWidget(
-        Localizations.override(
-          context: context,
-          child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(padding: EdgeInsets.zero),
-            child: Directionality(
-              textDirection: Directionality.of(context),
-              child: AppBarWidget(
-                title: 'trip_details'.tr,
-                subTitle: trip.refId,
-                showBackButton: false,
-                toolbarHeight: 70,
-                backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
-                centerTitle: true,
-              ),
-            ),
-          ),
-        ),
-        context: context,
-        pixelRatio: 2,
-        targetSize: Size(width, 70),
-      );
       await _pdfChannel.invokeMethod<String>('save', {
-        'image': bytes,
-        'header': header,
-        'padding': Dimensions.paddingSizeDefault * 2,
         'refId': trip.refId ?? widget.tripId,
+        'rows': TripPdfData.rows(trip),
+        'images': images,
       });
     } on PlatformException catch (error) {
       showCustomSnackBar(
@@ -146,11 +119,9 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                     GetBuilder<TripController>(builder: (activityController) {
                   return rideController.tripDetails != null
                       ? SingleChildScrollView(
-                          child: Screenshot(
-                            controller: _contentCapture,
-                            child: ColoredBox(
-                                color: Colors.white,
-                                child: _details(rideController.tripDetails!)),
+                          child: ColoredBox(
+                            color: Colors.white,
+                            child: _details(rideController.tripDetails!),
                           ),
                         )
                       : const LoaderWidget();

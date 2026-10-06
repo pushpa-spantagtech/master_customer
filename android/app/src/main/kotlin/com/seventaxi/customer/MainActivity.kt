@@ -3,10 +3,7 @@ package com.seventaxi.customer
 import android.Manifest
 import android.content.ContentValues
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
-import android.graphics.Paint
-import android.graphics.RectF
-import android.graphics.pdf.PdfDocument
+
 import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Environment
@@ -18,7 +15,6 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.io.OutputStream
 import java.util.concurrent.Executors
-import kotlin.math.ceil
 
 class MainActivity: FlutterActivity() {
     private var permissionResult: MethodChannel.Result? = null
@@ -41,18 +37,17 @@ class MainActivity: FlutterActivity() {
                     } else result.success(null)
                 }
                 "save" -> {
-                    val image = call.argument<ByteArray>("image")
-                    val header = call.argument<ByteArray>("header")
-                    val padding = call.argument<Number>("padding")?.toFloat() ?: 32f
+                    val rows = call.argument<List<Map<String, String>>>("rows")
                     val refId = call.argument<String>("refId")
-                    if (image == null || header == null || refId.isNullOrBlank()) {
-                        result.error("INVALID_INPUT", "Trip reference or PDF image is missing.", null)
+                    val images = call.argument<Map<String, ByteArray>>("images") ?: emptyMap()
+                    if (rows.isNullOrEmpty() || refId.isNullOrBlank()) {
+                        result.error("INVALID_INPUT", "Trip reference or details are missing.", null)
                     } else {
                         pdfExecutor.execute {
                             try {
                                 val name = refId.replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]"), "_")
                                     .trim().trim('.').take(120).ifBlank { "trip" } + ".pdf"
-                                val savedName = savePdf(image, header, padding, name)
+                                val savedName = savePdf(rows, refId, images, name)
                                 runOnUiThread {
                                     Toast.makeText(applicationContext, "PDF saved to Downloads: $savedName", Toast.LENGTH_LONG).show()
                                     result.success(savedName)
@@ -83,41 +78,10 @@ class MainActivity: FlutterActivity() {
         }
     }
 
-    private fun writePdf(image: ByteArray, header: ByteArray, padding: Float, output: OutputStream) {
-        val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size)
-            ?: throw IllegalArgumentException("Invalid trip image")
-        try {
-            val headerBitmap = BitmapFactory.decodeByteArray(header, 0, header.size)
-                ?: throw IllegalArgumentException("Invalid trip header")
-            try {
-                val document = PdfDocument()
-                try {
-                    // A continuous receipt page keeps the exact UI without cutting rows.
-                    val width = 595
-                    val scale = width.toFloat() / headerBitmap.width
-                    val margin = padding * scale
-                    val headerHeight = headerBitmap.height * scale
-                    val bodyHeight = bitmap.height * (width - 2 * margin) / bitmap.width
-                    val height = ceil((headerHeight + bodyHeight + 2 * margin).toDouble()).toInt()
-                    val page = document.startPage(PdfDocument.PageInfo.Builder(width, height, 1).create())
-                    page.canvas.drawColor(android.graphics.Color.WHITE)
-                    val paint = Paint(Paint.FILTER_BITMAP_FLAG)
-                    page.canvas.drawBitmap(headerBitmap, null, RectF(0f, 0f, width.toFloat(), headerHeight), paint)
-                    page.canvas.drawBitmap(bitmap, null, RectF(margin, headerHeight + margin, width - margin, headerHeight + margin + bodyHeight), paint)
-                    document.finishPage(page)
-                    document.writeTo(output)
-                } finally {
-                    document.close()
-                }
-            } finally {
-                headerBitmap.recycle()
-            }
-        } finally {
-            bitmap.recycle()
-        }
+    private fun writePdf(rows: List<Map<String, String>>, refId: String, images: Map<String, ByteArray>, output: OutputStream) {
+        TripPdfWriter.write(rows, refId, images, output)
     }
-
-    private fun savePdf(image: ByteArray, header: ByteArray, padding: Float, name: String): String {
+    private fun savePdf(rows: List<Map<String, String>>, refId: String, images: Map<String, ByteArray>, name: String): String {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val values = ContentValues().apply {
                 put(MediaStore.Downloads.DISPLAY_NAME, name)
@@ -129,7 +93,7 @@ class MainActivity: FlutterActivity() {
                 ?: throw IllegalStateException("Downloads unavailable")
             try {
                 (contentResolver.openOutputStream(uri) ?: throw IllegalStateException("Cannot open Downloads file")).use {
-                    writePdf(image, header, padding, it)
+                    writePdf(rows, refId, images, it)
                 }
                 check(contentResolver.update(uri, ContentValues().apply {
                     put(MediaStore.Downloads.IS_PENDING, 0)
@@ -153,7 +117,7 @@ class MainActivity: FlutterActivity() {
             file = File(directory, "${name.removeSuffix(".pdf")} (${index++}).pdf")
         }
         try {
-            file.outputStream().use { writePdf(image, header, padding, it) }
+            file.outputStream().use { writePdf(rows, refId, images, it) }
             MediaScannerConnection.scanFile(applicationContext, arrayOf(file.absolutePath), arrayOf("application/pdf"), null)
             return file.name
         } catch (error: Exception) {

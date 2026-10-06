@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +14,7 @@ import 'package:ride_sharing_user_app/features/splash/domain/services/config_ser
 import 'package:ride_sharing_user_app/features/trip/controllers/trip_controller.dart';
 import 'package:ride_sharing_user_app/features/trip/domain/services/service_interface.dart';
 import 'package:ride_sharing_user_app/features/trip/screens/trip_details_screen.dart';
-import 'package:ride_sharing_user_app/util/dimensions.dart';
+import 'package:ride_sharing_user_app/features/trip/helpers/trip_pdf_data.dart';
 
 class _RideService implements RideServiceInterface {
   @override
@@ -61,6 +60,29 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
     Get.reset();
+  });
+
+  test('Document retains long addresses, every stop and driver/vehicle details',
+      () {
+    Get.put<ConfigController>(_ConfigController());
+    final address = List.filled(100, 'Long street address').join(' ');
+    final rows = TripPdfData.rows(TripDetails(
+      pickupAddress: address,
+      intermediateAddresses: '["First stop", "Second stop", "Third stop"]',
+      entrance: 'Side gate',
+      driver: Driver(firstName: 'Test', lastName: 'Driver'),
+      driverAvgRating: '4.8',
+      vehicle: Vehicle(
+          model: Model(name: 'Sedan'), licencePlateNumber: 'TN 01 AB 1234'),
+    ));
+    final values = {for (final row in rows) row['label']: row['value']};
+    expect(values['Pickup'], address);
+    expect(values['Stop 3'], 'Third stop');
+    expect(values['Entrance'], 'Side gate');
+    expect(values['Driver'], 'Test Driver');
+    expect(values['Rating'], '4.8');
+    expect(values['Vehicle'], 'Sedan');
+    expect(values['Registration number'], 'TN 01 AB 1234');
   });
 
   Future<void> showScreen(WidgetTester tester, {TripDetails? trip}) async {
@@ -114,40 +136,35 @@ void main() {
           createdAt: '2026-09-24 10:00:00',
         ));
     await tester.tap(find.byTooltip('Download PDF'));
-    // Advance Flutter's fake frame/timer clock while allowing raster work
-    // to finish on the engine's real asynchronous clock.
-    for (var attempt = 0; attempt < 100 && !saved.isCompleted; attempt++) {
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 50)));
-    }
+    await tester.pumpAndSettle();
     expect(saved.isCompleted, isTrue);
-    await tester.runAsync(() async {
-      final call = await saved.future.timeout(const Duration(seconds: 20));
-      expect(calls, ['prepare', 'save']);
-      expect(call.arguments['refId'], 'REF-123');
-      final codec =
-          await ui.instantiateImageCodec(call.arguments['image'] as Uint8List);
-      final frame = await codec.getNextFrame();
-      expect(frame.image.width, (400 - 2 * Dimensions.paddingSizeDefault) * 2);
-      // The exported receipt must include content outside the 600px viewport.
-      expect(frame.image.height, greaterThan(1200));
-      final pixels = (await frame.image.toByteData())!;
-      var darkPixelsBelowViewport = 0;
-      for (var offset = 1200 * frame.image.width * 4;
-          offset < pixels.lengthInBytes;
-          offset += 4) {
-        if (pixels.getUint8(offset) < 150 &&
-            pixels.getUint8(offset + 1) < 150 &&
-            pixels.getUint8(offset + 2) < 150 &&
-            pixels.getUint8(offset + 3) > 200) {
-          darkPixelsBelowViewport++;
-        }
-      }
-      expect(darkPixelsBelowViewport, greaterThan(0));
-      frame.image.dispose();
-      codec.dispose();
-    });
+    final call = await saved.future;
+    expect(calls, ['prepare', 'save']);
+    expect(call.arguments['refId'], 'REF-123');
+    expect(call.arguments.containsKey('image'), isFalse);
+    expect(call.arguments.containsKey('header'), isFalse);
+    final rows = (call.arguments['rows'] as List).cast<Map>();
+    final values = {
+      for (final row in rows)
+        if (row.containsKey('label')) row['label']: row['value']
+    };
+    expect(values['Pickup'], 'Pickup address');
+    expect(values['Destination'], 'Destination address');
+    expect(values[translations['total_distance']], '10 km');
+    expect(values[translations['sub_total']], 'Rs 200.00');
+    for (final key in [
+      'fare_price',
+      'idle_price',
+      'delay_price',
+      'cancellation_price',
+      'coupon',
+      'discount',
+      'tips',
+      'vat_tax',
+      'payment'
+    ]) {
+      expect(values.containsKey(translations[key]), isTrue, reason: key);
+    }
     await tester.pump();
     expect(tester.takeException(), isNull);
     expect(
