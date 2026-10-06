@@ -610,7 +610,9 @@ class RideController extends GetxController implements GetxService {
     final bool isInitialLoad = tripDetails == null;
     if (isInitialLoad) {
       isLoading = true;
-      update();
+      Future.delayed(const Duration(milliseconds: 100), () {
+        update();
+      });
     }
 
     Response response = await rideServiceInterface.getRideDetails(tripId);
