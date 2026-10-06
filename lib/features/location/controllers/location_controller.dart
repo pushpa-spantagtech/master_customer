@@ -230,6 +230,22 @@ class LocationController extends GetxController implements GetxService {
   }
 
   StreamSubscription? _locationSubscription;
+  int _locationStreamGeneration = 0;
+  bool _liveLocationRequestInFlight = false;
+
+  Future<bool> _storeLiveLocationOnce(String latitude, String longitude) async {
+    // A GPS stream can emit again before the previous HTTP request finishes.
+    // Do not submit overlapping copies of the same live-location update.
+    if (_liveLocationRequestInFlight) return false;
+
+    _liveLocationRequestInFlight = true;
+    try {
+      await locationServiceInterface.storeLiveLocation(latitude, longitude);
+      return true;
+    } finally {
+      _liveLocationRequestInFlight = false;
+    }
+  }
 
   Future<Address?> getCurrentLocation({
     bool isAnimate = true,
@@ -243,6 +259,8 @@ class LocationController extends GetxController implements GetxService {
       return null;
     }
 
+    final int streamGeneration = ++_locationStreamGeneration;
+
     try {
       await _locationSubscription?.cancel();
       _locationSubscription = null;
@@ -250,6 +268,9 @@ class LocationController extends GetxController implements GetxService {
       final Position newLocalData = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+
+      // A newer location request has already taken ownership of the stream.
+      if (streamGeneration != _locationStreamGeneration) return null;
 
       _position = newLocalData;
       _initialPosition = LatLng(
@@ -328,23 +349,30 @@ class LocationController extends GetxController implements GetxService {
         zoneId: zoneResponse.zoneId,
       );
 
+      // Do not let an older initialization create a second live GPS stream
+      // after a newer getCurrentLocation() call has started.
+      if (streamGeneration != _locationStreamGeneration) return null;
+
       fromAddress = addressModel;
       _liveAddress = currentAddress;
       _lastLiveAddressPosition = newLocalData;
       _lastLiveAddressUpdateAt = DateTime.now();
       pickupLocationController.text = currentAddress;
 
-      await locationServiceInterface.storeLiveLocation(
+      await _storeLiveLocationOnce(
         newLocalData.latitude.toString(),
         newLocalData.longitude.toString(),
       );
-
+      double lastSentLatitude = newLocalData.latitude;
+      double lastSentLongitude = newLocalData.longitude;
       _locationSubscription = Geolocator.getPositionStream(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
           distanceFilter: 10,
         ),
       ).listen((Position livePosition) async {
+        if (streamGeneration != _locationStreamGeneration) return;
+
         _position = livePosition;
         _initialPosition = LatLng(
           livePosition.latitude,
@@ -365,10 +393,24 @@ class LocationController extends GetxController implements GetxService {
         // ride pickup address.
         update();
 
-        await locationServiceInterface.storeLiveLocation(
-          livePosition.latitude.toString(),
-          livePosition.longitude.toString(),
+        final double movedMeters = Geolocator.distanceBetween(
+          lastSentLatitude,
+          lastSentLongitude,
+          livePosition.latitude,
+          livePosition.longitude,
         );
+
+        if (movedMeters >= 5) {
+          final bool sent = await _storeLiveLocationOnce(
+            livePosition.latitude.toString(),
+            livePosition.longitude.toString(),
+          );
+
+          if (sent && streamGeneration == _locationStreamGeneration) {
+            lastSentLatitude = livePosition.latitude;
+            lastSentLongitude = livePosition.longitude;
+          }
+        }
 
         await _updateLiveAddressIfNeeded(livePosition);
       });

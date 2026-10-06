@@ -75,17 +75,21 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
     locationController.setPickUp(locationController.getUserAddress());
 
 // Refresh pickup using the phone's current GPS when this screen opens.
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final Address? currentPickup =
-      await locationController.getCurrentLocation(
-        isAnimate: false,
-        type: LocationType.from,
-      );
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      if (currentPickup != null) {
-        locationController.setPickUp(currentPickup);
+      final position = locationController.position;
+
+      if (position.latitude != 0 && position.longitude != 0) {
+        locationController.setPickUp(
+          Address(
+            latitude: position.latitude,
+            longitude: position.longitude,
+            address: locationController.liveAddress,
+            zoneId: locationController.zoneID,
+          ),
+        );
+
         locationController.update();
       }
     });

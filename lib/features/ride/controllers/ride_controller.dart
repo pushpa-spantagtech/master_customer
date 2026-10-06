@@ -1373,7 +1373,7 @@ class RideController extends GetxController implements GetxService {
       }
     });
 
-    _timer = Timer.periodic(const Duration(seconds: 4), (timer) async {
+    _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
       if (Get.find<AuthController>().getUserToken() == '') {
         timer.cancel();
         return;
