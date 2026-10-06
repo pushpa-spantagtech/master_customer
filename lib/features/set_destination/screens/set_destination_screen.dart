@@ -295,7 +295,8 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                     },
                                   ),
                                   const SizedBox(height: 14),
-                                  if (locationController.extraOneRoute) ...[
+                                  if (!rideController.isRentalRide &&
+                                      locationController.extraOneRoute) ...[
                                     _ExtraRouteField(
                                       controller: locationController
                                           .extraRouteOneController,
@@ -337,7 +338,8 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                     ),
                                     const SizedBox(height: 16),
                                   ],
-                                  if (locationController.extraTwoRoute) ...[
+                                  if (!rideController.isRentalRide &&
+                                      locationController.extraTwoRoute) ...[
                                     _ExtraRouteField(
                                       controller: locationController
                                           .extraRouteTwoController,
@@ -454,7 +456,8 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                           },
                                         ),
                                       ),
-                                      if (Get.find<ConfigController>()
+                                      if (!rideController.isRentalRide &&
+                                          Get.find<ConfigController>()
                                               .config!
                                               .addIntermediatePoint! &&
                                           !locationController
@@ -491,51 +494,33 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
                                   if (rideController.isRentalRide) ...[
                                     const SizedBox(height: 18),
                                     _AddStopsCard(
-                                      count: locationController
-                                          .entranceControllers.length,
-                                      children: [
-                                        ListView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              const NeverScrollableScrollPhysics(),
-                                          itemCount: locationController
-                                              .entranceControllers.length,
-                                          itemBuilder: (context, index) {
-                                            return _RentalStopField(
-                                              index: index,
-                                              controller: locationController
-                                                  .entranceControllers[index],
-                                              focusNode: locationController
-                                                  .entranceNodes[index],
-                                              onRemove: () {
-                                                locationController
-                                                    .removeMoreEntrance(index);
-                                              },
-                                            );
-                                          },
-                                        ),
-                                        _AddStopButton(
-                                          onTap: () {
-                                            if (locationController
-                                                    .entranceControllers
-                                                    .isNotEmpty &&
-                                                locationController
-                                                    .entranceControllers
-                                                    .last
-                                                    .text
-                                                    .trim()
-                                                    .isEmpty) {
-                                              showCustomSnackBar(
-                                                'Please complete Stop ${locationController.entranceControllers.length} or remove it before adding another stop.',
-                                              );
-                                              return;
-                                            }
-                                            locationController
-                                                .addMoreEntrance();
-                                          },
-                                        ),
-                                      ],
-                                    ),
+                                        count: locationController
+                                            .currentExtraRoute,
+                                        children: [
+                                          for (int index = 0;
+                                              index <
+                                                  locationController
+                                                      .currentExtraRoute;
+                                              index++)
+                                            _RentalStopField(
+                                                key: ValueKey(index),
+                                                index: index,
+                                                controller: index == 0
+                                                    ? locationController
+                                                        .extraRouteOneController
+                                                    : locationController
+                                                        .extraRouteTwoController,
+                                                onRemove: () =>
+                                                    locationController
+                                                        .removeRentalStop(
+                                                            index)),
+                                          if (locationController
+                                                  .currentExtraRoute <
+                                              2)
+                                            _AddStopButton(
+                                                onTap: () => locationController
+                                                    .setExtraRoute()),
+                                        ]),
                                   ],
                                   if (widget.isOutstation) ...[
                                     const SizedBox(height: 18),
@@ -843,14 +828,19 @@ class _SetDestinationScreenState extends State<SetDestinationScreen> {
         FocusScope.of(context).requestFocus(destinationLocationFocus);
       } else {
         if (rideController.isRentalRide) {
-          for (int i = 0;
-              i < locationController.entranceControllers.length;
-              i++) {
-            if (locationController.entranceControllers[i].text.trim().isEmpty) {
+          for (int i = 0; i < locationController.currentExtraRoute; i++) {
+            final address = i == 0
+                ? locationController.extraRouteAddress
+                : locationController.extraRouteTwoAddress;
+            final text = i == 0
+                ? locationController.extraRouteOneController.text
+                : locationController.extraRouteTwoController.text;
+            if (address?.latitude == null ||
+                address?.longitude == null ||
+                address?.address != text.trim()) {
               showCustomSnackBar(
-                'Please enter Stop ${i + 1} or remove it.',
-                isError: true,
-              );
+                  'Please select Stop ${i + 1} from the suggestions or remove it.',
+                  isError: true);
               return;
             }
           }
@@ -1496,113 +1486,126 @@ class _AddStopsCard extends StatelessWidget {
   }
 }
 
-class _RentalStopField extends StatelessWidget {
+class _RentalStopField extends StatefulWidget {
   final int index;
   final TextEditingController controller;
-  final FocusNode focusNode;
   final VoidCallback onRemove;
+  const _RentalStopField(
+      {super.key,
+      required this.index,
+      required this.controller,
+      required this.onRemove});
+  @override
+  State<_RentalStopField> createState() => _RentalStopFieldState();
+}
 
-  const _RentalStopField({
-    required this.index,
-    required this.controller,
-    required this.focusNode,
-    required this.onRemove,
-  });
+class _RentalStopFieldState extends State<_RentalStopField> {
+  List<dynamic> _suggestions = [];
+  int _version = 0;
+  bool _selecting = false;
+  Future<void> _search(String text) async {
+    final version = ++_version;
+    setState(() => _suggestions = []);
+    final location = Get.find<LocationController>();
+    if (widget.index == 0) {
+      location.extraRouteAddress = null;
+    } else {
+      location.extraRouteTwoAddress = null;
+    }
+    if (text.trim().isEmpty) return;
+    final results = await location.searchLocation(context, text, fromMap: true);
+    if (mounted && version == _version) {
+      setState(() => _suggestions = List.of(results));
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              color: _SetDestinationScreenState.brandYellow,
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '${index + 1}',
-              style: textBold.copyWith(
-                fontSize: Dimensions.fontSizeSmall,
-                color: Colors.white,
-              ),
-            ),
-          ),
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(children: [
+        Row(children: [
+          CircleAvatar(
+              radius: 14,
+              backgroundColor: _SetDestinationScreenState.brandYellow,
+              child: Text((widget.index + 1).toString(),
+                  style: const TextStyle(fontSize: 13, color: Colors.white))),
           const SizedBox(width: 12),
           Expanded(
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 54),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFE3E3E3)),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.045),
+              child: TextField(
+                  controller: widget.controller,
+                  enabled: !_selecting,
+                  onChanged: _search,
+                  decoration: InputDecoration(
+                      hintText: 'Search Stop ${widget.index + 1}',
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 16),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFE3E3E3))),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFE3E3E3))),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: const BorderSide(
+                              color:
+                                  _SetDestinationScreenState.brandYellow))))),
+          IconButton(
+              onPressed: _selecting ? null : widget.onRemove,
+              icon: const Icon(Icons.delete_outline_rounded)),
+        ]),
+        if (_suggestions.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFE3E3E3)),
+              boxShadow: const [
+                BoxShadow(
+                    color: Color(0x14000000),
                     blurRadius: 14,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  const SizedBox(width: 14),
-                  Icon(
-                    Icons.drag_indicator_rounded,
-                    color: Colors.grey.shade500,
-                    size: 14,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: controller,
-                      focusNode: focusNode,
-                      cursorColor: _SetDestinationScreenState.brandYellow,
-                      style: textMedium.copyWith(
-                        fontSize: Dimensions.fontSizeDefault,
-                        color: _SetDestinationScreenState.textDark,
-                      ),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Stop ${index + 1}',
-                        hintStyle: textMedium.copyWith(
-                          fontSize: Dimensions.fontSizeDefault,
-                          color: const Color(0xFF9E9E9E),
-                        ),
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 17),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: onRemove,
-                    splashRadius: 22,
-                    icon: Container(
-                      height: 32,
-                      width: 32,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFEEEE),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.delete_outline_rounded,
-                        color: _SetDestinationScreenState.brandRed,
-                        size: 19,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                    offset: Offset(0, 5))
+              ],
             ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(children: [
+              for (final prediction in _suggestions)
+                ListTile(
+                    tileColor: Colors.white,
+                    leading: const Icon(Icons.location_on,
+                        color: _SetDestinationScreenState.brandYellow),
+                    title: Text(prediction.description ?? ''),
+                    onTap: _selecting
+                        ? null
+                        : () async {
+                            ++_version;
+                            setState(() {
+                              _selecting = true;
+                              _suggestions = [];
+                            });
+                            try {
+                              await Get.find<LocationController>().setLocation(
+                                  prediction.placeId!,
+                                  prediction.description!,
+                                  null,
+                                  fromSearch: true,
+                                  type: widget.index == 0
+                                      ? LocationType.extraOne
+                                      : LocationType.extraTwo);
+                              if (context.mounted)
+                                FocusScope.of(context).unfocus();
+                            } finally {
+                              if (mounted) setState(() => _selecting = false);
+                            }
+                          }),
+            ]),
           ),
-        ],
-      ),
-    );
-  }
+      ]));
 }
 
 class _AddStopButton extends StatelessWidget {

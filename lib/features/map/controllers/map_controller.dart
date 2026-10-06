@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ride_sharing_user_app/features/splash/controllers/config_controller.dart';
 import 'package:ride_sharing_user_app/util/images.dart';
+import 'package:ride_sharing_user_app/features/location/controllers/location_controller.dart';
 import 'package:ride_sharing_user_app/features/ride/controllers/ride_controller.dart';
 
 class MapController extends GetxController implements GetxService {
@@ -26,8 +27,7 @@ class MapController extends GetxController implements GetxService {
   bool _cameraFollowAnimationInProgress = false;
 
   bool get autoFollowDriver => _autoFollowDriver;
-  bool get cameraFollowAnimationInProgress =>
-      _cameraFollowAnimationInProgress;
+  bool get cameraFollowAnimationInProgress => _cameraFollowAnimationInProgress;
 
   void setAutoFollowDriver(bool value) {
     _autoFollowDriver = value;
@@ -174,6 +174,22 @@ class MapController extends GetxController implements GetxService {
       return;
     }
 
+    if (Get.find<RideController>().isRentalRide) {
+      const id = PolylineId('rental_route');
+      polylines = {
+        id: Polyline(
+            polylineId: id,
+            points: coordinates,
+            width: 5,
+            color: const Color(0xFFE71921),
+            startCap: Cap.roundCap,
+            endCap: Cap.roundCap,
+            jointType: JointType.round,
+            zIndex: 20)
+      };
+      return;
+    }
+
     // Same three-color route format used in the driver app.
     final List<Color> routeColors = [
       const Color(0xFFE71921),
@@ -317,6 +333,47 @@ class MapController extends GetxController implements GetxService {
         icon: BitmapDescriptor.fromBytes(toMarker),
       ),
     );
+
+    if (rideController.isRentalRide) {
+      final location = Get.find<LocationController>();
+      final stops = [
+        if (location.extraOneRoute) location.extraRouteAddress,
+        if (location.extraTwoRoute) location.extraRouteTwoAddress
+      ];
+      for (int i = 0; i < stops.length; i++) {
+        final stop = stops[i];
+        if (stop?.latitude == null || stop?.longitude == null) continue;
+        final recorder = ui.PictureRecorder();
+        final canvas = Canvas(recorder);
+        canvas.drawCircle(
+            const Offset(18, 18), 16, Paint()..color = const Color(0xFFE71921));
+        final label = TextPainter(
+            text: TextSpan(
+                text: (i + 1).toString(),
+                style: const TextStyle(
+                    color: Color(0xFFFFFFFF),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold)),
+            textDirection: TextDirection.ltr)
+          ..layout();
+        label.paint(
+            canvas, Offset(18 - label.width / 2, 18 - label.height / 2));
+        final picture = recorder.endRecording();
+        final image = await picture.toImage(36, 36);
+        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+        image.dispose();
+        picture.dispose();
+        if (bytes == null) continue;
+        markers.add(Marker(
+            markerId: MarkerId('rental_stop_${i + 1}'),
+            position: LatLng(stop!.latitude!, stop.longitude!),
+            icon: BitmapDescriptor.bytes(bytes.buffer.asUint8List(),
+                width: 28, height: 28),
+            anchor: const Offset(0.5, 0.5),
+            infoWindow:
+                InfoWindow(title: stop.address, snippet: 'Stop ${i + 1}')));
+      }
+    }
 
     update();
 

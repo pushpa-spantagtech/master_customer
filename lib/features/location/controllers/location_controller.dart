@@ -132,6 +132,8 @@ class LocationController extends GetxController implements GetxService {
     extraOneRoute = false;
     resultShow = false;
     currentExtraRoute = 0;
+    extraRouteAddress = null;
+    extraRouteTwoAddress = null;
     _isLoading = false;
     _loading = false;
     _pickPosition = Position(
@@ -201,6 +203,21 @@ class LocationController extends GetxController implements GetxService {
   void onInit() {
     super.onInit();
     getCurrentLocation();
+  }
+
+  void removeRentalStop(int index) {
+    if (index == 0 && extraTwoRoute) {
+      extraRouteAddress = extraRouteTwoAddress;
+      extraRouteOneController.text = extraRouteTwoController.text;
+    } else if (index == 0) {
+      extraRouteAddress = null;
+      extraRouteOneController.clear();
+    }
+    extraRouteTwoAddress = null;
+    extraRouteTwoController.clear();
+    setExtraRoute(remove: true);
+    resultShow = false;
+    update();
   }
 
   void setExtraRoute({bool remove = false}) {
